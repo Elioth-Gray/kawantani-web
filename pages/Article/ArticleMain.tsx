@@ -1,9 +1,10 @@
 import React from "react";
 import Image from "next/image";
-import SecondaryButton from "@/components/buttons/SecondaryButton";
-import PlantCard from "@/components/cards/PlantCard";
+import Link from "next/link";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import ArticleCard from "@/components/cards/ArticleCard";
 
-const PlantMain = () => {
+const ArticleMain = () => {
   return (
     <main>
       <section className="w-full h-screen grid grid-cols-12">
@@ -38,34 +39,34 @@ const PlantMain = () => {
           </div>
           <div className="flex flex-col justify-start items-start gap-[0.75rem] w-full">
             <h1 className="px-[2.313rem] text-[1.5rem] font-bold">
-              Kategori Tanaman
+              Kategori Artikel
             </h1>
             <div className="px-[2.313rem] flex flex-col justify-start items-start gap-[1.6rem]">
-              <div className="flex flex-row justify-center items-center gap-[0.9rem]">
+              <div className="flex flex-row justify-start items-center gap-[0.9rem]">
                 <div className="w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md"></div>
                 <p className="font-bold text-[0.875rem]">
                   Teknik Pertanian dan Produksi
                 </p>
               </div>
-              <div className="flex flex-row justify-center items-center gap-[0.9rem]">
+              <div className="flex flex-row justify-start items-center gap-[0.9rem]">
                 <div className="w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md"></div>
                 <p className="font-bold text-[0.875rem]">
                   Pengendalian Hama dan Penyakit
                 </p>
               </div>
-              <div className="flex flex-row justify-center items-center gap-[0.9rem]">
+              <div className="flex flex-row justify-start items-center gap-[0.9rem]">
                 <div className="w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md"></div>
                 <p className="font-bold text-[0.875rem]">
-                  Peningkatan Kualitas Hasil Pertanian
+                  Peningkatan Kualitas Pertanian
                 </p>
               </div>
-              <div className="flex flex-row justify-center items-center gap-[0.9rem]">
+              <div className="flex flex-row justify-start items-center gap-[0.9rem]">
                 <div className="w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md"></div>
                 <p className="font-bold text-[0.875rem]">
                   Teknik Pertanian dan Produksi
                 </p>
               </div>
-              <div className="flex flex-row justify-center items-center gap-[0.9rem]">
+              <div className="flex flex-row justify-start items-center gap-[0.9rem]">
                 <div className="w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md"></div>
                 <p className="font-bold text-[0.875rem]">
                   Manajemen dan Bisnis Pertanian
@@ -76,44 +77,43 @@ const PlantMain = () => {
           </div>
         </section>
         <section className="col-span-9 px-[4.8rem] py-[1.9rem] flex flex-col justify-start items-start gap-[2.3rem] overflow-y-scroll mb-[1.9rem]">
-          <h1 className="text-[2.5rem] font-semibold">Katalog Tanaman</h1>
-          <div className="w-full grid grid-cols-3 h-full gap-x-[2.25rem] gap-y-[16.25rem]">
-            <PlantCard
-              imageURL="/images/cabai.jpg"
-              title="Cabai"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/lemon.jpg"
-              title="Lemon Malang"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/cabai.jpg"
-              title="Cabai"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/lemon.jpg"
-              title="Lemon Malang"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/cabai.jpg"
-              title="Cabai"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/lemon.jpg"
-              title="Lemon Malang"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
+          <h1 className="text-[2.5rem] font-semibold">Daftar Artikel</h1>
+          <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
+            <ArticleCard
+              imageURL="/images/bayam.jpg"
+              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+              date="14 Februari 2025"
+            ></ArticleCard>
           </div>
         </section>
       </section>
@@ -121,4 +121,4 @@ const PlantMain = () => {
   );
 };
 
-export default PlantMain;
+export default ArticleMain;
