@@ -1,11 +1,16 @@
+"use client";
+
 import React from "react";
 import Navbar from "@/components/navbar/Navbar";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import MainLabel from "@/components/label/MainLabel";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const HomeHeader = () => {
+  const router = useRouter();
+
   return (
     <header>
       <section className="header-image w-full flex flex-col justify-start items-start overflow-hidden h-screen">
@@ -26,10 +31,21 @@ const HomeHeader = () => {
                   </p>
                 </div>
                 <div className="w-full flex flex-row justify-start items-center text-[0.8rem] gap-[0.8rem]">
-                  <PrimaryButton textColor="#fffff">
+                  <PrimaryButton
+                    textColor="#fffff"
+                    onClickHandler={() => {
+                      router.push("/login");
+                    }}
+                  >
                     Mulai Bertanam
                   </PrimaryButton>
-                  <SecondaryButton>Baca Selengkapnya</SecondaryButton>
+                  <SecondaryButton
+                    onClickHandler={() => {
+                      router.push("/#about");
+                    }}
+                  >
+                    Baca Selengkapnya
+                  </SecondaryButton>
                 </div>
               </div>
               <Image

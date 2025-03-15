@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  scroll-behavior: smooth;
+}
+
 .header-image {
   background-image: url("/images/navbar-img.png");
   background-size: 100rem;

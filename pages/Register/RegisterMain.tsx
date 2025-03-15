@@ -34,7 +34,8 @@ const RegisterMain = () => {
             </div>
           </div>
           <p className="w-full text-center text-[#828282]">
-            Sudah punya akun? <PrimaryLink>Masuk akun</PrimaryLink>
+            Sudah punya akun?{" "}
+            <PrimaryLink href="/login">Masuk akun</PrimaryLink>
           </p>
         </div>
       </div>

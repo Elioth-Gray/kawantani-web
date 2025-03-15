@@ -21,6 +21,7 @@ const ArticleCard = ({
           height={169}
           alt="bayam"
           className="w-full rounded-xl"
+          unoptimized
         ></Image>
         <div className="flex flex-col justify-start items-start w-full gap-[0.1rem]">
           <p className="text-[0.75rem] font-light">{date}</p>
