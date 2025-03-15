@@ -20,6 +20,11 @@
   background-size: 100rem;
 }
 
+.article-header {
+  background-image: url("/images/article-bg.png");
+  background-size: 100rem;
+}
+
 .login-image {
   background-image: url("/images/login-image.png");
   background-size: cover;
