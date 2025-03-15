@@ -48,27 +48,39 @@ const Footer = () => {
               <h1 className="text-[1.25rem] font-semibold">Navigasi</h1>
               <ul className="flex flex-col justify-start items-start gap-[1.25rem] ">
                 <li>
-                  <Link href="#" className="text-[1rem]">
+                  <Link href="/" className="text-[1rem] hover:text-[#50B34B]">
                     Beranda
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-[1rem]">
+                  <Link
+                    href="/#about"
+                    className="text-[1rem] hover:text-[#50B34B]"
+                  >
                     Tentang
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-[1rem]">
+                  <Link
+                    href="/plants"
+                    className="text-[1rem] hover:text-[#50B34B]"
+                  >
                     Tracking
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-[1rem]">
+                  <Link
+                    href="/articles"
+                    className="text-[1rem] hover:text-[#50B34B]"
+                  >
                     Artikel
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-[1rem]">
+                  <Link
+                    href="/workshops"
+                    className="text-[1rem] hover:text-[#50B34B]"
+                  >
                     Workshop
                   </Link>
                 </li>

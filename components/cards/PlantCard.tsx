@@ -19,6 +19,7 @@ const PlantCard = ({
         src={imageURL}
         alt="cabai"
         className="w-full"
+        unoptimized
       ></Image>
       <div className="flex flex-col justify-start items-start px-[1.1rem] w-full mb-[1.3rem] gap-[0.6rem]">
         <div className="w-full">

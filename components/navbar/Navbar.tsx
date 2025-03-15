@@ -1,30 +1,50 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ActionButton from "../buttons/ActionButton";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+  const router = useRouter();
+
   return (
     <nav className="flex flex-row justify-between items-center text-white w-full">
-      <Image src="/images/logo.png" width={181} height={58} alt="logo"></Image>
+      <Image
+        src="/images/logo.png"
+        width={181}
+        height={58}
+        alt="logo"
+        className="cursor-pointer"
+        onClick={() => {
+          router.push("/");
+        }}
+      ></Image>
       <ul className="flex flex-row justify-center items-center gap-20 font-light text-[1rem]">
         <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-          <Link href="">Beranda</Link>
+          <Link href="/">Beranda</Link>
         </li>
         <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-          <Link href="">Tentang</Link>
+          <Link href="/#about">Tentang</Link>
         </li>
         <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-          <Link href="">Tracking</Link>
+          <Link href="/plants">Tracking</Link>
         </li>
         <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-          <Link href="">Artikel</Link>
+          <Link href="/articles">Artikel</Link>
         </li>
         <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-          <Link href="">Workshop</Link>
+          <Link href="/workshops">Workshop</Link>
         </li>
       </ul>
-      <ActionButton width="9rem" textColor="#ffff">
+      <ActionButton
+        width="9rem"
+        textColor="#ffff"
+        onClickHandler={() => {
+          router.push("/login");
+        }}
+      >
         Mulai
       </ActionButton>
     </nav>

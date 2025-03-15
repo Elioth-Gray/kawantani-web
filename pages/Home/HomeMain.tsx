@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Brain } from "@phosphor-icons/react/dist/ssr";
 import { Plant } from "@phosphor-icons/react/dist/ssr";
@@ -6,12 +8,15 @@ import { Minus } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import SecondaryLabel from "@/components/label/SecondaryLabel";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
+import { useRouter } from "next/navigation";
 
 const HomeMain = () => {
+  const router = useRouter();
+
   return (
     <main>
       {/* About Section */}
-      <section className="w-full h-[42.87rem] bg-[#FCF7F1]">
+      <section className="w-full h-[42.87rem] bg-[#FCF7F1]" id="about">
         <div className="px-[8.9rem] grid grid-cols-4 w-full h-full gap-[3.2rem]">
           <div className="col-span-2 h-full flex flex-col items-start justify-end">
             <Image
@@ -36,13 +41,20 @@ const HomeMain = () => {
                   dan memastikan hasil panen yang optimal setiap musim
                 </p>
               </div>
-              <PrimaryButton textColor="#ffffff">Lihat Fitur</PrimaryButton>
+              <PrimaryButton
+                textColor="#ffffff"
+                onClickHandler={() => {
+                  router.push("/#feature");
+                }}
+              >
+                Lihat Fitur
+              </PrimaryButton>
             </div>
           </div>
         </div>
       </section>
       {/* Tracking Section */}
-      <section className="w-full h-[42.87rem] bg-white">
+      <section className="w-full h-[42.87rem] bg-white" id="feature">
         <div className="px-[8.9rem] grid grid-cols-4 w-full h-full gap-[3.2rem]">
           <div className="flex flex-col justify-center items-start h-full col-span-2">
             <div className="flex flex-col justify-center items-start gap-[1.1rem]">
@@ -174,7 +186,7 @@ const HomeMain = () => {
             </p>
           </div>
           <div className="h-full grid grid-cols-2 w-full gap-[11rem]">
-            <div className="col-span-1 flex flex-col justify-between items-start w-full">
+            <div className="col-span-1 flex flex-col justify-between items-start w-full gap-[2rem]">
               <div className="flex flex-col justify-start items-start gap-[1.0rem]">
                 <div className="flex flex-row justify-start items-start gap-[1.3rem]">
                   <Minus size={32} color="#50B34B" weight="bold" />
@@ -204,7 +216,7 @@ const HomeMain = () => {
                 </p>
               </div>
             </div>
-            <div className="col-span-1 flex flex-col justify-between items-end w-full">
+            <div className="col-span-1 flex flex-col justify-between items-end w-full gap-[2rem]">
               <div className="flex flex-col justify-start items-start gap-[1.0rem]">
                 <div className="flex flex-row justify-start items-start gap-[1.3rem]">
                   <Minus size={32} color="#50B34B" weight="bold" />
