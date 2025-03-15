@@ -1,7 +1,7 @@
 import React from "react";
-import ArticleCard from "@/components/cards/ArticleCard";
+import WorkshopCard from "@/components/cards/WorkshopCard";
 
-const ArticleMain = () => {
+const WorkshopMain = () => {
   return (
     <main>
       <section className="w-full h-screen grid grid-cols-12">
@@ -36,7 +36,7 @@ const ArticleMain = () => {
           </div>
           <div className="flex flex-col justify-start items-start gap-[0.75rem] w-full">
             <h1 className="px-[2.313rem] text-[1.5rem] font-bold">
-              Kategori Artikel
+              Kategori Workshop
             </h1>
             <div className="px-[2.313rem] flex flex-col justify-start items-start gap-[1.6rem]">
               <div className="flex flex-row justify-start items-center gap-[0.9rem]">
@@ -74,43 +74,38 @@ const ArticleMain = () => {
           </div>
         </section>
         <section className="col-span-9 px-[4.8rem] py-[1.9rem] flex flex-col justify-start items-start gap-[2.3rem] overflow-y-scroll mb-[1.9rem]">
-          <h1 className="text-[2.5rem] font-semibold">Daftar Artikel</h1>
-          <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.jpg"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-            ></ArticleCard>
+          <h1 className="text-[2.5rem] font-semibold">Daftar Workshop</h1>
+          <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
+            <WorkshopCard
+              imageURL="/images/workshop-image.jpg"
+              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              date="Jumat, 15 Februari 2025"
+              location="Balai Kota Solo, Jawa Tengah"
+            ></WorkshopCard>
+            <WorkshopCard
+              imageURL="/images/workshop-image.jpg"
+              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              date="Jumat, 15 Februari 2025"
+              location="Balai Kota Solo, Jawa Tengah"
+            ></WorkshopCard>
+            <WorkshopCard
+              imageURL="/images/workshop-image.jpg"
+              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              date="Jumat, 15 Februari 2025"
+              location="Balai Kota Solo, Jawa Tengah"
+            ></WorkshopCard>
+            <WorkshopCard
+              imageURL="/images/workshop-image.jpg"
+              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              date="Jumat, 15 Februari 2025"
+              location="Balai Kota Solo, Jawa Tengah"
+            ></WorkshopCard>
+            <WorkshopCard
+              imageURL="/images/workshop-image.jpg"
+              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              date="Jumat, 15 Februari 2025"
+              location="Balai Kota Solo, Jawa Tengah"
+            ></WorkshopCard>
           </div>
         </section>
       </section>
@@ -118,4 +113,4 @@ const ArticleMain = () => {
   );
 };
 
-export default ArticleMain;
+export default WorkshopMain;

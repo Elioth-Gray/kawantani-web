@@ -25,6 +25,11 @@
   background-size: 100rem;
 }
 
+.workshop-header {
+  background-image: url("/images/workshop-bg.png");
+  background-size: 100rem;
+}
+
 .login-image {
   background-image: url("/images/login-image.png");
   background-size: cover;
