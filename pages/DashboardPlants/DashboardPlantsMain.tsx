@@ -3,6 +3,7 @@
 import React from "react";
 import PlantCard from "@/components/cards/PlantCard";
 import { useState } from "react";
+import Link from "next/link";
 
 const DashboardPlantsMain = () => {
   const [isCompletedPlants, setIsCompletedPlants] = useState(false);
@@ -114,9 +115,12 @@ const DashboardPlantsMain = () => {
               >
                 Tanaman Selesai Proses
               </button>
-              <button className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]">
+              <Link
+                href="/plants"
+                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
+              >
                 Tambah Tanaman
-              </button>
+              </Link>
             </div>
           </div>
           <div className="w-full grid grid-cols-3 h-full gap-x-[2.25rem] gap-y-[16.25rem]">
