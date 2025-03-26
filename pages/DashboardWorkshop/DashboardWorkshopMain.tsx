@@ -1,5 +1,6 @@
 import React from "react";
 import WorkshopCard from "@/components/cards/WorkshopCard";
+import Link from "next/link";
 
 const DashboardWorkshopMain = () => {
   return (
@@ -80,9 +81,12 @@ const DashboardWorkshopMain = () => {
               <button className="py-[0.9rem] px-[2.6rem] rounded-lg bg-[#78D14D] text-white cursor-pointer text-[1rem]">
                 Workshop Diikuti
               </button>
-              <button className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]">
+              <Link
+                href="/workshops"
+                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
+              >
                 ikuti Workshop
-              </button>
+              </Link>
             </div>
           </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">

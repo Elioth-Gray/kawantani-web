@@ -24,19 +24,16 @@ const DashboardNavbar = () => {
         ></Image>
         <ul className="flex flex-row justify-center items-center gap-[4.6rem] font-regular text-[1rem]">
           <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-            <Link href="/">Dashboard</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </li>
           <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-            <Link href="/#about">Tentang</Link>
+            <Link href="/dashboard/plants">Tracking</Link>
           </li>
           <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-            <Link href="/plants">Tracking</Link>
+            <Link href="/dashboard/articles">Artikel</Link>
           </li>
           <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-            <Link href="/articles">Artikel</Link>
-          </li>
-          <li className="hover:text-[#50B34B] transition-all duration-100 ease-in-out">
-            <Link href="/workshops">Workshop</Link>
+            <Link href="/dashboard/workshops">Workshop</Link>
           </li>
         </ul>
       </div>
