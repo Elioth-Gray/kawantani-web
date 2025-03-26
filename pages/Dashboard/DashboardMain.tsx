@@ -1,12 +1,35 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import { Drop } from "@phosphor-icons/react/dist/ssr";
 import { Check } from "@phosphor-icons/react/dist/ssr";
+import { Square } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import ArticleCard from "@/components/cards/ArticleCard";
 import WorkshopCard from "@/components/cards/WorkshopCard";
 
 const DashboardMain = () => {
+  const [completedTasks, setCompletedTasks] = useState(
+    new Array(3).fill(false)
+  );
+
+  const [completedMaintain, setCompletedMaintain] = useState(
+    new Array(3).fill(false)
+  );
+
+  const toggleTaskCompletions = (index: number) => {
+    const updatedTasks = [...completedTasks];
+    updatedTasks[index] = !updatedTasks[index];
+    setCompletedTasks(updatedTasks);
+  };
+
+  const toggleMaintainCompletions = (index: number) => {
+    const updatedTasks = [...completedMaintain];
+    updatedTasks[index] = !updatedTasks[index];
+    setCompletedMaintain(updatedTasks);
+  };
+
   return (
     <>
       {/* Feature Section */}
@@ -120,42 +143,50 @@ const DashboardMain = () => {
                   <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
                     12
                   </button>
-                  <p className="text-[1rem] text-[#50B34B] font-semibold">
+                  <Link
+                    href=""
+                    className="text-[1rem] text-[#50B34B] font-semibold"
+                  >
                     Lihat Semuanya
-                  </p>
+                  </Link>
                 </div>
               </div>
               <div className="grid grid-cols-2 w-full gap-x-[2.25rem]">
                 <div className="col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]">
                   <p className="text-[1.25rem] font-semibold">Tugas Harian</p>
                   <div className="flex flex-col justify-start items-start w-full gap-[1.2rem]">
-                    <button className="py-[0.8rem] px-[1rem] bg-[#50B34B] w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center">
-                      <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                        <Drop size={21} color="#FFFFFF" weight="fill"></Drop>
-                        <p className="text-white font-medium text-[1rem]">
-                          Siram Tanaman
-                        </p>
-                      </div>
-                      <Check size={21} color="#FFFFFF" weight="fill"></Check>
-                    </button>
-                    <button className="py-[0.8rem] px-[1rem] bg-[#50B34B] w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center">
-                      <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                        <Drop size={21} color="#FFFFFF" weight="fill"></Drop>
-                        <p className="text-white font-medium text-[1rem]">
-                          Siram Tanaman
-                        </p>
-                      </div>
-                      <Check size={21} color="#FFFFFF" weight="fill"></Check>
-                    </button>
-                    <button className="py-[0.8rem] px-[1rem] bg-[#50B34B] w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center">
-                      <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                        <Drop size={21} color="#FFFFFF" weight="fill"></Drop>
-                        <p className="text-white font-medium text-[1rem]">
-                          Siram Tanaman
-                        </p>
-                      </div>
-                      <Check size={21} color="#FFFFFF" weight="fill"></Check>
-                    </button>
+                    {completedTasks.map((isCompleted, index) => (
+                      <button
+                        onClick={() => toggleTaskCompletions(index)}
+                        className={`py-[0.8rem] px-[1rem] ${
+                          isCompleted
+                            ? "bg-[#50B34B] text-white"
+                            : "bg-none text-black"
+                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                        key={index}
+                      >
+                        <div className="flex flex-row justify-start items-center gap-[0.8rem]">
+                          {isCompleted ? (
+                            <Drop size={21} color="#FFFFFF" weight="fill" />
+                          ) : (
+                            <Drop size={21} color="#000000" weight="fill" />
+                          )}
+
+                          <p
+                            className={`font-medium text-[1rem] ${
+                              isCompleted ? "text-white" : "text-black"
+                            }`}
+                          >
+                            Siram Tanaman
+                          </p>
+                        </div>
+                        {isCompleted ? (
+                          <Check size={21} color="#FFFFFF" weight="fill" />
+                        ) : (
+                          <Square size={21} color="#000000" />
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div className="col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]">
@@ -163,45 +194,50 @@ const DashboardMain = () => {
                     Pengecekan Harian
                   </p>
                   <div className="flex flex-col justify-start items-start w-full gap-[1.2rem]">
-                    <button className="py-[0.8rem] px-[1rem] bg-[#50B34B] w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center">
-                      <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                        <Drop size={21} color="#FFFFFF" weight="fill"></Drop>
-                        <p className="text-white font-medium text-[1rem]">
-                          Siram Tanaman
-                        </p>
-                      </div>
-                      <Check size={21} color="#FFFFFF" weight="fill"></Check>
-                    </button>
-                    <button className="py-[0.8rem] px-[1rem] bg-[#50B34B] w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center">
-                      <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                        <Drop size={21} color="#FFFFFF" weight="fill"></Drop>
-                        <p className="text-white font-medium text-[1rem]">
-                          Siram Tanaman
-                        </p>
-                      </div>
-                      <Check size={21} color="#FFFFFF" weight="fill"></Check>
-                    </button>
-                    <button className="py-[0.8rem] px-[1rem] bg-[#50B34B] w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center">
-                      <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                        <Drop size={21} color="#FFFFFF" weight="fill"></Drop>
-                        <p className="text-white font-medium text-[1rem]">
-                          Siram Tanaman
-                        </p>
-                      </div>
-                      <Check size={21} color="#FFFFFF" weight="fill"></Check>
-                    </button>
+                    {completedMaintain.map((isCompleted, index) => (
+                      <button
+                        onClick={() => toggleMaintainCompletions(index)}
+                        className={`py-[0.8rem] px-[1rem] ${
+                          isCompleted
+                            ? "bg-[#50B34B] text-white"
+                            : "bg-none text-black"
+                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                        key={index}
+                      >
+                        <div className="flex flex-row justify-start items-center gap-[0.8rem]">
+                          {isCompleted ? (
+                            <Drop size={21} color="#FFFFFF" weight="fill" />
+                          ) : (
+                            <Drop size={21} color="#000000" weight="fill" />
+                          )}
+
+                          <p
+                            className={`font-medium text-[1rem] ${
+                              isCompleted ? "text-white" : "text-black"
+                            }`}
+                          >
+                            Siram Tanaman
+                          </p>
+                        </div>
+                        {isCompleted ? (
+                          <Check size={21} color="#FFFFFF" weight="fill" />
+                        ) : (
+                          <Square size={21} color="#000000" />
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
             {/* More Plants Section */}
-            <div className="col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start px-[1.8rem] text-white gap-[2.1rem]">
-              <div className="w-full flex flex-row justify-between items-center">
+            <div className="col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start  text-white gap-[2.1rem]">
+              <div className="w-full flex flex-row justify-between items-center px-[1.8rem]">
                 <h1 className="text-[1.25rem] font-semibold">Tanamanmu</h1>
                 <p className="text-[#50B34B] text-[0.8rem]">Lihat semuanya</p>
               </div>
-              <div className="flex flex-col justify-start items-start gap-[3rem]">
-                <div className="flex flex-row justify-center items-center gap-[1rem] h-fit">
+              <div className="flex flex-col justify-start items-start gap-[2rem] w-full px-[1rem]">
+                <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
                       src="/images/lemon.jpg"
@@ -216,7 +252,7 @@ const DashboardMain = () => {
                     <p className="text-[0.75rem]">36 Hari menuju panen</p>
                   </div>
                 </div>
-                <div className="flex flex-row justify-center items-center gap-[1rem] h-fit">
+                <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
                       src="/images/lemon.jpg"
@@ -231,7 +267,7 @@ const DashboardMain = () => {
                     <p className="text-[0.75rem]">36 Hari menuju panen</p>
                   </div>
                 </div>
-                <div className="flex flex-row justify-center items-center gap-[1rem] h-fit">
+                <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
                       src="/images/lemon.jpg"
@@ -246,7 +282,7 @@ const DashboardMain = () => {
                     <p className="text-[0.75rem]">36 Hari menuju panen</p>
                   </div>
                 </div>
-                <div className="flex flex-row justify-center items-center gap-[1rem] h-fit">
+                <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
                       src="/images/lemon.jpg"
