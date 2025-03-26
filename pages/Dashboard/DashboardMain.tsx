@@ -293,7 +293,7 @@ const DashboardMain = () => {
       <section className="px-[9rem] py-[6.3rem] bg-white">
         <div className="w-full flex flex-col justify-start items-start gap-[2.4rem]">
           <div className="w-full flex flex-col justify-start items-start">
-            <div className="flex flex-row justify-between items-center w-full">
+            <div className="flex flex-row justify-between items-end w-full">
               <h1 className="text-black text-[3rem] font-bold gap-[0.75rem]">
                 Baca Artikel
               </h1>
@@ -327,7 +327,7 @@ const DashboardMain = () => {
         </div>
         <div className="w-full flex flex-col justify-start items-start gap-[2.4rem] mt-[6.3rem]">
           <div className="w-full flex flex-col justify-start items-start">
-            <div className="flex flex-row justify-between items-center w-full">
+            <div className="flex flex-row justify-between items-end w-full">
               <h1 className="text-black text-[3rem] font-bold gap-[0.75rem]">
                 Ikuti Workshop
               </h1>
