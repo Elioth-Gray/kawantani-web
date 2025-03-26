@@ -18,6 +18,12 @@ const DashboardMain = () => {
     new Array(3).fill(false)
   );
 
+  const [taskDate, setTaskDate] = useState(null);
+
+  const selectDate = (day: any) => {
+    setTaskDate(day);
+  };
+
   const toggleTaskCompletions = (index: number) => {
     const updatedTasks = [...completedTasks];
     updatedTasks[index] = !updatedTasks[index];
@@ -107,42 +113,24 @@ const DashboardMain = () => {
               <div className="flex flex-col justify-start items-start gap-[0.75rem]">
                 <p className="text-[1.25rem] font-semibold">Hari</p>
                 <div className="flex flex-row justify-start items-center gap-[0.9rem]">
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    1
-                  </button>
-                  <button className="p-[0.8rem] bg-[#50B34B] border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold text-white">
-                    2
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    3
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    4
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    5
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    6
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    7
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    8
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    9
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    10
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    11
-                  </button>
-                  <button className="p-[0.8rem] bg-white border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold">
-                    12
-                  </button>
+                  {[...Array(12)].map((_, index) => {
+                    return (
+                      <button
+                        onClick={() => {
+                          selectDate(index);
+                        }}
+                        key={index}
+                        className={`p-[0.8rem] ${
+                          taskDate == index
+                            ? "bg-[#50B34B] text-white"
+                            : "bg-white text-black"
+                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                      >
+                        {index + 1}
+                      </button>
+                    );
+                  })}
+
                   <Link
                     href=""
                     className="text-[1rem] text-[#50B34B] font-semibold"
