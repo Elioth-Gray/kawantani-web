@@ -13,13 +13,25 @@ import Image from "next/image";
 import { useState } from "react";
 import ActionButton from "@/components/buttons/ActionButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
+import { useRouter, usePathname } from "next/navigation";
 
 const WorkshopRegistrationMain = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const router = useRouter();
+
+  const pathname = usePathname();
+
+  const navigate = (e: any) => {
+    e.preventDefault();
+    router.push(`${pathname}/success`);
+  };
+
   const nextIndex = (e: any) => {
     e.preventDefault();
-    setCurrentIndex((prevIndex) => prevIndex + 1);
+    if (currentIndex < 2) {
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+    }
   };
 
   const prevIndex = (e: any) => {
@@ -33,21 +45,39 @@ const WorkshopRegistrationMain = () => {
       <section>
         <div className="w-full flex flex-row justify-center items-center gap-[2.3rem]">
           <div className="flex flex-row justify-start items-center gap-[1.3rem]">
-            <div className="rounded-full border-[0.2rem] border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center">
+            <div
+              className={`rounded-full border-[0.2rem] ${
+                currentIndex == 0
+                  ? "bg-[#78D14D] text-white"
+                  : "bg-white text-black"
+              } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
+            >
               <p className="font-semibold text-[0.8rem]">1</p>
             </div>
             <p className="font-semibold text-[0.8rem]">Pengisian Detail</p>
           </div>
           <CaretRight size={26} color="#000000" />
           <div className="flex flex-row justify-start items-center gap-[1.3rem]">
-            <div className="rounded-full border-[0.2rem] border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center">
+            <div
+              className={`rounded-full border-[0.2rem] ${
+                currentIndex == 1
+                  ? "bg-[#78D14D] text-white"
+                  : "bg-white text-black"
+              } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
+            >
               <p className="font-semibold text-[0.8rem]">2</p>
             </div>
             <p className="font-semibold text-[0.8rem]">Pembayaran</p>
           </div>
           <CaretRight size={26} color="#000000" />
           <div className="flex flex-row justify-start items-center gap-[1.3rem]">
-            <div className="rounded-full border-[0.2rem] border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center">
+            <div
+              className={`rounded-full border-[0.2rem] ${
+                currentIndex == 2
+                  ? "bg-[#78D14D] text-white"
+                  : "bg-white text-black"
+              } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
+            >
               <p className="font-semibold text-[0.8rem]">3</p>
             </div>
             <p className="font-semibold text-[0.8rem]">Konfirmasi</p>
@@ -123,7 +153,7 @@ const WorkshopRegistrationMain = () => {
                     Lanjutkan
                   </ActionButton>
                 </>
-              ) : (
+              ) : currentIndex === 1 ? (
                 <>
                   <div className="flex flex-col justify-start items-start gap-[0.3rem]">
                     <h1 className="text-[1.5rem] font-semibold">
@@ -133,51 +163,141 @@ const WorkshopRegistrationMain = () => {
                       Pilih metode untuk melakukan pembayaran workshop
                     </p>
                   </div>
-                  <div className="flex flex-col justify-start items-start gap-[0.1rem] w-[60%]">
-                    <p className="text-[0.8rem]">Nama Depan*</p>
-                    <InputField type="text"></InputField>
+                  <button
+                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    type="button"
+                  >
+                    <Image
+                      className=" object-cover rounded-lg"
+                      width={142}
+                      height={54}
+                      src="/images/gopay.png"
+                      alt="cabai"
+                      quality={100}
+                      unoptimized
+                    ></Image>
+                    <p>Rp. 100.000,00</p>
+                  </button>
+                  <button
+                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    type="button"
+                  >
+                    <Image
+                      className=" object-cover rounded-lg"
+                      width={122.74}
+                      height={35}
+                      src="/images/dana.png"
+                      alt="cabai"
+                      quality={100}
+                      unoptimized
+                    ></Image>
+                    <p>Rp. 100.000,00</p>
+                  </button>
+                  <button
+                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    type="button"
+                  >
+                    <Image
+                      className=" object-cover rounded-lg"
+                      width={82}
+                      height={26}
+                      src="/images/ovo.png"
+                      alt="cabai"
+                      quality={100}
+                      unoptimized
+                    ></Image>
+                    <p>Rp. 100.000,00</p>
+                  </button>
+                  <button
+                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    type="button"
+                  >
+                    <Image
+                      className=" object-cover rounded-lg"
+                      width={109.77}
+                      height={41}
+                      src="/images/qris.png"
+                      alt="cabai"
+                      quality={100}
+                      unoptimized
+                    ></Image>
+                    <p>Rp. 100.000,00</p>
+                  </button>
+                  <div className="w-full flex flex-col justify-start items-start gap-[1rem]">
+                    <ActionButton
+                      textColor="#ffffff"
+                      onClickHandler={nextIndex}
+                      width="16.25rem"
+                      height="3.5rem"
+                    >
+                      Lanjutkan
+                    </ActionButton>
+                    <SecondaryButton
+                      onClickHandler={prevIndex}
+                      width="16.25rem"
+                      height="3.5rem"
+                      hover={false}
+                    >
+                      Kembali
+                    </SecondaryButton>
                   </div>
-                  <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
-                    <p className="text-[0.8rem]">Nama Belakang*</p>
-                    <InputField type="text"></InputField>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-col justify-start items-start gap-[0.3rem] w-full">
+                    <h1 className="text-[1.5rem] font-semibold">
+                      Konfirmasi Pendaftaran
+                    </h1>
+                    <p className="text-[0.8rem] w-[80%]">
+                      Konfirmasi pendaftaran untuk workshop ini
+                    </p>
                   </div>
-                  <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
-                    <p className="text-[0.8rem]">Email*</p>
-                    <InputField type="text"></InputField>
-                  </div>
-                  <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
-                    <p className="text-[0.8rem]">Nomor Telepon*</p>
-                    <InputField type="text"></InputField>
-                  </div>
-                  <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
-                    <p className="text-[0.8rem]">Tanggal Lahir*</p>
-                    <div className="flex flex-row w-full justify-between items-center gap-[1.8rem]">
-                      <InputField type="text"></InputField>
-                      <InputField type="text"></InputField>
-                      <InputField type="text"></InputField>
+                  <div className="flex flex-col justify-start items-start gap-[0.3rem] w-[60%]">
+                    <h1 className="text-[1.25rem] font-semibold">
+                      Informasi Peserta:
+                    </h1>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Nama Peserta</p>
+                      <p>: Mas Azril</p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Email</p>
+                      <p>: Azriel123@mail.com</p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Nomor Telepon</p>
+                      <p>: 08123456789</p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Tanggal Lahir</p>
+                      <p>: 19 April 2025</p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Jenis Kelamin</p>
+                      <p>: Laki-Laki</p>
                     </div>
                   </div>
-                  <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
-                    <p className="text-[0.8rem]">Jenis Kelamin*</p>
-                    <div className="flex flex-row w-full justify-between items-center gap-[1.8rem]">
-                      <button
-                        className="py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg text-[1rem] text-[#4993FA] font-semibold cursor-pointer"
-                        type="button"
-                      >
-                        Laki-Laki
-                      </button>
-                      <button
-                        className="py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg text-[1rem] text-[#FF7C7C] font-semibold cursor-pointer"
-                        type="button"
-                      >
-                        Perempuan
-                      </button>
+                  <div className="flex flex-col justify-start items-start gap-[0.3rem] w-[60%]">
+                    <h1 className="text-[1.25rem] font-semibold">
+                      Informasi Pembayaran:
+                    </h1>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Metode Pembayaran</p>
+                      <p>: Gopay</p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Total Harga</p>
+                      <p>: Rp.100.000,00</p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center w-full">
+                      <p>Status Pembayaran</p>
+                      <p>: Menunggu</p>
                     </div>
                   </div>
                   <div className="w-full flex flex-col justify-start items-start gap-[1rem]">
                     <ActionButton
                       textColor="#ffffff"
-                      onClickHandler={nextIndex}
+                      onClickHandler={navigate}
                       width="16.25rem"
                       height="3.5rem"
                     >
