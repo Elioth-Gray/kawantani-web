@@ -10,7 +10,7 @@ const InputField = ({
   type: string;
 }) => {
   return (
-    <div className="flex flex-row justify-start items-center relative w-full">
+    <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg">
       {children}
       <input
         type={type}
