@@ -1,7 +1,17 @@
+"use client";
+
 import React from "react";
 import WorkshopCard from "@/components/cards/WorkshopCard";
+import { useRouter, usePathname } from "next/navigation";
 
 const WorkshopMain = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const navigate = () => {
+    router.push(`${pathname}/122121/details`);
+  };
+
   return (
     <main>
       <section className="w-full h-screen grid grid-cols-12">
@@ -81,30 +91,35 @@ const WorkshopMain = () => {
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
+              onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
+              onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
+              onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
+              onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
+              onClickHandler={navigate}
             ></WorkshopCard>
           </div>
         </section>
