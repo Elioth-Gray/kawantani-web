@@ -39,7 +39,7 @@ const ArticleDetailMain = () => {
         </div>
       </section>
       {/* Text Section */}
-      <section className="w-full">
+      <section className="w-full mb-[3.75rem]">
         <div className="flex flex-col justify-start items-start text-[1.2rem] gap-[0.8rem]">
           <p>
             Panen jagung merupakan tahap akhir yang krusial dalam siklus
@@ -66,6 +66,80 @@ const ArticleDetailMain = () => {
             pengalaman serta pengetahuan lokal untuk menentukan waktu panen yang
             paling optimal
           </p>
+        </div>
+      </section>
+      {/* Comment Section */}
+      <section className="w-full flex flex-col gap-[3.1rem] justify-start items-start">
+        <div className="w-full h-[15rem] bg-[#F2F2F2] rounded-lg px-[3.3rem] py-[2.25rem] flex flex-col">
+          <textarea
+            placeholder="Tulis Komentar........"
+            className="w-full outline-none text-gray-800 placeholder-gray-500 resize-none h-[60%]"
+          ></textarea>
+          <div className="flex flex-row justify-end items-center h-[20%] w-full">
+            <PrimaryButton textColor="#ffffff">Kirim Komentar</PrimaryButton>
+          </div>
+        </div>
+        <div className="bg-black h-[0.06rem] w-full"></div>
+        <div className="flex flex-col justify-start items-start gap-[2.5rem] w-full">
+          <div className="flex flex-row justify-start items-start gap-[1.7rem]">
+            <p className="font-semibold text-[2rem]">Komentar</p>
+            <div className="w-[5rem] h-[3rem] flex flex-col justify-center items-center text-white bg-[#78D14D] rounded-full">
+              <p className="text-[1.25rem]">2</p>
+            </div>
+          </div>
+          <div className="w-full flex flex-col justify-start items-start gap-[3.75rem]">
+            <div className="flex flex-row justify-start items-start gap-[2rem]">
+              <div className="object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0">
+                <Image
+                  src="/images/bayam.jpg"
+                  width={89}
+                  height={89}
+                  alt="bayam"
+                  className="object-cover w-full h-full"
+                  unoptimized
+                ></Image>
+              </div>
+              <div className="flex flex-col justify-start items-start gap-[0.5rem]">
+                <div className="flex flex-row justify-start items-start gap-[1.1rem]">
+                  <p className="font-semibold">Bu Susi Marsidah</p>
+                  <p>29 April 2025</p>
+                </div>
+                <p>
+                  Terima kasih artikelnya, Pak Damairi! Saya ingin bertanya,
+                  Pak. Cabai yang saya tanam sudah melewati masa panen, tetapi
+                  masih terlihat hijau. Apakah itu normal, Pak?
+                </p>
+                <p className="font-semibold cursor-pointer">Balas</p>
+              </div>
+            </div>
+            <div className="flex flex-row justify-start items-start gap-[2rem]">
+              <div className="object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0">
+                <Image
+                  src="/images/bayam.jpg"
+                  width={89}
+                  height={89}
+                  alt="bayam"
+                  className="object-cover w-full h-full"
+                  unoptimized
+                ></Image>
+              </div>
+              <div className="flex flex-col justify-start items-start gap-[0.5rem]">
+                <div className="flex flex-row justify-start items-start gap-[1.1rem]">
+                  <p className="font-semibold">Bu Hasni</p>
+                  <p>29 April 2025</p>
+                </div>
+                <p>
+                  Terima kasih atas artikel yang sangat informatif, Pak Damairi.
+                  Saya jadi lebih memahami betapa pentingnya menentukan waktu
+                  panen jagung dengan tepat. Namun saya penasaran, menurut
+                  pengalaman Bapak atau petani di lapangan, bagaimana cara
+                  terbaik untuk mengatasi tantangan jika kondisi cuaca tidak
+                  mendukung saat jagung sudah waktunya panen?
+                </p>
+                <p className="font-semibold cursor-pointer">Balas</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
