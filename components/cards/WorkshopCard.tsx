@@ -9,11 +9,13 @@ const WorkshopCard = ({
   title,
   date,
   location,
+  onClickHandler,
 }: {
   imageURL: string;
   title: string;
   date: string;
   location: string;
+  onClickHandler?: (e: any) => void;
 }) => {
   return (
     <div>
@@ -42,7 +44,9 @@ const WorkshopCard = ({
             </div>
           </div>
           <div className="w-full flex flex-row justify-end items-center">
-            <SecondaryButton>Lihat Detail</SecondaryButton>
+            <SecondaryButton onClickHandler={onClickHandler}>
+              Lihat Detail
+            </SecondaryButton>
           </div>
         </div>
       </div>

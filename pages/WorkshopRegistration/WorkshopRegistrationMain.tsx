@@ -17,6 +17,17 @@ import { useRouter, usePathname } from "next/navigation";
 
 const WorkshopRegistrationMain = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [genderSelected, setGenderSelected] = useState<number>();
+  const [paymentSelected, setPaymentSelected] = useState<number>();
+
+  const setGender = (newGender: number) => {
+    setGenderSelected(newGender);
+  };
+
+  const setPayment = (newPayment: number) => {
+    setPaymentSelected(newPayment);
+    console.log(newPayment);
+  };
 
   const router = useRouter();
 
@@ -131,14 +142,24 @@ const WorkshopRegistrationMain = () => {
                     <p className="text-[0.8rem]">Jenis Kelamin*</p>
                     <div className="flex flex-row w-full justify-between items-center gap-[1.8rem]">
                       <button
-                        className="py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg text-[1rem] text-[#4993FA] font-semibold cursor-pointer"
+                        className={`py-[1.125rem]  w-full rounded-lg text-[1rem]  font-semibold cursor-pointer ${
+                          genderSelected == 1
+                            ? "bg-[#78D14D] text-white"
+                            : "bg-[#F2F2F2] text-[#4993FA]"
+                        }`}
                         type="button"
+                        onClick={() => setGender(1)}
                       >
                         Laki-Laki
                       </button>
                       <button
-                        className="py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg text-[1rem] text-[#FF7C7C] font-semibold cursor-pointer"
+                        className={`py-[1.125rem]  w-full rounded-lg text-[1rem]  font-semibold cursor-pointer ${
+                          genderSelected == 2
+                            ? "bg-[#78D14D] text-white"
+                            : "bg-[#F2F2F2] text-[#FF7C7C]"
+                        }`}
                         type="button"
+                        onClick={() => setGender(2)}
                       >
                         Perempuan
                       </button>
@@ -164,8 +185,13 @@ const WorkshopRegistrationMain = () => {
                     </p>
                   </div>
                   <button
-                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    className={`px-[2.3rem] ${
+                      paymentSelected == 1
+                        ? " bg-[#78D14D] text-white"
+                        : "bg-[#F2F2F2] text-black"
+                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
+                    onClick={() => setPayment(1)}
                   >
                     <Image
                       className=" object-cover rounded-lg"
@@ -179,8 +205,13 @@ const WorkshopRegistrationMain = () => {
                     <p>Rp. 100.000,00</p>
                   </button>
                   <button
-                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    className={`px-[2.3rem] ${
+                      paymentSelected == 2
+                        ? " bg-[#78D14D] text-white"
+                        : "bg-[#F2F2F2] text-black"
+                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
+                    onClick={() => setPayment(2)}
                   >
                     <Image
                       className=" object-cover rounded-lg"
@@ -194,8 +225,13 @@ const WorkshopRegistrationMain = () => {
                     <p>Rp. 100.000,00</p>
                   </button>
                   <button
-                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    className={`px-[2.3rem] ${
+                      paymentSelected == 3
+                        ? " bg-[#78D14D] text-white"
+                        : "bg-[#F2F2F2] text-black"
+                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
+                    onClick={() => setPayment(3)}
                   >
                     <Image
                       className=" object-cover rounded-lg"
@@ -209,8 +245,13 @@ const WorkshopRegistrationMain = () => {
                     <p>Rp. 100.000,00</p>
                   </button>
                   <button
-                    className="px-[2.3rem] bg-[#F2F2F2] w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center"
+                    className={`px-[2.3rem] ${
+                      paymentSelected == 4
+                        ? " bg-[#78D14D] text-white"
+                        : "bg-[#F2F2F2] text-black"
+                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
+                    onClick={() => setPayment(4)}
                   >
                     <Image
                       className=" object-cover rounded-lg"
