@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client"
+
 import React from "react";
 import Image from "next/image";
 import ActionButton from "@/components/buttons/ActionButton";
@@ -5,8 +8,18 @@ import { Envelope, Lock } from "@phosphor-icons/react/dist/ssr";
 import InputField from "@/components/form/InputField";
 import PrimaryLink from "@/components/links/PrimaryLink";
 import SecondaryLink from "@/components/links/SecondaryLink";
+import {useRouter} from "next/navigation";
+
 
 const LoginMain = () => {
+
+  const router = useRouter();
+
+  const navigate = (e: any) => {
+    e.preventDefault();
+    router.push("/dashboard");
+  }
+
   return (
     <section className="grid grid-cols-2 w-full h-screen">
       <div className="col-span-1 w-full h-full flex flex-col justify-center items-center">
@@ -55,6 +68,7 @@ const LoginMain = () => {
                   height="3.75rem"
                   size="1.2rem"
                   width="100%"
+                  onClickHandler={navigate}
                 >
                   Masuk
                 </ActionButton>
