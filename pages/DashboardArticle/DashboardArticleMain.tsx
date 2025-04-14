@@ -3,7 +3,7 @@
 import React from "react";
 import ArticleCard from "@/components/cards/ArticleCard";
 import Link from "next/link";
-import { Check, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
+import { Check} from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 
 const DashboardArticleMain = () => {
@@ -237,7 +237,7 @@ const DashboardArticleMain = () => {
                 Cari artikel
               </Link>
               <Link
-                href="/articles"
+                href="/dashboard/articles/create"
                 className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
               >
                 Buat artikel
@@ -252,6 +252,7 @@ const DashboardArticleMain = () => {
                   imageURL="/images/bayam.jpg"
                   title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
                   date="14 Februari 2025"
+                  href="/articles/221982981/details"
                 ></ArticleCard>
               );
             })}

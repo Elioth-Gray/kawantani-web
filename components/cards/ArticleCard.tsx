@@ -7,10 +7,12 @@ const ArticleCard = ({
   imageURL,
   date,
   title,
+  href = "",
 }: {
   imageURL: string;
   date: string;
   title: string;
+  href?: string;
 }) => {
   return (
     <div className="col-span-1 h-fit bg-[#FCF7F1] py-[1rem] px-[1.25rem] rounded-xl">
@@ -29,7 +31,7 @@ const ArticleCard = ({
           <div className="w-full bg-black h-[0.06rem] mt-[0.3rem]"></div>
         </div>
         <div className="w-full flex flex-row justify-between items-center">
-          <Link href="" className="text-[0.75rem] underline">
+          <Link href={href} className="text-[0.75rem] underline">
             Baca lebih lanjut
           </Link>
           <ArrowRight size={17} />
