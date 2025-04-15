@@ -1,8 +1,17 @@
+"use client";
+
 import React from "react";
 import WorkshopCard from "@/components/cards/WorkshopCard";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const DashboardWorkshopMain = () => {
+  const router = useRouter();
+
+  const navigate = () => {
+    router.push("/dashboard/workshops/1/details");
+  };
+
   return (
     <main>
       <section className="w-full h-screen grid grid-cols-12 bg-[#FCF7F1]">
@@ -75,21 +84,22 @@ const DashboardWorkshopMain = () => {
               </button>
               <Link
                 href="/workshops"
-                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
+                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem] hover:text-black transition-all ease-in-out duration-200"
               >
                 ikuti Workshop
               </Link>
             </div>
           </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            {[...Array(6)].map((_, index) => {
+            {[...Array(2)].map((_, index) => {
               return (
                 <WorkshopCard
                   key={index}
                   imageURL="/images/workshop-image.jpg"
-                  title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+                  title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
                   date="Jumat, 15 Februari 2025"
                   location="Balai Kota Solo, Jawa Tengah"
+                  onClickHandler={navigate}
                 ></WorkshopCard>
               );
             })}

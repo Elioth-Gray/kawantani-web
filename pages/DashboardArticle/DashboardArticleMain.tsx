@@ -3,8 +3,10 @@
 import React from "react";
 import ArticleCard from "@/components/cards/ArticleCard";
 import Link from "next/link";
-import { Check} from "@phosphor-icons/react/dist/ssr";
+import { Check } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
+import InputField from "@/components/form/InputField";
+import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 
 const DashboardArticleMain = () => {
   const [ratingFilter, setRating] = useState<number>(0);
@@ -22,6 +24,16 @@ const DashboardArticleMain = () => {
         return [...prevFilters, filterId];
       }
     });
+  };
+
+  const [isYourArticle, setIsYourArticle] = useState(false);
+
+  const showYourArticle = () => {
+    setIsYourArticle(true);
+  };
+
+  const showNormalArticle = () => {
+    setIsYourArticle(false);
   };
 
   return (
@@ -227,35 +239,99 @@ const DashboardArticleMain = () => {
           <div className="flex flex-col justify-start items-start gap-[1rem]">
             <h1 className="text-[2.5rem] font-semibold">Daftar Artikel</h1>
             <div className="flex flex-row justify-start items-center gap-[2rem]">
-              <button className="py-[0.9rem] px-[2.6rem] rounded-lg bg-[#78D14D] text-white cursor-pointer text-[1rem]">
-                Artikel disimpan
+              <button
+                onClick={() => {
+                  showNormalArticle();
+                }}
+                className={`py-[0.9rem] px-[2.6rem] rounded-lg ${
+                  isYourArticle
+                    ? "bg-none text-[#78D14D]"
+                    : "bg-[#78D14D] text-white"
+                } cursor-pointer text-[1rem]`}
+              >
+                Artikel Disimpan
+              </button>
+              <button
+                onClick={() => {
+                  showYourArticle();
+                }}
+                className={`py-[0.9rem] px-[2.6rem] rounded-lg ${
+                  isYourArticle
+                    ? "bg-[#78D14D] text-white"
+                    : "bg-none text-[#78D14D]"
+                } cursor-pointer text-[1rem]`}
+              >
+                Artikel Milikmu
               </button>
               <Link
                 href="/articles"
-                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
+                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem] hover:text-black transition-all ease-in-out duration-200"
               >
                 Cari artikel
               </Link>
               <Link
                 href="/dashboard/articles/create"
-                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
+                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem] hover:text-black transition-all ease-in-out duration-200"
               >
                 Buat artikel
               </Link>
             </div>
           </div>
+          <div className="w-[40%]">
+            <InputField placeholder="Cari Tanaman....." type="text">
+              <MagnifyingGlass
+                size={24}
+                color="#fffff"
+                weight="bold"
+                className="absolute left-[1.5rem]"
+              ></MagnifyingGlass>
+            </InputField>
+          </div>
+          {isYourArticle ? (
+            <>
+              <div className="w-[40%]">
+                <select id="status" className="cursor-pointer">
+                  <option value="semua">Semua</option>
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
+              </div>
+            </>
+          ) : (
+            <></>
+          )}
           <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            {[...Array(12)].map((_, index) => {
-              return (
-                <ArticleCard
-                  key={index}
-                  imageURL="/images/bayam.jpg"
-                  title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-                  date="14 Februari 2025"
-                  href="/articles/221982981/details"
-                ></ArticleCard>
-              );
-            })}
+            {isYourArticle ? (
+              <>
+                {[...Array(5)].map((_, index) => {
+                  return (
+                    <ArticleCard
+                      key={index}
+                      imageURL="/images/bayam.jpg"
+                      title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+                      date="14 Februari 2025"
+                      href="/dashboard/articles/221982981/details"
+                      status="(Draft)"
+                      linkLabel="Lihat detail"
+                    ></ArticleCard>
+                  );
+                })}
+              </>
+            ) : (
+              <>
+                {[...Array(3)].map((_, index) => {
+                  return (
+                    <ArticleCard
+                      key={index}
+                      imageURL="/images/bayam.jpg"
+                      title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
+                      date="14 Februari 2025"
+                      href="/articles/221982981/details"
+                    ></ArticleCard>
+                  );
+                })}
+              </>
+            )}
           </div>
         </section>
       </section>

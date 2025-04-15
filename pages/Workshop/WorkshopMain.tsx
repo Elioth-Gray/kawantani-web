@@ -3,6 +3,8 @@
 import React from "react";
 import WorkshopCard from "@/components/cards/WorkshopCard";
 import { useRouter, usePathname } from "next/navigation";
+import InputField from "@/components/form/InputField";
+import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 
 const WorkshopMain = () => {
   const pathname = usePathname();
@@ -77,38 +79,48 @@ const WorkshopMain = () => {
         </section>
         <section className="col-span-9 px-[4.8rem] py-[1.9rem] flex flex-col justify-start items-start gap-[2.3rem] overflow-y-scroll mb-[1.9rem]">
           <h1 className="text-[2.5rem] font-semibold">Daftar Workshop</h1>
+          <div className="w-[40%]">
+            <InputField placeholder="Cari Workshop....." type="text">
+              <MagnifyingGlass
+                size={24}
+                color="#fffff"
+                weight="bold"
+                className="absolute left-[1.5rem]"
+              ></MagnifyingGlass>
+            </InputField>
+          </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
               imageURL="/images/workshop-image.jpg"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
+              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
