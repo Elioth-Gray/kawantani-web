@@ -369,7 +369,7 @@ const WorkshopRegistrationMain = () => {
                 unoptimized
               ></Image>
               <h1 className="text-[1.5rem] font-semibold w-[70%]">
-                Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah
+                Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah
               </h1>
               <div className="flex flex-col justify-start items-start gap-[0.9rem]">
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">

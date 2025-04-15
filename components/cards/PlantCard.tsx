@@ -6,10 +6,12 @@ const PlantCard = ({
   imageURL,
   title,
   description,
+  onClickHandler,
 }: {
   imageURL: string;
   title: string;
   description: string;
+  onClickHandler?: (e: any) => void;
 }) => {
   return (
     <div className="col-span-1 w-full bg-[#FCF7F1] border border-black rounded-lg overflow-hidden flex flex-col justify-start items-start gap- gap-[1rem] h-fit">
@@ -27,7 +29,9 @@ const PlantCard = ({
           <p>{description}</p>
         </div>
         <div className="w-full flex flex-row justify-end items-center">
-          <SecondaryButton>Lihat Detail</SecondaryButton>
+          <SecondaryButton onClickHandler={onClickHandler}>
+            Lihat Detail
+          </SecondaryButton>
         </div>
       </div>
     </div>

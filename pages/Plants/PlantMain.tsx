@@ -7,10 +7,17 @@ import PlantCard from "@/components/cards/PlantCard";
 import { Check, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import InputField from "@/components/form/InputField";
+import { useRouter } from "next/navigation";
 
 const PlantMain = () => {
   // Change your state to an array
   const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
+
+  const router = useRouter();
+
+  const navigate = () => {
+    router.push("/plants/1/details");
+  };
 
   // Toggle function to add/remove filters
   const toggleFilter = (filterId: number) => {
@@ -106,39 +113,17 @@ const PlantMain = () => {
           <div className="w-full grid grid-cols-3 h-full gap-x-[2.25rem] gap-y-[16.25rem]">
             <PlantCard
               imageURL="/images/cabai.jpg"
-              title="Cabai"
+              title="Cabai Jawa"
               description="Cabai populer karena permintaan pasar yang tinggi dan
                     manfaatnya dalam masakan."
+              onClickHandler={navigate}
             ></PlantCard>
             <PlantCard
               imageURL="/images/lemon.jpg"
               title="Lemon Malang"
               description="Cabai populer karena permintaan pasar yang tinggi dan
                     manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/cabai.jpg"
-              title="Cabai"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/lemon.jpg"
-              title="Lemon Malang"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/cabai.jpg"
-              title="Cabai"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
-            ></PlantCard>
-            <PlantCard
-              imageURL="/images/lemon.jpg"
-              title="Lemon Malang"
-              description="Cabai populer karena permintaan pasar yang tinggi dan
-                    manfaatnya dalam masakan."
+              onClickHandler={navigate}
             ></PlantCard>
           </div>
         </section>

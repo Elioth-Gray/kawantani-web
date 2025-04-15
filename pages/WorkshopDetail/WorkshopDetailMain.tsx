@@ -32,7 +32,7 @@ const WorkshopDetailMain = () => {
           </div>
           <div className="flex flex-col justify-between items-start">
             <h1 className="text-[1.5rem] font-semibold w-[70%]">
-              Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah
+              Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah
             </h1>
             <div className="flex flex-col justify-start items-start gap-[0.9rem]">
               <div className="flex flex-row justify-start items-center gap-[0.75rem]">
@@ -59,7 +59,7 @@ const WorkshopDetailMain = () => {
         <div className="flex flex-col justify-start items-start gap-[1.3rem] col-span-1  w-full h-full  ">
           <h1 className="text-[2rem] font-bold">Deskripsi</h1>
           <p className="text-[1.1rem]">
-            Workshop "Teknik Genjot Padi" adalah sebuah acara yang dirancang
+            Workshop "Teknik Tanam Padi" adalah sebuah acara yang dirancang
             untuk memberikan pelatihan dan pengetahuan kepada para petani atau
             praktisi pertanian tentang teknik-teknik terbaru dalam meningkatkan
             hasil produksi padi. Dalam workshop ini, peserta akan mempelajari

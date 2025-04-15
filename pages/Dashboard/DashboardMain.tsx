@@ -222,7 +222,12 @@ const DashboardMain = () => {
             <div className="col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start  text-white gap-[2.1rem]">
               <div className="w-full flex flex-row justify-between items-center px-[1.8rem]">
                 <h1 className="text-[1.25rem] font-semibold">Tanamanmu</h1>
-                <p className="text-[#50B34B] text-[0.8rem]">Lihat semuanya</p>
+                <Link
+                  className="text-[#50B34B] text-[0.8rem]"
+                  href="/dashboard/plants"
+                >
+                  Lihat semuanya
+                </Link>
               </div>
               <div className="flex flex-col justify-start items-start gap-[2rem] w-full px-[1rem]">
                 <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
@@ -297,7 +302,10 @@ const DashboardMain = () => {
               <h1 className="text-black text-[3rem] font-bold gap-[0.75rem]">
                 Baca Artikel
               </h1>
-              <Link href="" className="text-[1.2rem] text-[#50B34B]">
+              <Link
+                href="/dashboard/articles"
+                className="text-[1.2rem] text-[#50B34B]"
+              >
                 Lihat semuanya
               </Link>
             </div>
@@ -307,21 +315,25 @@ const DashboardMain = () => {
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
           </div>
         </div>
@@ -331,7 +343,10 @@ const DashboardMain = () => {
               <h1 className="text-black text-[3rem] font-bold gap-[0.75rem]">
                 Ikuti Workshop
               </h1>
-              <Link href="" className="text-[1.2rem] text-[#50B34B]">
+              <Link
+                href="/dashboard/workshops"
+                className="text-[1.2rem] text-[#50B34B]"
+              >
                 Lihat semuanya
               </Link>
             </div>

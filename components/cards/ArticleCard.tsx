@@ -8,11 +8,15 @@ const ArticleCard = ({
   date,
   title,
   href = "",
+  status = "",
+  linkLabel = "Baca lebih lanjut",
 }: {
   imageURL: string;
   date: string;
   title: string;
   href?: string;
+  status?: string;
+  linkLabel?: string;
 }) => {
   return (
     <div className="col-span-1 h-fit bg-[#FCF7F1] py-[1rem] px-[1.25rem] rounded-xl">
@@ -28,11 +32,12 @@ const ArticleCard = ({
         <div className="flex flex-col justify-start items-start w-full gap-[0.1rem]">
           <p className="text-[0.75rem] font-light">{date}</p>
           <p className="font-semibold text-[0.9rem]">{title}</p>
+          <p className="font-semibold text-[0.9rem]">{status}</p>
           <div className="w-full bg-black h-[0.06rem] mt-[0.3rem]"></div>
         </div>
         <div className="w-full flex flex-row justify-between items-center">
           <Link href={href} className="text-[0.75rem] underline">
-            Baca lebih lanjut
+            {linkLabel}
           </Link>
           <ArrowRight size={17} />
         </div>

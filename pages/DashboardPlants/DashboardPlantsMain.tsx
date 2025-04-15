@@ -5,9 +5,17 @@ import PlantCard from "@/components/cards/PlantCard";
 import { useState } from "react";
 import Link from "next/link";
 import { Check, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
+import InputField from "@/components/form/InputField";
+import { useRouter } from "next/navigation";
 
 const DashboardPlantsMain = () => {
   const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
+
+  const router = useRouter();
+
+  const navigate = () => {
+    router.push("/dashboard/plants/1/details");
+  };
 
   // Toggle function to add/remove filters
   const toggleFilter = (filterId: number) => {
@@ -128,11 +136,21 @@ const DashboardPlantsMain = () => {
               </button>
               <Link
                 href="/plants"
-                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem]"
+                className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem] hover:text-black transition-all ease-in-out duration-200"
               >
                 Tambah Tanaman
               </Link>
             </div>
+          </div>
+          <div className="w-[40%]">
+            <InputField placeholder="Cari Tanaman....." type="text">
+              <MagnifyingGlass
+                size={24}
+                color="#fffff"
+                weight="bold"
+                className="absolute left-[1.5rem]"
+              ></MagnifyingGlass>
+            </InputField>
           </div>
           <div className="w-full grid grid-cols-3 h-full gap-x-[2.25rem] gap-y-[16.25rem]">
             {isCompletedPlants
@@ -142,6 +160,7 @@ const DashboardPlantsMain = () => {
                     imageURL="/images/cabai.jpg"
                     title="Cabai"
                     description="Cabai populer karena permintaan pasar yang tinggi dan manfaatnya dalam masakan."
+                    onClickHandler={navigate}
                   />
                 ))
               : [...Array(6)].map((_, index) => (
@@ -150,6 +169,7 @@ const DashboardPlantsMain = () => {
                     imageURL="/images/lemon.jpg"
                     title="Lemon Malang"
                     description="Cabai populer karena permintaan pasar yang tinggi dan manfaatnya dalam masakan."
+                    onClickHandler={navigate}
                   />
                 ))}
           </div>
