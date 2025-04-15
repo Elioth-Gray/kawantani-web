@@ -240,36 +240,43 @@ const ArticleMain = () => {
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
               imageURL="/images/bayam.jpg"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
+              href="/articles/1/details"
             ></ArticleCard>
           </div>
         </section>

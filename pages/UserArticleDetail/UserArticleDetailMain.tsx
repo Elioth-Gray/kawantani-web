@@ -1,11 +1,34 @@
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import React from "react";
 import Image from "next/image";
-import { Bookmark, Star, Share } from "@phosphor-icons/react/dist/ssr";
+import {
+  Bookmark,
+  Star,
+  Share,
+  Pencil,
+  Trash,
+  Dresser,
+} from "@phosphor-icons/react/dist/ssr";
 
-const ArticleDetailMain = () => {
+const UserArticleDetailMain = () => {
   return (
     <main className="py-[6.4rem] px-[14rem]">
+      <section className="w-full mb-[3.6rem]">
+        <div className="w-full flex flex-row justify-center items-center gap-[3.8rem]">
+          <div className="flex flex-row justify-center items-center gap-[1.1rem] cursor-pointer">
+            <Pencil size={24} color="#0d0d0d" className="group-hover:hidden" />
+            <p>Edit Artikel</p>
+          </div>
+          <div className="flex flex-row justify-center items-center gap-[1.1rem] cursor-pointer">
+            <Trash size={24} color="#0d0d0d" className="group-hover:hidden" />
+            <p>Hapus Artikel</p>
+          </div>
+          <div className="flex flex-row justify-center items-center gap-[1.1rem] cursor-pointer">
+            <Dresser size={24} color="#0d0d0d" className="group-hover:hidden" />
+            <p>Arsip Artikel</p>
+          </div>
+        </div>
+      </section>
       {/* Header Section */}
       <section className="flex flex-col justify-center items-center gap-[0.9rem] mb-[3.75rem]">
         <div className="flex flex-row justify-center items-center gap-[1.8rem]">
@@ -179,4 +202,4 @@ const ArticleDetailMain = () => {
   );
 };
 
-export default ArticleDetailMain;
+export default UserArticleDetailMain;
