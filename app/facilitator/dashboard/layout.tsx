@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Facilitator",
@@ -36,21 +37,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex flex-col justify-start items-start w-full gap-[0.5rem]">
               <p className="text-[#B6B6B7] text-[0.8rem]">Dashboard</p>
               <div className="flex flex-col justify-start items-start gap-[0.6rem] w-full">
-                <div className="flex flex-row justify-start items-center gap-[0.5rem] cursor-pointer">
+                <div className="flex flex-row justify-start items-center gap-[0.5rem] ">
                   <House size={16} color="#ffff"></House>
-                  <p>Home</p>
+                  <Link href="/facilitator/dashboard/home">Home</Link>
                 </div>
-                <div className="flex flex-row justify-start items-center gap-[0.5rem] cursor-pointer">
+                <div className="flex flex-row justify-start items-center gap-[0.5rem]">
                   <Scales size={16} color="#ffff"></Scales>
-                  <p>Pendapatan</p>
+                  <Link href="/facilitator/dashboard/sales">Pendapatan</Link>
                 </div>
-                <div className="flex flex-row justify-start items-center gap-[0.5rem] cursor-pointer">
+                <div className="flex flex-row justify-start items-center gap-[0.5rem] ">
                   <UsersThree size={16} color="#ffff"></UsersThree>
-                  <p>Peserta</p>
+                  <Link href="/facilitator/dashboard/participants">
+                    Peserta
+                  </Link>
                 </div>
-                <div className="flex flex-row justify-start items-center gap-[0.5rem] cursor-pointer">
+                <div className="flex flex-row justify-start items-center gap-[0.5rem] ">
                   <MicrophoneStage size={16} color="#ffff"></MicrophoneStage>
-                  <p>Workshop</p>
+                  <Link href="/facilitator/dashboard/workshops">Workshop</Link>
                 </div>
               </div>
             </div>
