@@ -7,6 +7,7 @@ import {
   UsersThree,
   MicrophoneStage,
 } from "@phosphor-icons/react/dist/ssr";
+import "./admin.css";
 
 import Image from "next/image";
 import Link from "next/link";
