@@ -6,6 +6,7 @@ import {
   ChartLineUp,
   Toolbox,
   Drop,
+  ArrowLeft,
 } from "@phosphor-icons/react/dist/ssr";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import { useRouter, usePathname } from "next/navigation";
@@ -48,6 +49,22 @@ const PlantDetailMain = () => {
 
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
+      <section className="w-full">
+        <div
+          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowLeft
+            size={24}
+            color="#00000"
+            weight="bold"
+            className="cursor-pointer"
+          />
+          <p className="cursor-pointer">Kembali</p>
+        </div>
+      </section>
       {/* CCard Section */}
       <section>
         <div className="w-full h-full grid grid-cols-2 gap-x-[2.8rem]">

@@ -1,3 +1,5 @@
+"use client";
+
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import React from "react";
 import Image from "next/image";
@@ -8,14 +10,41 @@ import {
   Pencil,
   Trash,
   Dresser,
+  ArrowLeft,
 } from "@phosphor-icons/react/dist/ssr";
+import { useRouter, usePathname } from "next/navigation";
 
 const UserArticleDetailMain = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const navigate = () => {
+    router.push(`${pathname}/edit`);
+  };
   return (
     <main className="py-[6.4rem] px-[14rem]">
+      <section className="w-full">
+        <div
+          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowLeft
+            size={24}
+            color="#00000"
+            weight="bold"
+            className="cursor-pointer"
+          />
+          <p className="cursor-pointer">Kembali</p>
+        </div>
+      </section>
       <section className="w-full mb-[3.6rem]">
         <div className="w-full flex flex-row justify-center items-center gap-[3.8rem]">
-          <div className="flex flex-row justify-center items-center gap-[1.1rem] cursor-pointer">
+          <div
+            className="flex flex-row justify-center items-center gap-[1.1rem] cursor-pointer"
+            onClick={() => navigate()}
+          >
             <Pencil size={24} color="#0d0d0d" className="group-hover:hidden" />
             <p>Edit Artikel</p>
           </div>
