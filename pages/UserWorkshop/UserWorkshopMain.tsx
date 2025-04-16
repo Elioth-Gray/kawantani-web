@@ -1,13 +1,37 @@
 "use client";
 
 import React from "react";
-import { Calendar, Timer, MapPin } from "@phosphor-icons/react/dist/ssr";
+import {
+  Calendar,
+  Timer,
+  MapPin,
+  ArrowLeft,
+} from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import ActionButton from "@/components/buttons/ActionButton";
+import { useRouter } from "next/navigation";
 
 const UserWorkshopMain = () => {
+  const router = useRouter();
+
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
+      <section className="w-full">
+        <div
+          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowLeft
+            size={24}
+            color="#00000"
+            weight="bold"
+            className="cursor-pointer"
+          />
+          <p className="cursor-pointer">Kembali</p>
+        </div>
+      </section>
       {/* Form Section */}
       <section className="mt-[5.3rem]">
         <div className="w-full grid grid-cols-2">

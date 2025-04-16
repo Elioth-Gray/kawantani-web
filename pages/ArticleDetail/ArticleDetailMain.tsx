@@ -1,11 +1,37 @@
+"use client";
+
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import React from "react";
 import Image from "next/image";
-import { Bookmark, Star, Share } from "@phosphor-icons/react/dist/ssr";
+import {
+  Bookmark,
+  Star,
+  Share,
+  ArrowLeft,
+} from "@phosphor-icons/react/dist/ssr";
+import { useRouter } from "next/navigation";
 
 const ArticleDetailMain = () => {
+  const router = useRouter();
+
   return (
     <main className="py-[6.4rem] px-[14rem]">
+      <section className="w-full">
+        <div
+          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowLeft
+            size={24}
+            color="#00000"
+            weight="bold"
+            className="cursor-pointer"
+          />
+          <p className="cursor-pointer">Kembali</p>
+        </div>
+      </section>
       {/* Header Section */}
       <section className="flex flex-col justify-center items-center gap-[0.9rem] mb-[3.75rem]">
         <div className="flex flex-row justify-center items-center gap-[1.8rem]">

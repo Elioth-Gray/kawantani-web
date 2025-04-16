@@ -6,6 +6,7 @@ import {
   Calendar,
   Timer,
   MapPin,
+  ArrowLeft,
 } from "@phosphor-icons/react/dist/ssr";
 import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
@@ -52,6 +53,22 @@ const WorkshopRegistrationMain = () => {
 
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
+      <section className="w-full">
+        <div
+          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          <ArrowLeft
+            size={24}
+            color="#00000"
+            weight="bold"
+            className="cursor-pointer"
+          />
+          <p className="cursor-pointer">Kembali</p>
+        </div>
+      </section>
       {/* Step Sections */}
       <section>
         <div className="w-full flex flex-row justify-center items-center gap-[2.3rem]">
