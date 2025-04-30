@@ -6,12 +6,12 @@ import FormRegister from "@/pages/Register/Form Skeleton/FormRegister";
 const RegisterMain = () => {
   return (
     <section className="grid grid-cols-2 w-full h-screen">
-      <div className="col-span-1 w-full h-full flex flex-col justify-center items-center py-[6.3rem]">
+      <div className="col-span-1 w-full h-screen overflow-y-auto flex flex-col justify-start items-center py-[6.3rem]">
         {/* Register Form */}
         <div className="flex flex-col justify-center items-start w-[23.25rem] gap-[2.8rem]">
           <div className="flex flex-col justify-start items-center gap-[1.6rem] w-full">
             <div className="w-full">
-              <h1 className="text-[2.25rem] font-semibold">Daftar</h1>
+              <h1 className="text-[2.25rem] font-semibold">Daftar Akun</h1>
               <p className="mt-[0.5rem] text[1.25rem] font-light w-full">
                 Selamat datang, daftar akun untuk melanjutkan
               </p>
