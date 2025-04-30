@@ -78,7 +78,7 @@ const LoginMain = () => {
           </div>
           <p className="w-full text-center text-[#828282]">
             Belum punya akun?{" "}
-            <PrimaryLink href="/register">Buat akun</PrimaryLink>
+            <PrimaryLink href="/auth/register">Buat akun</PrimaryLink>
           </p>
         </div>
       </div>
