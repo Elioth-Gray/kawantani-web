@@ -95,7 +95,7 @@ const DashboardWorkshopMain = () => {
               return (
                 <WorkshopCard
                   key={index}
-                  imageURL="/images/workshop-image.jpg"
+                  imageURL="/images/workshop-image.webp"
                   title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
                   date="Jumat, 15 Februari 2025"
                   location="Balai Kota Solo, Jawa Tengah"

@@ -76,24 +76,12 @@ const FormRegister = () => {
                 type="button"
                 className="col-span-1 py-[0.75rem] rounded-lg flex flex-row justify-center items-center gap-[1.3rem] bg-[#F2F2F2] cursor-pointer text-[1rem] text-[#4993FA]"
               >
-                <GenderMale
-                  size={20}
-                  color="#4993FA"
-                  weight="bold"
-                  className=""
-                />
                 Laki-Laki
               </button>
               <button
                 type="button"
                 className="col-span-1 py-[0.75rem] rounded-lg flex flex-row justify-center items-center gap-[1.3rem] bg-[#F2F2F2] cursor-pointer text-[1rem] text-[#FF7C7C]"
               >
-                <GenderFemale
-                  size={20}
-                  color="#FF7C7C"
-                  weight="bold"
-                  className=""
-                />
                 Perempuan
               </button>
             </div>

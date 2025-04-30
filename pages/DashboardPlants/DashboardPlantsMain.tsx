@@ -157,7 +157,7 @@ const DashboardPlantsMain = () => {
               ? [...Array(4)].map((_, index) => (
                   <PlantCard
                     key={index}
-                    imageURL="/images/cabai.jpg"
+                    imageURL="/images/cabai.webp"
                     title="Cabai"
                     description="Cabai populer karena permintaan pasar yang tinggi dan manfaatnya dalam masakan."
                     onClickHandler={navigate}
@@ -166,7 +166,7 @@ const DashboardPlantsMain = () => {
               : [...Array(6)].map((_, index) => (
                   <PlantCard
                     key={index}
-                    imageURL="/images/lemon.jpg"
+                    imageURL="/images/lemon.webp"
                     title="Lemon Malang"
                     description="Cabai populer karena permintaan pasar yang tinggi dan manfaatnya dalam masakan."
                     onClickHandler={navigate}

@@ -98,7 +98,7 @@ const DashboardMain = () => {
               <div className="flex flex-row justify-center items-center gap-[1rem] h-fit">
                 <div className="w-[4.9rem] h-[4.9rem]">
                   <Image
-                    src="/images/lemon.jpg"
+                    src="/images/lemon.webp"
                     width={79}
                     height={79}
                     alt="logo"
@@ -233,7 +233,7 @@ const DashboardMain = () => {
                 <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
-                      src="/images/lemon.jpg"
+                      src="/images/lemon.webp"
                       width={79}
                       height={79}
                       alt="logo"
@@ -248,7 +248,7 @@ const DashboardMain = () => {
                 <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
-                      src="/images/lemon.jpg"
+                      src="/images/lemon.webp"
                       width={79}
                       height={79}
                       alt="logo"
@@ -263,7 +263,7 @@ const DashboardMain = () => {
                 <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
-                      src="/images/lemon.jpg"
+                      src="/images/lemon.webp"
                       width={79}
                       height={79}
                       alt="logo"
@@ -278,7 +278,7 @@ const DashboardMain = () => {
                 <div className="flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer">
                   <div className="w-[3.1rem] h-[3.1rem]">
                     <Image
-                      src="/images/lemon.jpg"
+                      src="/images/lemon.webp"
                       width={79}
                       height={79}
                       alt="logo"
@@ -312,25 +312,25 @@ const DashboardMain = () => {
           </div>
           <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
@@ -353,13 +353,13 @@ const DashboardMain = () => {
           </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
             ></WorkshopCard>
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
+"use client";
 
 import React from "react";
 import Image from "next/image";
@@ -8,29 +8,21 @@ import { Envelope, Lock } from "@phosphor-icons/react/dist/ssr";
 import InputField from "@/components/form/InputField";
 import PrimaryLink from "@/components/links/PrimaryLink";
 import SecondaryLink from "@/components/links/SecondaryLink";
-import {useRouter} from "next/navigation";
-
+import { useRouter } from "next/navigation";
 
 const LoginMain = () => {
-
   const router = useRouter();
 
   const navigate = (e: any) => {
     e.preventDefault();
     router.push("/dashboard");
-  }
+  };
 
   return (
     <section className="grid grid-cols-2 w-full h-screen">
       <div className="col-span-1 w-full h-full flex flex-col justify-center items-center">
         {/* Login Form */}
         <div className="flex flex-col justify-center items-start w-[23.25rem] gap-[2.8rem]">
-          <Image
-            src="/images/logo-dark.png"
-            width={318}
-            height={97}
-            alt="logo"
-          ></Image>
           <div className="flex flex-col justify-start items-center gap-[1.6rem] w-full">
             <div className="w-full">
               <h1 className="text-[2.25rem] font-semibold">Masuk</h1>

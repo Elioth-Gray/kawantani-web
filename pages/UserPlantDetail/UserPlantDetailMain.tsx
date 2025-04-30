@@ -76,7 +76,7 @@ const UserPlantDetailMain = () => {
               className=" object-cover w-full h-full"
               width={545}
               height={307}
-              src="/images/cabai.jpg"
+              src="/images/cabai.webp"
               alt="cabai"
               quality={100}
               unoptimized

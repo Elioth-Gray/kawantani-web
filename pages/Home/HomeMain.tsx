@@ -20,7 +20,7 @@ const HomeMain = () => {
         <div className="px-[8.9rem] grid grid-cols-4 w-full h-full gap-[3.2rem]">
           <div className="col-span-2 h-full flex flex-col items-start justify-end">
             <Image
-              src="/images/about-image.png"
+              src="/images/about-image.webp"
               width={602}
               height={541}
               alt="about"
@@ -98,7 +98,7 @@ const HomeMain = () => {
           </div>
           <div className="col-span-2 h-full flex flex-col items-start justify-end">
             <Image
-              src="/images/tracking-image.png"
+              src="/images/tracking-image.webp"
               width={870}
               height={870}
               alt="about"
@@ -112,7 +112,7 @@ const HomeMain = () => {
         <div className="px-[8.9rem] grid grid-cols-4 w-full h-full gap-[3.2rem]">
           <div className="col-span-2 h-full flex flex-col items-start justify-end">
             <Image
-              src="/images/article-image.png"
+              src="/images/article-image.webp"
               width={770}
               height={770}
               alt="about"
@@ -143,7 +143,7 @@ const HomeMain = () => {
         <div className="grid grid-cols-13 w-full h-full gap-[3.2rem]">
           <div className="col-span-4 flex flex-col justify-end items-end h-full">
             <Image
-              src="/images/workshop-image-1.png"
+              src="/images/workshop-image-1.webp"
               width={793}
               height={602}
               alt="workshop"
@@ -167,7 +167,7 @@ const HomeMain = () => {
           </div>
           <div className="col-span-4 flex flex-col justify-end items-end h-full">
             <Image
-              src="/images/workshop-image-2.png"
+              src="/images/workshop-image-2.webp"
               width={500}
               height={500}
               alt="workshop"

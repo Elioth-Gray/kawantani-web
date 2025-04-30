@@ -19,7 +19,7 @@ const Footer = () => {
           <div className="flex flex-row justify-between items-start gap-[7.5rem]">
             <div className="flex flex-col justify-center items-start gap-[1.25rem]">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.webp"
                 width={181}
                 height={58}
                 alt="logo"
@@ -92,7 +92,7 @@ const Footer = () => {
                 <div className="flex flex-row justify-start items-start gap-[0.625rem]">
                   <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
                     <Image
-                      src="/images/article-image.jpg"
+                      src="/images/article-image-2.webp"
                       width={30}
                       height={30}
                       alt="article"
@@ -106,7 +106,7 @@ const Footer = () => {
                 <div className="flex flex-row justify-start items-start gap-[0.625rem]">
                   <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
                     <Image
-                      src="/images/article-image.jpg"
+                      src="/images/article-image-2.webp"
                       width={30}
                       height={30}
                       alt="article"
@@ -120,7 +120,7 @@ const Footer = () => {
                 <div className="flex flex-row justify-start items-start gap-[0.625rem]">
                   <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
                     <Image
-                      src="/images/article-image.jpg"
+                      src="/images/article-image-2.webp"
                       width={30}
                       height={30}
                       alt="article"

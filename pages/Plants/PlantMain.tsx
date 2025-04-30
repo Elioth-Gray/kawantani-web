@@ -112,14 +112,14 @@ const PlantMain = () => {
           </div>
           <div className="w-full grid grid-cols-3 h-full gap-x-[2.25rem] gap-y-[16.25rem]">
             <PlantCard
-              imageURL="/images/cabai.jpg"
+              imageURL="/images/cabai.webp"
               title="Cabai Jawa"
               description="Cabai populer karena permintaan pasar yang tinggi dan
                     manfaatnya dalam masakan."
               onClickHandler={navigate}
             ></PlantCard>
             <PlantCard
-              imageURL="/images/lemon.jpg"
+              imageURL="/images/lemon.webp"
               title="Lemon Malang"
               description="Cabai populer karena permintaan pasar yang tinggi dan
                     manfaatnya dalam masakan."

@@ -114,7 +114,7 @@ const UserArticleDetailMain = () => {
       <section className="w-full flex flex-row justify-center items-center mb-[3.75rem]">
         <div className="w-full h-[29rem] overflow-clip object-cover rounded-xl">
           <Image
-            src="/images/bayam.jpg"
+            src="/images/bayam.webp"
             width={100}
             height={0}
             alt="bayam"
@@ -176,7 +176,7 @@ const UserArticleDetailMain = () => {
             <div className="flex flex-row justify-start items-start gap-[2rem]">
               <div className="object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0">
                 <Image
-                  src="/images/bayam.jpg"
+                  src="/images/bayam.webp"
                   width={89}
                   height={89}
                   alt="bayam"
@@ -200,7 +200,7 @@ const UserArticleDetailMain = () => {
             <div className="flex flex-row justify-start items-start gap-[2rem]">
               <div className="object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0">
                 <Image
-                  src="/images/bayam.jpg"
+                  src="/images/bayam.webp"
                   width={89}
                   height={89}
                   alt="bayam"

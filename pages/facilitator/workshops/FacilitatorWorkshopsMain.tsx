@@ -41,7 +41,7 @@ const FacilitatorWorkshopsMain = () => {
     .map((_, index) => ({
       id: index + 1,
       nomor: index + 1,
-      gambar: "/images/workshop-image.jpg",
+      gambar: "/images/workshop-image.webp",
       judul: "Teknik Tanam Padi",
     }));
 
