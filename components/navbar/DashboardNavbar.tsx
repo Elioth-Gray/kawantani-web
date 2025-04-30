@@ -15,7 +15,7 @@ const DashboardNavbar = () => {
     <nav className="flex flex-row justify-between items-center text-black w-full bg-[#FCF7F1] py-[2.1rem] px-[9rem]">
       <div className="flex flex-row justify-start items-center gap-[4rem]">
         <Image
-          src="/images/logo2.png"
+          src="/images/logo2.webp"
           width={181}
           height={58}
           alt="logo"

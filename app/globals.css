@@ -8,37 +8,37 @@
 }
 
 .header-image {
-  background-image: url("/images/navbar-img.png");
+  background-image: url("/images/navbar-img.webp");
   background-size: 100rem;
 }
 
 .footer-image {
-  background-image: url("/images/footer-bg.png");
+  background-image: url("/images/footer-bg.webp");
   background-size: 100rem;
 }
 
 .footer-bg-article {
-  background-image: url("/images/article-image.jpg");
+  background-image: url("/images/article-image.webp");
   background-size: 100rem;
 }
 
 .plant-header {
-  background-image: url("/images/plant-header.png");
+  background-image: url("/images/plant-header.webp");
   background-size: 100rem;
 }
 
 .article-header {
-  background-image: url("/images/article-bg.png");
+  background-image: url("/images/article-bg.webp");
   background-size: 100rem;
 }
 
 .workshop-header {
-  background-image: url("/images/workshop-bg.png");
+  background-image: url("/images/workshop-bg.webp");
   background-size: 100rem;
 }
 
 .login-image {
-  background-image: url("/images/login-image.png");
+  background-image: url("/images/login-image.webp");
   background-size: cover;
   background-position: center;
 }

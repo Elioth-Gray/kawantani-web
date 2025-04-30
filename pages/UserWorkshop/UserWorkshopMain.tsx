@@ -101,7 +101,7 @@ const UserWorkshopMain = () => {
                 className=" object-cover w-full h-[16.8rem] rounded-lg"
                 width={545}
                 height={307}
-                src="/images/workshop-image.jpg"
+                src="/images/workshop-image.webp"
                 alt="cabai"
                 quality={100}
                 unoptimized

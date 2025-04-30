@@ -237,43 +237,43 @@ const ArticleMain = () => {
           </div>
           <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
             ></ArticleCard>
             <ArticleCard
-              imageURL="/images/bayam.jpg"
+              imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"

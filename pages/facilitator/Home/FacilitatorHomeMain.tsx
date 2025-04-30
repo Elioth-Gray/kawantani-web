@@ -176,7 +176,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -203,7 +203,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -230,7 +230,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -257,7 +257,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -284,7 +284,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -311,7 +311,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -338,7 +338,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"
@@ -365,7 +365,7 @@ const FacilitatorHomeMain = () => {
                     <div className="col-span-2 h-[3rem] flex flex-row justify-start items-start gap-[0.5rem]">
                       <div className="size-[2rem] rounded-full overflow-clip object-cover">
                         <Image
-                          src="/images/bayam.jpg"
+                          src="/images/bayam.webp"
                           width={100}
                           height={100}
                           className="w-full h-full object-cover"

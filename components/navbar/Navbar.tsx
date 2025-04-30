@@ -12,7 +12,7 @@ const Navbar = () => {
   return (
     <nav className="flex flex-row justify-between items-center text-white w-full">
       <Image
-        src="/images/logo.png"
+        src="/images/logo.webp"
         width={181}
         height={58}
         alt="logo"

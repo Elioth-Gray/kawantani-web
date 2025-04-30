@@ -91,35 +91,35 @@ const WorkshopMain = () => {
           </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
               onClickHandler={navigate}
             ></WorkshopCard>
             <WorkshopCard
-              imageURL="/images/workshop-image.jpg"
+              imageURL="/images/workshop-image.webp"
               title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"

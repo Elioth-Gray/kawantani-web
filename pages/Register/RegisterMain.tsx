@@ -9,12 +9,6 @@ const RegisterMain = () => {
       <div className="col-span-1 w-full h-full flex flex-col justify-center items-center py-[6.3rem]">
         {/* Register Form */}
         <div className="flex flex-col justify-center items-start w-[23.25rem] gap-[2.8rem]">
-          <Image
-            src="/images/logo-dark.png"
-            width={318}
-            height={97}
-            alt="logo"
-          ></Image>
           <div className="flex flex-col justify-start items-center gap-[1.6rem] w-full">
             <div className="w-full">
               <h1 className="text-[2.25rem] font-semibold">Daftar</h1>

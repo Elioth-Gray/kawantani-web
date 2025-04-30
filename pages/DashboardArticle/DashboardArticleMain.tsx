@@ -307,7 +307,7 @@ const DashboardArticleMain = () => {
                   return (
                     <ArticleCard
                       key={index}
-                      imageURL="/images/bayam.jpg"
+                      imageURL="/images/bayam.webp"
                       title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
                       date="14 Februari 2025"
                       href="/dashboard/articles/221982981/details"
@@ -323,7 +323,7 @@ const DashboardArticleMain = () => {
                   return (
                     <ArticleCard
                       key={index}
-                      imageURL="/images/bayam.jpg"
+                      imageURL="/images/bayam.webp"
                       title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
                       date="14 Februari 2025"
                       href="/articles/221982981/details"
