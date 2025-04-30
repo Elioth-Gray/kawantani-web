@@ -7,6 +7,7 @@ const InputField = ({
   name,
   value,
   onChange,
+  error,
 }: {
   children?: React.ReactNode;
   placeholder?: string;
@@ -14,20 +15,24 @@ const InputField = ({
   name?: string;
   value?: string;
   onChange?: (e: any) => void;
+  error?: string;
 }) => {
   return (
-    <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg">
-      {children}
-      <input
-        type={type}
-        value={value}
-        name={name}
-        onChange={onChange}
-        className={`py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg ${
-          children ? "pl-[4.8rem]" : "px-[1rem]"
-        } pr-[2rem] font-semibold text-[#727272]`}
-        placeholder={placeholder}
-      />
+    <div className="w-full">
+      <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg">
+        {children}
+        <input
+          type={type}
+          value={value}
+          name={name}
+          onChange={onChange}
+          className={`py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg ${
+            children ? "pl-[4.8rem]" : "px-[1rem]"
+          } pr-[2rem] font-semibold text-[#727272]`}
+          placeholder={placeholder}
+        />
+      </div>
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

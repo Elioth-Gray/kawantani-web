@@ -2,7 +2,6 @@ import React from "react";
 import Image from "next/image";
 import PrimaryLink from "@/components/links/PrimaryLink";
 import FormRegister from "@/pages/Register/Form Skeleton/FormRegister";
-
 const RegisterMain = () => {
   return (
     <section className="grid grid-cols-2 w-full h-screen">
@@ -29,7 +28,7 @@ const RegisterMain = () => {
           </div>
           <p className="w-full text-center text-[#828282]">
             Sudah punya akun?{" "}
-            <PrimaryLink href="/login">Masuk akun</PrimaryLink>
+            <PrimaryLink href="/auth/login">Masuk akun</PrimaryLink>
           </p>
         </div>
       </div>

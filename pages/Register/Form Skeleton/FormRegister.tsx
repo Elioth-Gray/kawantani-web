@@ -6,16 +6,56 @@ import {
   Envelope,
   User,
   Phone,
-  GenderMale,
-  GenderFemale,
   Lock,
+  CalendarDot,
+  GenderIntersex,
 } from "@phosphor-icons/react/dist/ssr";
 import InputField from "@/components/form/InputField";
 import PrimaryLink from "@/components/links/PrimaryLink";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
+import { z } from "zod";
+import { registerAccount } from "@/api/registerApi";
 
 const FormRegister = () => {
   const [currentSection, setSection] = useState(0);
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof formData, string>>
+  >({});
+
+  const registerSchemas = [
+    z.object({
+      firstName: z.string().min(1, "Nama depan wajib diisi!"),
+      lastName: z.string().min(1, "Nama belakang wajib diisi!"),
+      email: z
+        .string()
+        .email("Email tidak valid!")
+        .min(1, "Email wajib diisi!"),
+      phoneNumber: z
+        .string()
+        .min(10, "Nomor telepon tidak valid!")
+        .min(1, "Nomor telepon wajib diisi!"),
+      dateOfBirth: z.string().min(1, "Tanggal lahir wajib diisi!"),
+      gender: z.number({
+        required_error: "Jenis kelamin wajib diisi!",
+        invalid_type_error: "Jenis kelamin wajib diisi!",
+      }),
+    }),
+    z.object({}),
+    z.any(),
+    z
+      .object({
+        password: z.string().min(6, "Password minimal 6 karakter"),
+        confirmPassword: z
+          .string()
+          .min(6, "Konfirmasi password minimal 6 karakter"),
+      })
+      .refine((data) => data.password === data.confirmPassword, {
+        path: ["confirmPassword"],
+        message: "Konfirmasi password tidak cocok",
+      }),
+  ];
+
   const [formData, setFormData] = useState<{
     firstName: string;
     lastName: string;
@@ -44,13 +84,46 @@ const FormRegister = () => {
     }));
   };
 
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    const schema = registerSchemas[currentSection];
+
+    const result = schema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors: any = {};
+      result.error.errors.forEach((err) => {
+        const fieldName = err.path[0] as keyof typeof formData;
+        fieldErrors[fieldName] = err.message;
+      });
+      setErrors(fieldErrors);
+    } else {
+      setErrors({});
+      registerAccount(formData);
+    }
+  };
+
   const selectGender = (gender: 0 | 1) => {
     setFormData((prev) => ({ ...prev, gender }));
   };
 
   const nextSection = (e: any) => {
     e.preventDefault();
-    setSection((prevSection) => prevSection + 1);
+    const schema = registerSchemas[currentSection];
+
+    const result = schema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors: any = {};
+      result.error.errors.forEach((err) => {
+        const fieldName = err.path[0] as keyof typeof formData;
+        fieldErrors[fieldName] = err.message;
+      });
+      setErrors(fieldErrors);
+    } else {
+      setErrors({});
+      setSection((prevSection) => prevSection + 1);
+    }
   };
 
   const backSection = (e: any) => {
@@ -78,6 +151,7 @@ const FormRegister = () => {
                 value={formData.firstName}
                 name="firstName"
                 onChange={handleChange}
+                error={errors.firstName}
               >
                 <User
                   size={26}
@@ -95,6 +169,7 @@ const FormRegister = () => {
                 value={formData.lastName}
                 name="lastName"
                 onChange={handleChange}
+                error={errors.lastName}
               >
                 <User
                   size={26}
@@ -112,6 +187,7 @@ const FormRegister = () => {
                 value={formData.email}
                 name="email"
                 onChange={handleChange}
+                error={errors.email}
               >
                 <Envelope
                   size={26}
@@ -129,6 +205,7 @@ const FormRegister = () => {
                 value={formData.phoneNumber}
                 name="phoneNumber"
                 onChange={handleChange}
+                error={errors.phoneNumber}
               >
                 <Phone
                   size={26}
@@ -146,8 +223,9 @@ const FormRegister = () => {
                 value={formData.dateOfBirth}
                 name="dateOfBirth"
                 onChange={handleChange}
+                error={errors.dateOfBirth}
               >
-                <Phone
+                <CalendarDot
                   size={26}
                   color="#727272"
                   weight="bold"
@@ -181,6 +259,11 @@ const FormRegister = () => {
                   Perempuan
                 </button>
               </div>
+              {errors.gender ? (
+                <p className="text-red-500 text-sm mt-1">{errors.gender}</p>
+              ) : (
+                <></>
+              )}
             </div>
           </>
         ) : currentSection === 1 ? (
@@ -192,6 +275,114 @@ const FormRegister = () => {
             />
             <p className="text-black">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
           </div>
+        ) : currentSection == 2 ? (
+          <>
+            <h1 className="font-semibold text-[1.3rem]">
+              Konfirmasi Data Diri
+            </h1>
+            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+              <h1 className="text-[1.2rem] font-semibold">Nama Depan</h1>
+              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+                <User
+                  size={26}
+                  color="#00000"
+                  weight="bold"
+                  className="absolute left-[1.5rem]"
+                />
+                <h1
+                  className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
+                  pr-[2rem] font-semibold text-black`}
+                >
+                  {formData.firstName}
+                </h1>
+              </div>
+            </div>
+            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+              <h1 className="text-[1.2rem] font-semibold">Nama Depan</h1>
+              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+                <User
+                  size={26}
+                  color="#00000"
+                  weight="bold"
+                  className="absolute left-[1.5rem]"
+                />
+                <h1
+                  className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
+                  pr-[2rem] font-semibold text-black`}
+                >
+                  {formData.lastName}
+                </h1>
+              </div>
+            </div>
+            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+              <h1 className="text-[1.2rem] font-semibold">Email</h1>
+              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+                <Envelope
+                  size={26}
+                  color="#00000"
+                  weight="bold"
+                  className="absolute left-[1.5rem]"
+                />
+                <h1
+                  className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
+                  pr-[2rem] font-semibold text-black`}
+                >
+                  {formData.email}
+                </h1>
+              </div>
+            </div>
+            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+              <h1 className="text-[1.2rem] font-semibold">Nomor Telepon</h1>
+              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+                <Phone
+                  size={26}
+                  color="#00000"
+                  weight="bold"
+                  className="absolute left-[1.5rem]"
+                />
+                <h1
+                  className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
+                  pr-[2rem] font-semibold text-black`}
+                >
+                  {formData.phoneNumber}
+                </h1>
+              </div>
+            </div>
+            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+              <h1 className="text-[1.2rem] font-semibold">Tanggal Lahir</h1>
+              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+                <CalendarDot
+                  size={26}
+                  color="#00000"
+                  weight="bold"
+                  className="absolute left-[1.5rem]"
+                />
+                <h1
+                  className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
+                  pr-[2rem] font-semibold text-black`}
+                >
+                  {formData.dateOfBirth}
+                </h1>
+              </div>
+            </div>
+            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+              <h1 className="text-[1.2rem] font-semibold">Jenis Kelamin</h1>
+              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+                <GenderIntersex
+                  size={26}
+                  color="#00000"
+                  weight="bold"
+                  className="absolute left-[1.5rem]"
+                />
+                <h1
+                  className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
+                  pr-[2rem] font-semibold text-black`}
+                >
+                  {formData.gender === 0 ? "Laki-Laki" : "Perempuan"}
+                </h1>
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
@@ -202,6 +393,7 @@ const FormRegister = () => {
                 value={formData.password}
                 name="password"
                 onChange={handleChange}
+                error={errors.password}
               >
                 <Lock
                   size={26}
@@ -221,6 +413,7 @@ const FormRegister = () => {
                 value={formData.confirmPassword}
                 name="confirmPassword"
                 onChange={handleChange}
+                error={errors.confirmPassword}
               >
                 <Lock
                   size={26}
@@ -233,7 +426,7 @@ const FormRegister = () => {
           </>
         )}
         <div className="w-full flex flex-col justify-center items-center gap-[1rem]">
-          {currentSection < 2 ? (
+          {currentSection < 3 ? (
             <ActionButton
               textColor="#ffff"
               height="3.75rem"
@@ -249,10 +442,7 @@ const FormRegister = () => {
               height="3.75rem"
               size="1.2rem"
               width="100%"
-              onClickHandler={(e: any) => {
-                e.preventDefault();
-                console.log(formData);
-              }}
+              onClickHandler={handleSubmit}
             >
               Daftar Akun
             </ActionButton>
