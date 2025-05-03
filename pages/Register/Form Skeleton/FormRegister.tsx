@@ -14,7 +14,7 @@ import InputField from "@/components/form/InputField";
 import PrimaryLink from "@/components/links/PrimaryLink";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import { z } from "zod";
-import { registerAccount } from "@/api/registerApi";
+import { registerAccount } from "@/api/authApi";
 
 const FormRegister = () => {
   const [currentSection, setSection] = useState(0);

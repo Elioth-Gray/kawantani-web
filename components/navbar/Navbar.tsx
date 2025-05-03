@@ -42,7 +42,7 @@ const Navbar = () => {
         width="9rem"
         textColor="#ffff"
         onClickHandler={() => {
-          router.push("/login");
+          router.push("/auth/login");
         }}
       >
         Mulai
