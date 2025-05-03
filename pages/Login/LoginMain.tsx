@@ -9,13 +9,56 @@ import InputField from "@/components/form/InputField";
 import PrimaryLink from "@/components/links/PrimaryLink";
 import SecondaryLink from "@/components/links/SecondaryLink";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { z } from "zod";
+import { loginAccount } from "@/api/authApi";
 
 const LoginMain = () => {
+  const [formData, setFormData] = useState<{
+    email: string;
+    password: string;
+  }>({
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof formData, string>>
+  >({});
+
+  const loginSchema = z.object({
+    email: z.string().email("Email tidak valid!").min(1, "Email wajib diisi!"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
+  });
+
   const router = useRouter();
 
-  const navigate = (e: any) => {
+  const handleChange = (e: any) => {
+    const { name, value } = e?.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    router.push("/dashboard");
+
+    const result = loginSchema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors: any = {};
+      result.error.errors.forEach((err) => {
+        const fieldName = err.path[0] as keyof typeof formData;
+        fieldErrors[fieldName] = err.message;
+      });
+      setErrors(fieldErrors);
+    } else {
+      setErrors({});
+      const result = await loginAccount(formData);
+
+      console.log("API response:", result); // Debug untuk memastikan respons yang diterima
+    }
   };
 
   return (
@@ -35,32 +78,48 @@ const LoginMain = () => {
                 action=""
                 className="w-full flex flex-col justify-center items-start gap-[1.5rem]"
               >
-                <InputField placeholder="Email" type="email">
-                  <Envelope
-                    size={26}
-                    color="#727272"
-                    weight="bold"
-                    className="absolute left-[1.5rem]"
-                  />
-                </InputField>
-                <InputField placeholder="password" type="password">
-                  {" "}
-                  <Lock
-                    size={26}
-                    color="#727272"
-                    weight="bold"
-                    className="absolute left-[1.5rem]"
-                  />
-                </InputField>
-                <div className="flex flex-row justify-end items-center w-full text-end">
-                  <SecondaryLink>Lupa Password</SecondaryLink>
+                <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+                  <h1 className="text-[1.2rem] font-semibold">Email</h1>
+                  <InputField
+                    placeholder="johndoe@mail.com"
+                    type="text"
+                    value={formData.email}
+                    name="email"
+                    onChange={handleChange}
+                    error={errors.email}
+                  >
+                    <Envelope
+                      size={26}
+                      color="#727272"
+                      weight="bold"
+                      className="absolute left-[1.5rem]"
+                    />
+                  </InputField>
+                </div>
+                <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
+                  <h1 className="text-[1.2rem] font-semibold">Password</h1>
+                  <InputField
+                    placeholder="*********"
+                    type="text"
+                    value={formData.password}
+                    name="password"
+                    onChange={handleChange}
+                    error={errors.password}
+                  >
+                    <Lock
+                      size={26}
+                      color="#727272"
+                      weight="bold"
+                      className="absolute left-[1.5rem]"
+                    />
+                  </InputField>
                 </div>
                 <ActionButton
                   textColor="#ffff"
                   height="3.75rem"
                   size="1.2rem"
                   width="100%"
-                  onClickHandler={navigate}
+                  onClickHandler={handleSubmit}
                 >
                   Masuk
                 </ActionButton>
