@@ -26,6 +26,10 @@ const LoginMain = () => {
     Partial<Record<keyof typeof formData, string>>
   >({});
 
+  const [warning, setWarning] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
   const loginSchema = z.object({
     email: z.string().email("Email tidak valid!").min(1, "Email wajib diisi!"),
     password: z.string().min(6, "Password minimal 6 karakter"),
@@ -55,9 +59,16 @@ const LoginMain = () => {
       setErrors(fieldErrors);
     } else {
       setErrors({});
+      setLoading(true);
       const result = await loginAccount(formData);
-
-      console.log("API response:", result); // Debug untuk memastikan respons yang diterima
+      if (result.success == false) {
+        setWarning(result.message);
+        setLoading(false);
+      } else {
+        setWarning("");
+        localStorage.setItem("token", result.data.token);
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -114,14 +125,20 @@ const LoginMain = () => {
                     />
                   </InputField>
                 </div>
+                {warning && (
+                  <div className="w-full h-[3.5rem] bg-red-300 rounded-md flex flex-row justify-center items-center">
+                    <h1 className="text-white font-bold">{warning}</h1>
+                  </div>
+                )}
                 <ActionButton
                   textColor="#ffff"
                   height="3.75rem"
                   size="1.2rem"
                   width="100%"
                   onClickHandler={handleSubmit}
+                  disabled={loading}
                 >
-                  Masuk
+                  {loading ? "Loading...." : "Masuk"}
                 </ActionButton>
               </form>
             </div>

@@ -11,17 +11,23 @@ import {
   GenderIntersex,
 } from "@phosphor-icons/react/dist/ssr";
 import InputField from "@/components/form/InputField";
-import PrimaryLink from "@/components/links/PrimaryLink";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import { z } from "zod";
 import { registerAccount } from "@/api/authApi";
+import { useRouter, usePathname } from "next/navigation";
 
 const FormRegister = () => {
+  const router = useRouter();
+
+  const pathname = usePathname();
+
   const [currentSection, setSection] = useState(0);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof formData, string>>
   >({});
+
+  const [warning, setWarning] = useState("");
 
   const registerSchemas = [
     z.object({
@@ -84,22 +90,27 @@ const FormRegister = () => {
     }));
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     const schema = registerSchemas[currentSection];
 
-    const result = schema.safeParse(formData);
+    const error = schema.safeParse(formData);
 
-    if (!result.success) {
+    if (!error.success) {
       const fieldErrors: any = {};
-      result.error.errors.forEach((err) => {
+      error.error.errors.forEach((err) => {
         const fieldName = err.path[0] as keyof typeof formData;
         fieldErrors[fieldName] = err.message;
       });
       setErrors(fieldErrors);
     } else {
       setErrors({});
-      registerAccount(formData);
+      const result = await registerAccount(formData);
+      if (result.success == false) {
+        setWarning(result.message);
+      } else {
+        router.push(`${pathname}/success`);
+      }
     }
   };
 
@@ -423,6 +434,11 @@ const FormRegister = () => {
                 />
               </InputField>
             </div>
+            {warning && (
+              <div className="w-full h-[3.5rem] bg-red-300 rounded-md flex flex-row justify-center items-center">
+                <h1 className="text-white font-bold">{warning}</h1>
+              </div>
+            )}
           </>
         )}
         <div className="w-full flex flex-col justify-center items-center gap-[1rem]">

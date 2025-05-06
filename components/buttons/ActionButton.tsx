@@ -7,6 +7,7 @@ const ActionButton = ({
   textColor = "#000000",
   height = "",
   width = "",
+  disabled,
   onClickHandler,
 }: {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ const ActionButton = ({
   textColor?: string;
   height?: string;
   width?: string;
+  disabled?: boolean;
   onClickHandler?: (e: any) => void;
 }) => {
   const buttonStyle = {
@@ -26,7 +28,10 @@ const ActionButton = ({
   return (
     <button
       style={buttonStyle}
-      className="py-[0.6rem] bg-[#50B34B] rounded-lg font-semibold cursor-pointer w-fit text-center"
+      className={`py-[0.6rem] bg-[#50B34B] rounded-lg ${
+        disabled ? "cursor-not-allowed" : "cursor-pointer"
+      } font-semibold cursor-  w-fit text-center`}
+      disabled={disabled}
       onClick={onClickHandler}
     >
       {children}
