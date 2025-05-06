@@ -12,7 +12,7 @@ export const registerAccount = async (formData: TRegister) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Something went wrong", data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -24,6 +24,6 @@ export const loginAccount = async (formData: TLogin) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Something went wrong", data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
