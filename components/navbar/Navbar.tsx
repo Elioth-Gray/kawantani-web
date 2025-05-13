@@ -11,15 +11,7 @@ import { User } from '@phosphor-icons/react/dist/ssr/User';
 import { CaretDown } from '@phosphor-icons/react/dist/ssr';
 import { Bell } from '@phosphor-icons/react/dist/ssr';
 import { jwtDecode } from 'jwt-decode';
-
-type DecodedToken = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  iat: number;
-  exp: number;
-};
+import { DecodedToken } from '@/types/authTypes';
 
 const Navbar = () => {
   const [isLogin, setIsLogin] = useState<boolean>(false);

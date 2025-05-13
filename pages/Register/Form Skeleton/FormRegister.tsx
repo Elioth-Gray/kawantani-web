@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import ActionButton from "@/components/buttons/ActionButton";
+import React, { useState, useEffect } from 'react';
+import ActionButton from '@/components/buttons/ActionButton';
 import {
   Envelope,
   User,
@@ -9,12 +9,12 @@ import {
   Lock,
   CalendarDot,
   GenderIntersex,
-} from "@phosphor-icons/react/dist/ssr";
-import InputField from "@/components/form/InputField";
-import SecondaryButton from "@/components/buttons/SecondaryButton";
-import { z } from "zod";
-import { registerAccount } from "@/api/authApi";
-import { useRouter, usePathname } from "next/navigation";
+} from '@phosphor-icons/react/dist/ssr';
+import InputField from '@/components/form/InputField';
+import SecondaryButton from '@/components/buttons/SecondaryButton';
+import { z } from 'zod';
+import { registerAccount } from '@/api/authApi';
+import { useRouter, usePathname } from 'next/navigation';
 
 const FormRegister = () => {
   const router = useRouter();
@@ -27,38 +27,39 @@ const FormRegister = () => {
     Partial<Record<keyof typeof formData, string>>
   >({});
 
-  const [warning, setWarning] = useState("");
+  const [warning, setWarning] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const registerSchemas = [
     z.object({
-      firstName: z.string().min(1, "Nama depan wajib diisi!"),
-      lastName: z.string().min(1, "Nama belakang wajib diisi!"),
+      firstName: z.string().min(1, 'Nama depan wajib diisi!'),
+      lastName: z.string().min(1, 'Nama belakang wajib diisi!'),
       email: z
         .string()
-        .email("Email tidak valid!")
-        .min(1, "Email wajib diisi!"),
+        .email('Email tidak valid!')
+        .min(1, 'Email wajib diisi!'),
       phoneNumber: z
         .string()
-        .min(10, "Nomor telepon tidak valid!")
-        .min(1, "Nomor telepon wajib diisi!"),
-      dateOfBirth: z.string().min(1, "Tanggal lahir wajib diisi!"),
+        .min(10, 'Nomor telepon tidak valid!')
+        .min(1, 'Nomor telepon wajib diisi!'),
+      dateOfBirth: z.string().min(1, 'Tanggal lahir wajib diisi!'),
       gender: z.number({
-        required_error: "Jenis kelamin wajib diisi!",
-        invalid_type_error: "Jenis kelamin wajib diisi!",
+        required_error: 'Jenis kelamin wajib diisi!',
+        invalid_type_error: 'Jenis kelamin wajib diisi!',
       }),
     }),
     z.object({}),
     z.any(),
     z
       .object({
-        password: z.string().min(6, "Password minimal 6 karakter"),
+        password: z.string().min(6, 'Password minimal 6 karakter'),
         confirmPassword: z
           .string()
-          .min(6, "Konfirmasi password minimal 6 karakter"),
+          .min(6, 'Konfirmasi password minimal 6 karakter'),
       })
       .refine((data) => data.password === data.confirmPassword, {
-        path: ["confirmPassword"],
-        message: "Konfirmasi password tidak cocok",
+        path: ['confirmPassword'],
+        message: 'Konfirmasi password tidak cocok',
       }),
   ];
 
@@ -72,14 +73,14 @@ const FormRegister = () => {
     password: string;
     confirmPassword: string;
   }>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    dateOfBirth: "",
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    dateOfBirth: '',
     gender: null,
-    password: "",
-    confirmPassword: "",
+    password: '',
+    confirmPassword: '',
   });
 
   const handleChange = (e: any) => {
@@ -105,11 +106,14 @@ const FormRegister = () => {
       setErrors(fieldErrors);
     } else {
       setErrors({});
+      setLoading(true);
       const result = await registerAccount(formData);
       if (result.success == false) {
         setWarning(result.message);
+        setLoading(false);
       } else {
         router.push(`${pathname}/success`);
+        setLoading(false);
       }
     }
   };
@@ -147,158 +151,159 @@ const FormRegister = () => {
   }, [currentSection]);
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <form
-        action=""
-        className="w-full flex flex-col justify-center items-start gap-[1.5rem]"
+        action=''
+        className='w-full flex flex-col justify-center items-start gap-[1.5rem]'
       >
         {currentSection === 0 ? (
           <>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Nama Depan</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Nama Depan</h1>
               <InputField
-                placeholder="John"
-                type="text"
+                placeholder='John'
+                type='text'
                 value={formData.firstName}
-                name="firstName"
+                name='firstName'
                 onChange={handleChange}
                 error={errors.firstName}
               >
                 <User
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Nama Belakang</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Nama Belakang</h1>
               <InputField
-                placeholder="Doe"
-                type="text"
+                placeholder='Doe'
+                type='text'
                 value={formData.lastName}
-                name="lastName"
+                name='lastName'
                 onChange={handleChange}
                 error={errors.lastName}
               >
                 <User
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Email</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Email</h1>
               <InputField
-                placeholder="johndoe@mail.com"
-                type="text"
+                placeholder='johndoe@mail.com'
+                type='text'
                 value={formData.email}
-                name="email"
+                name='email'
                 onChange={handleChange}
                 error={errors.email}
               >
                 <Envelope
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Nomor Telepon</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Nomor Telepon</h1>
               <InputField
-                placeholder="+61812345678"
-                type="text"
+                placeholder='0812345678'
+                type='text'
                 value={formData.phoneNumber}
-                name="phoneNumber"
+                name='phoneNumber'
                 onChange={handleChange}
                 error={errors.phoneNumber}
+                maxLength={13}
               >
                 <Phone
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Tanggal Lahir</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Tanggal Lahir</h1>
               <InputField
-                placeholder="11-04-2005"
-                type="date"
+                placeholder='11-04-2005'
+                type='date'
                 value={formData.dateOfBirth}
-                name="dateOfBirth"
+                name='dateOfBirth'
                 onChange={handleChange}
                 error={errors.dateOfBirth}
               >
                 <CalendarDot
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Jenis Kelamin</h1>
-              <div className="grid grid-cols-2 items-center w-full gap-[0.75rem]">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Jenis Kelamin</h1>
+              <div className='grid grid-cols-2 items-center w-full gap-[0.75rem]'>
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => selectGender(0)}
                   className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${
                     formData.gender === 0
-                      ? "border-2 border-blue-500 bg-blue-50 text-blue-700"
-                      : "border border-gray-300 hover:border-gray-400"
+                      ? 'border-2 border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border border-gray-300 hover:border-gray-400'
                   } transition-all duration-200 font-medium cursor-pointer`}
                 >
                   Laki-Laki
                 </button>
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => selectGender(1)}
                   className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${
                     formData.gender === 1
-                      ? "border-2 border-pink-500 bg-pink-50 text-pink-700"
-                      : "border border-gray-300 hover:border-gray-400"
+                      ? 'border-2 border-pink-500 bg-pink-50 text-pink-700'
+                      : 'border border-gray-300 hover:border-gray-400'
                   } transition-all duration-200 font-medium cursor-pointer`}
                 >
                   Perempuan
                 </button>
               </div>
               {errors.gender ? (
-                <p className="text-red-500 text-sm mt-1">{errors.gender}</p>
+                <p className='text-red-500 text-sm mt-1'>{errors.gender}</p>
               ) : (
                 <></>
               )}
             </div>
           </>
         ) : currentSection === 1 ? (
-          <div className="flex flex-col justify-start items-start w-full gap-[1rem]">
-            <h1 className="text-[1.2rem] font-semibold">Upload Foto</h1>
+          <div className='flex flex-col justify-start items-start w-full gap-[1rem]'>
+            <h1 className='text-[1.2rem] font-semibold'>Upload Foto</h1>
             <input
-              type="file"
-              className="w-full bg-[#F2F2F2] rounded-lg py-[1.1rem] px-[1.1rem]"
+              type='file'
+              className='w-full bg-[#F2F2F2] rounded-lg py-[1.1rem] px-[1.1rem]'
             />
-            <p className="text-black">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
+            <p className='text-black'>SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
           </div>
         ) : currentSection == 2 ? (
           <>
-            <h1 className="font-semibold text-[1.3rem]">
+            <h1 className='font-semibold text-[1.3rem]'>
               Konfirmasi Data Diri
             </h1>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Nama Depan</h1>
-              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Nama Depan</h1>
+              <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white'>
                 <User
                   size={26}
-                  color="#00000"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#00000'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
                 <h1
                   className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
@@ -308,14 +313,14 @@ const FormRegister = () => {
                 </h1>
               </div>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Nama Depan</h1>
-              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Nama Depan</h1>
+              <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white'>
                 <User
                   size={26}
-                  color="#00000"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#00000'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
                 <h1
                   className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
@@ -325,14 +330,14 @@ const FormRegister = () => {
                 </h1>
               </div>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Email</h1>
-              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Email</h1>
+              <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white'>
                 <Envelope
                   size={26}
-                  color="#00000"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#00000'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
                 <h1
                   className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
@@ -342,14 +347,14 @@ const FormRegister = () => {
                 </h1>
               </div>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Nomor Telepon</h1>
-              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Nomor Telepon</h1>
+              <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white'>
                 <Phone
                   size={26}
-                  color="#00000"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#00000'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
                 <h1
                   className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
@@ -359,14 +364,14 @@ const FormRegister = () => {
                 </h1>
               </div>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Tanggal Lahir</h1>
-              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Tanggal Lahir</h1>
+              <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white'>
                 <CalendarDot
                   size={26}
-                  color="#00000"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#00000'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
                 <h1
                   className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
@@ -376,98 +381,99 @@ const FormRegister = () => {
                 </h1>
               </div>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Jenis Kelamin</h1>
-              <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Jenis Kelamin</h1>
+              <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg bg-white'>
                 <GenderIntersex
                   size={26}
-                  color="#00000"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#00000'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
                 <h1
                   className={`py-[1.125rem] w-full rounded-lg pl-[4.8rem]
                   pr-[2rem] font-semibold text-black`}
                 >
-                  {formData.gender === 0 ? "Laki-Laki" : "Perempuan"}
+                  {formData.gender === 0 ? 'Laki-Laki' : 'Perempuan'}
                 </h1>
               </div>
             </div>
           </>
         ) : (
           <>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">Password</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>Password</h1>
               <InputField
-                placeholder="Password"
-                type="password"
+                placeholder='Password'
+                type='password'
                 value={formData.password}
-                name="password"
+                name='password'
                 onChange={handleChange}
                 error={errors.password}
               >
                 <Lock
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
-            <div className="w-full flex flex-col justify-start items-start gap-[0.5rem]">
-              <h1 className="text-[1.2rem] font-semibold">
+            <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
+              <h1 className='text-[1.2rem] font-semibold'>
                 Konfirmasi Password
               </h1>
               <InputField
-                placeholder="Password"
-                type="password"
+                placeholder='Password'
+                type='password'
                 value={formData.confirmPassword}
-                name="confirmPassword"
+                name='confirmPassword'
                 onChange={handleChange}
                 error={errors.confirmPassword}
               >
                 <Lock
                   size={26}
-                  color="#727272"
-                  weight="bold"
-                  className="absolute left-[1.5rem]"
+                  color='#727272'
+                  weight='bold'
+                  className='absolute left-[1.5rem]'
                 />
               </InputField>
             </div>
             {warning && (
-              <div className="w-full h-[3.5rem] bg-red-300 rounded-md flex flex-row justify-center items-center">
-                <h1 className="text-white font-bold">{warning}</h1>
+              <div className='w-full h-[3.5rem] bg-red-300 rounded-md flex flex-row justify-center items-center'>
+                <h1 className='text-white font-bold'>{warning}</h1>
               </div>
             )}
           </>
         )}
-        <div className="w-full flex flex-col justify-center items-center gap-[1rem]">
+        <div className='w-full flex flex-col justify-center items-center gap-[1rem]'>
           {currentSection < 3 ? (
             <ActionButton
-              textColor="#ffff"
-              height="3.75rem"
-              size="1.2rem"
-              width="100%"
+              textColor='#ffff'
+              height='3.75rem'
+              size='1.2rem'
+              width='100%'
               onClickHandler={nextSection}
             >
               Selanjutnya
             </ActionButton>
           ) : (
             <ActionButton
-              textColor="#ffff"
-              height="3.75rem"
-              size="1.2rem"
-              width="100%"
+              textColor='#ffff'
+              height='3.75rem'
+              size='1.2rem'
+              width='100%'
+              disabled={loading}
               onClickHandler={handleSubmit}
             >
-              Daftar Akun
+              {loading ? 'Loading...' : 'Daftar Akun'}
             </ActionButton>
           )}
           {currentSection > 0 ? (
             <SecondaryButton
-              variant="black"
-              width="100%"
-              height="3.75rem"
+              variant='black'
+              width='100%'
+              height='3.75rem'
               onClickHandler={backSection}
             >
               Kembali
