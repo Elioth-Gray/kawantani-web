@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const InputField = ({
   children,
@@ -8,6 +8,7 @@ const InputField = ({
   value,
   onChange,
   error,
+  maxLength,
 }: {
   children?: React.ReactNode;
   placeholder?: string;
@@ -16,23 +17,25 @@ const InputField = ({
   value?: string;
   onChange?: (e: any) => void;
   error?: string;
+  maxLength?: number;
 }) => {
   return (
-    <div className="w-full">
-      <div className="flex flex-row justify-start items-center relative w-full border border-black rounded-lg">
+    <div className='w-full'>
+      <div className='flex flex-row justify-start items-center relative w-full border border-black rounded-lg'>
         {children}
         <input
           type={type}
           value={value}
           name={name}
           onChange={onChange}
+          maxLength={maxLength}
           className={`py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg ${
-            children ? "pl-[4.8rem]" : "px-[1rem]"
+            children ? 'pl-[4.8rem]' : 'px-[1rem]'
           } pr-[2rem] font-semibold text-[#727272]`}
           placeholder={placeholder}
         />
       </div>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <p className='text-red-500 text-sm mt-1'>{error}</p>}
     </div>
   );
 };
