@@ -6,6 +6,7 @@ import {
   Scales,
   UsersThree,
   MicrophoneStage,
+  Newspaper,
 } from '@phosphor-icons/react/dist/ssr';
 import './super.css';
 
@@ -30,7 +31,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className='flex flex-col justify-start items-start'>
                   <p className='font-semibold text-[0.8rem]'>KawanTani.co</p>
-                  <p className='text-[0.75rem]'>Workshop</p>
+                  <p className='text-[0.75rem]'>Admin</p>
                 </div>
               </div>
               <DotsThreeVertical size={24} color='#ffff'></DotsThreeVertical>
@@ -40,21 +41,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className='flex flex-col justify-start items-start gap-[0.6rem] w-full'>
                 <div className='flex flex-row justify-start items-center gap-[0.5rem] '>
                   <House size={16} color='#ffff'></House>
-                  <Link href='/facilitator/dashboard/home'>Home</Link>
+                  <Link href='/admin/dashboard/home'>Home</Link>
                 </div>
                 <div className='flex flex-row justify-start items-center gap-[0.5rem]'>
-                  <Scales size={16} color='#ffff'></Scales>
-                  <Link href='/facilitator/dashboard/sales'>Pendapatan</Link>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[0.5rem] '>
                   <UsersThree size={16} color='#ffff'></UsersThree>
-                  <Link href='/facilitator/dashboard/participants'>
-                    Peserta
-                  </Link>
+                  <Link href='/admin/dashboard/users'>Pengguna</Link>
                 </div>
-                <div className='flex flex-row justify-start items-center gap-[0.5rem] '>
-                  <MicrophoneStage size={16} color='#ffff'></MicrophoneStage>
-                  <Link href='/facilitator/dashboard/workshops'>Workshop</Link>
+                <div className='flex flex-row justify-start items-center gap-[0.5rem]'>
+                  <UsersThree size={16} color='#ffff'></UsersThree>
+                  <Link href='/admin/dashboard/facilitators'>Facilitator</Link>
                 </div>
               </div>
             </div>
