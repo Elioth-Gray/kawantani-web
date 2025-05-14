@@ -161,7 +161,7 @@ const LoginMain = () => {
               <PrimaryLink href='/auth/register'>Buat akun</PrimaryLink>
             </p>
             <p className='w-full text-center text-[#828282]'>
-              Super User? <PrimaryLink href='/auth/register'>Masuk</PrimaryLink>
+              Super User? <PrimaryLink href='/auth/super'>Masuk</PrimaryLink>
             </p>
           </div>
         </div>

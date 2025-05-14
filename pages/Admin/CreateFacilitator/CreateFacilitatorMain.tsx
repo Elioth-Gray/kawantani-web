@@ -67,7 +67,6 @@ const CreateFacilitatorsMain = () => {
   const router = useRouter();
 
   const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber);
-  const [warning, setWarning] = useState('');
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -134,13 +133,14 @@ const CreateFacilitatorsMain = () => {
       };
       const result = await createFacilitator(payload);
       if (result.success == false) {
-        setWarning(result.message);
+        alert(result.message);
         setLoading(false);
       } else {
-        console.log(result);
+        alert(result.message);
+        router.push('/admin/dashboard/facilitators');
       }
     } catch (err) {
-      console.error('Create failed:', err);
+      alert('Terjadi kesalahan');
     } finally {
       setLoading(false);
     }
@@ -311,14 +311,9 @@ const CreateFacilitatorsMain = () => {
                 )}
               </div>
             </div>
-            {warning && (
-              <div className='w-full h-[3.5rem] bg-red-500 rounded-md flex justify-center items-center'>
-                <h1 className='text-white font-bold'>{warning}</h1>
-              </div>
-            )}
             <button
               type='submit'
-              className='py-[0.5rem] px-[0.8rem] bg-white text-black rounded-lg font-semibold w-fit cursor-pointer'
+              className='py-[0.5rem] px-[0.8rem] bg-white text-black rounded-lg font-semibold w-fit cursor-pointer w-full'
               disabled={loading}
             >
               {loading ? 'Loading...' : 'Tambah Fasilitator'}
