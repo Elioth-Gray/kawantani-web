@@ -9,9 +9,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 import { getUserProfile, loginAccount } from '@/api/authApi';
-import { getToken } from '@/api/authApi';
-import { jwtDecode } from 'jwt-decode';
-import { DecodedToken } from '@/types/authTypes';
 
 const LoginMain = () => {
   const [formData, setFormData] = useState<{
@@ -158,10 +155,15 @@ const LoginMain = () => {
               <div className='col-span-1 h-[0.1rem] w-full bg-black'></div>
             </div>
           </div>
-          <p className='w-full text-center text-[#828282]'>
-            Belum punya akun?{' '}
-            <PrimaryLink href='/auth/register'>Buat akun</PrimaryLink>
-          </p>
+          <div className='w-full justify-center flex flex-col items-start gap-3'>
+            <p className='w-full text-center text-[#828282]'>
+              Belum punya akun?{' '}
+              <PrimaryLink href='/auth/register'>Buat akun</PrimaryLink>
+            </p>
+            <p className='w-full text-center text-[#828282]'>
+              Super User? <PrimaryLink href='/auth/register'>Masuk</PrimaryLink>
+            </p>
+          </div>
         </div>
       </div>
       <div className='login-image col-span-1 w-full h-full'></div>

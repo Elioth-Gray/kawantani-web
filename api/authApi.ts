@@ -77,3 +77,17 @@ export const activateUserAccount = async (code: string) => {
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const loginAdmin = async (formData: TLogin) => {
+  try {
+    const response = await axios.post(`${baseURL}/auth/admin/login`, formData);
+    console.log(response.data.data.token);
+    putToken(response.data.data.token);
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
