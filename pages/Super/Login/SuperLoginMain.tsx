@@ -16,7 +16,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 import { jwtDecode } from 'jwt-decode';
-import { loginAdmin } from '@/api/authApi';
+import { getToken, loginAdmin } from '@/api/authApi';
+import { DecodedToken } from '@/types/authTypes';
+import PrimaryLink from '@/components/links/PrimaryLink';
+import SecondaryLink from '@/components/links/SecondaryLink';
 
 const SuperLoginMain = () => {
   const [formData, setFormData] = useState<{
@@ -26,6 +29,8 @@ const SuperLoginMain = () => {
     email: '',
     password: '',
   });
+
+  const router = useRouter();
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof formData, string>>
@@ -39,8 +44,6 @@ const SuperLoginMain = () => {
     email: z.string().email('Email tidak valid!').min(1, 'Email wajib diisi!'),
     password: z.string().min(6, 'Password minimal 6 karakter'),
   });
-
-  const router = useRouter();
 
   const handleChange = (e: any) => {
     const { name, value } = e?.target;
@@ -71,6 +74,13 @@ const SuperLoginMain = () => {
         setLoading(false);
       } else {
         setWarning('');
+        const token = getToken();
+        if (token) {
+          const decodedToken = jwtDecode<DecodedToken>(token);
+          if (decodedToken.role === 'admin') {
+            router.push('/admin/dashboard/home');
+          }
+        }
       }
     }
   };
@@ -115,10 +125,14 @@ const SuperLoginMain = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className='flex justify-between'>
+        <CardFooter className='flex flex-col justify-center items-start gap-3'>
           <Button className='w-full cursor-pointer' onClick={handleSubmit}>
             Login
           </Button>
+          <p className='text-center w-full'>
+            User Reguler?{' '}
+            <SecondaryLink href='/auth/login'>Masuk</SecondaryLink>
+          </p>
         </CardFooter>
       </Card>
     </main>

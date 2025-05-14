@@ -9,6 +9,8 @@ import { CaretDown } from '@phosphor-icons/react/dist/ssr';
 import { Bell } from '@phosphor-icons/react/dist/ssr';
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react';
+import { getToken } from '@/api/authApi';
+import { removeAccessToken } from '@/api/authApi';
 
 type DecodedToken = {
   id: string;
@@ -30,8 +32,10 @@ const DashboardNavbar = () => {
     exp: 0,
   });
 
+  const router = useRouter();
+
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = getToken();
     setIsLogin(true);
     if (storedToken) {
       const decoded = jwtDecode<DecodedToken>(storedToken);
@@ -39,7 +43,11 @@ const DashboardNavbar = () => {
       console.log(userData);
     }
   }, []);
-  const router = useRouter();
+
+  const onLogout = () => {
+    removeAccessToken();
+    router.push('/auth/login');
+  };
 
   return (
     <nav className='flex flex-row justify-between items-center text-black w-full bg-[#FCF7F1] py-[2.1rem] px-[9rem]'>
@@ -81,7 +89,12 @@ const DashboardNavbar = () => {
           </div>
           <CaretDown size={18} color='#fffff'></CaretDown>
         </div>
-        <Bell size={21} color='#fffff'></Bell>
+        <button
+          className='text-red-500 cursor-pointer font-semibold hover:text-red-600 transition'
+          onClick={onLogout}
+        >
+          Logout
+        </button>
       </div>
     </nav>
   );

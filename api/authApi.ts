@@ -13,6 +13,10 @@ export const getToken = () => {
   return token;
 };
 
+export const removeAccessToken = () => {
+  localStorage.setItem('accessToken', '');
+};
+
 export const registerAccount = async (formData: TRegister) => {
   try {
     const response = await axios.post(`${baseURL}/auth/register`, formData);

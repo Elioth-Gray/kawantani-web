@@ -9,9 +9,9 @@ import {
   Newspaper,
 } from '@phosphor-icons/react/dist/ssr';
 import './super.css';
-
-import Image from 'next/image';
 import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import AdminAvatar from '@/components/avatar/AdminAvatar';
 
 export const metadata: Metadata = {
   title: 'Facilitator',
@@ -54,25 +54,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-          <div className='flex flex-row justify-between items-center w-full'>
-            <div className='flex flex-row justify-start items-start gap-[0.5rem]'>
-              <div className='size-[2.3rem] rounded-lg flex flex-col justify-center items-center object-center overflow-clip'>
-                <Image
-                  src='/images/bayam.jpg'
-                  width={100}
-                  height={100}
-                  className='w-full h-full object-cover'
-                  alt='gambar'
-                  unoptimized
-                ></Image>
-              </div>
-              <div className='flex flex-col justify-start items-start'>
-                <p className='font-semibold text-[0.8rem]'>Pilemon Barimbing</p>
-                <p className='text-[0.75rem] line-c'>pilemon@mail.com</p>
-              </div>
-            </div>
-            <DotsThreeVertical size={24} color='#ffff'></DotsThreeVertical>
-          </div>
+          <AdminAvatar></AdminAvatar>
         </div>
       </nav>
       {children}

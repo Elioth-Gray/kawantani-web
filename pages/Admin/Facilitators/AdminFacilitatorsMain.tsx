@@ -15,7 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, ArrowUpDown, PlusCircle } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
-import { getAllFacilitator } from '@/api/facilitatorApi';
+import { deleteFacilitator, getAllFacilitator } from '@/api/facilitatorApi';
 
 type SortableKey =
   | 'nomor'
@@ -56,6 +56,38 @@ const AdminFacilitatorsMain = () => {
     router.push(`${pathname}/create`);
   };
 
+  const onDeleteFacilitator = async (id: string) => {
+    const confirmed = window.confirm(
+      'Apakah kamu ingin menghapus facilitator ini?'
+    );
+    if (!confirmed) return;
+
+    try {
+      const result = await deleteFacilitator(id);
+      if (result.status === true) {
+        setFacilitators((prev) => {
+          const updated = prev
+            .filter((user) => user.id_facilitator !== id)
+            .map((user, index) => ({
+              ...user,
+              nomor: index + 1,
+            }));
+          return updated;
+        });
+
+        alert('Berhasil menghapus facilitator.');
+      } else {
+        alert(result.message || 'Ada kesalahan');
+      }
+    } catch (error: any) {
+      alert('Ada kesalahan');
+    }
+  };
+
+  const onEditFacilitator = (id: string) => {
+    router.push(`${pathname}/edit/${id}`);
+  };
+
   useEffect(() => {
     const fetchFacilitators = async () => {
       try {
@@ -73,7 +105,7 @@ const AdminFacilitatorsMain = () => {
     };
 
     fetchFacilitators();
-  }, []);
+  }, [facilitators]);
 
   const requestSort = (key: SortableKey) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -238,10 +270,18 @@ const AdminFacilitatorsMain = () => {
                     {row.nomor_telepon_facilitator}
                   </TableCell>
                   <TableCell className='text-right flex flex-row justify-center items-center gap-5'>
-                    <p className='text-red-400 font-semibold cursor-pointer'>
+                    <p
+                      className='text-red-400 font-semibold cursor-pointer'
+                      onClick={() => onDeleteFacilitator(row.id_facilitator)}
+                    >
                       Hapus
                     </p>
-                    <p className='text-blue-400 font-semibold cursor-pointer'>
+                    <p
+                      className='text-blue-400 font-semibold cursor-pointer'
+                      onClick={() => {
+                        onEditFacilitator(row.id_facilitator);
+                      }}
+                    >
                       Edit
                     </p>
                   </TableCell>
