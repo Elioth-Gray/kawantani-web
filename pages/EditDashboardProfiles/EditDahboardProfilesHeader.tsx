@@ -1,7 +1,7 @@
 import React from "react";
 import DashboardNavbar from "@/components/navbar/DashboardNavbar";
 
-const DashboardProfilesHeader = () => {
+const EditDashboardProfileHeader = () => {
     return (
         <>
             <DashboardNavbar></DashboardNavbar>
@@ -9,4 +9,4 @@ const DashboardProfilesHeader = () => {
     )
 }
 
-export default DashboardProfilesHeader;
+export default EditDashboardProfileHeader;
