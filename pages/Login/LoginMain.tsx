@@ -64,10 +64,12 @@ const LoginMain = () => {
       } else {
         setWarning('');
         const profile = await getUserProfile();
-        const verified = profile.data.user.verificationSchema;
-        if (verified) {
+        const verified = profile.data.user.status_verfikasi;
+        console.log(profile);
+        console.log(verified);
+        if (verified && verified == true) {
           router.push('/dashboard');
-        } else {
+        } else if (verified && verified == false) {
           router.push('/auth/activation');
         }
         setLoading(false);

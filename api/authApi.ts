@@ -46,7 +46,7 @@ export const loginAccount = async (formData: TLogin) => {
 export const getUserProfile = async () => {
   const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/auth/me`, {
+    const response = await axios.get(`${baseURL}/users/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -71,7 +71,7 @@ export const activateUserAccount = async (code: string) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response.data;
   } catch (error: any) {
