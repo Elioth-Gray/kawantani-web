@@ -49,7 +49,7 @@ const HomeHeader = () => {
                 </div>
               </div>
               <Image
-                src='/images/header-plant.png'
+                src='/images/header-plant.webp'
                 className=''
                 width={600}
                 height={600}
