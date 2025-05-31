@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react"; // Added useState and useEffect
 import {
   Calendar,
   Timer,
@@ -10,9 +10,56 @@ import {
 import Image from "next/image";
 import ActionButton from "@/components/buttons/ActionButton";
 import { useRouter } from "next/navigation";
+import { getWorkshopById } from "@/api/workshopApi"; // Added workshop API import
+import { getUserProfile } from "@/api/authApi"; // Added user profile API import
+import { TWorkshopDetailResponse } from "@/types/workshopTypes"; // Added type import
+import { DecodedToken } from "@/types/authTypes"; // Added type import
 
 const UserWorkshopMain = () => {
   const router = useRouter();
+  const [workshop, setWorkshop] = useState<TWorkshopDetailResponse | null>(null); // Added state for workshop data
+  const [userData, setUserData] = useState<DecodedToken | null>(null); // Added state for user data
+  const [isLoading, setIsLoading] = useState(true); // Added loading state
+
+  // Added useEffect for fetching data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const workshopId = window.location.pathname.split('/').pop();
+        if (!workshopId) {
+          throw new Error("Workshop ID not found");
+        }
+
+        // Fetch workshop data
+        const workshopResponse = await getWorkshopById(workshopId);
+        if (workshopResponse.success && workshopResponse.data) {
+          setWorkshop(workshopResponse);
+        }
+
+        // Fetch user profile data
+        const userResponse = await getUserProfile();
+        if (userResponse.success && userResponse.data) {
+          setUserData(userResponse.data);
+        }
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!workshop || !workshop.data || !userData) {
+    return <div>Data not found</div>;
+  }
 
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
@@ -49,23 +96,23 @@ const UserWorkshopMain = () => {
               </h1>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Nama Peserta</p>
-                <p>: Mas Azril</p>
+                <p>: {userData.firstName} {userData.lastName}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Email</p>
-                <p>: Azriel123@mail.com</p>
+                <p>: {userData.email}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Nomor Telepon</p>
-                <p>: 08123456789</p>
+                <p>: {userData.phoneNumber || 'Belum diisi'}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Tanggal Lahir</p>
-                <p>: 19 April 2025</p>
+                <p>: {userData.dateOfBirth || 'Belum diisi'}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Jenis Kelamin</p>
-                <p>: Laki-Laki</p>
+                <p>: {userData.gender === 1 ? 'Laki-Laki' : userData.gender === 2 ? 'Perempuan' : 'Belum diisi'}</p>
               </div>
             </div>
             <div className="flex flex-col justify-start items-start gap-[0.3rem] w-[60%]">
@@ -78,7 +125,7 @@ const UserWorkshopMain = () => {
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Total Harga</p>
-                <p>: Rp.100.000,00</p>
+                <p>: Rp.{workshop.data.harga_workshop},00</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Status Pembayaran</p>
@@ -101,22 +148,31 @@ const UserWorkshopMain = () => {
                 className=" object-cover w-full h-[16.8rem] rounded-lg"
                 width={545}
                 height={307}
-                src="/images/workshop-image.webp"
-                alt="cabai"
+                src={workshop.data.gambar_workshop || "/images/workshop-image.webp"}
+                alt={workshop.data.judul_workshop || "workshop image"}
                 quality={100}
                 unoptimized
               ></Image>
               <h1 className="text-[1.5rem] font-semibold w-[70%]">
-                Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah
+                {workshop.data.judul_workshop}
               </h1>
               <div className="flex flex-col justify-start items-start gap-[0.9rem]">
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <Calendar size={26} color="#000000" />
-                  <p className="text-[0.75rem]">Jumat, 15 Februari 2025</p>
+                  <p className="text-[0.75rem]">
+                    {new Date(workshop.data.tanggal_workshop).toLocaleDateString('id-ID', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <MapPin size={26} color="#000000" />
-                  <p className="text-[0.75rem]">Mojokerto, Jawa Timur</p>
+                  <p className="text-[0.75rem]">
+                    {workshop.data.alaamt_lengkap_workshop}
+                  </p>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <Timer size={26} color="#000000" />

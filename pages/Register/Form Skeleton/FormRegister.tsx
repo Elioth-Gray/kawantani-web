@@ -72,6 +72,7 @@ const FormRegister = () => {
     gender: 0 | 1 | null;
     password: string;
     confirmPassword: string;
+    file?: File | null;
   }>({
     firstName: '',
     lastName: '',
@@ -81,7 +82,9 @@ const FormRegister = () => {
     gender: null,
     password: '',
     confirmPassword: '',
+    file: null,
   });
+
 
   const handleChange = (e: any) => {
     const { name, value } = e?.target;
@@ -91,15 +94,21 @@ const FormRegister = () => {
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData((prev) => ({ ...prev, file }));
+  };
+
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const schema = registerSchemas[currentSection];
 
-    const error = schema.safeParse(formData);
+    const result = schema.safeParse(formData);
 
-    if (!error.success) {
+    if (!result.success) {
       const fieldErrors: any = {};
-      error.error.errors.forEach((err) => {
+      result.error.errors.forEach((err) => {
         const fieldName = err.path[0] as keyof typeof formData;
         fieldErrors[fieldName] = err.message;
       });
@@ -107,16 +116,40 @@ const FormRegister = () => {
     } else {
       setErrors({});
       setLoading(true);
-      const result = await registerAccount(formData);
-      if (result.success == false) {
-        setWarning(result.message);
-        setLoading(false);
-      } else {
-        router.push(`${pathname}/success`);
+
+      const form = new FormData();
+
+      // Convert gender to string if backend expects string
+      form.append('firstName', formData.firstName);
+      form.append('lastName', formData.lastName);
+      form.append('email', formData.email);
+      form.append('phoneNumber', formData.phoneNumber);
+      form.append('dateOfBirth', formData.dateOfBirth);
+      form.append('gender', formData.gender?.toString() || '');
+      form.append('password', formData.password);
+      form.append('confirmPassword', formData.confirmPassword);
+
+      if (formData.file) {
+        form.append('avatar', formData.file);
+      }
+
+      try {
+        const result = await registerAccount(form);
+        console.log(result);
+
+        if (result.success === false) {
+          setWarning(result.message);
+        } else {
+          router.push(`${pathname}/success`);
+        }
+      } catch (error) {
+        setWarning('Terjadi kesalahan saat mendaftar');
+      } finally {
         setLoading(false);
       }
     }
   };
+
 
   const selectGender = (gender: 0 | 1) => {
     setFormData((prev) => ({ ...prev, gender }));
@@ -255,22 +288,20 @@ const FormRegister = () => {
                 <button
                   type='button'
                   onClick={() => selectGender(0)}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${
-                    formData.gender === 0
-                      ? 'border-2 border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border border-gray-300 hover:border-gray-400'
-                  } transition-all duration-200 font-medium cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${formData.gender === 0
+                    ? 'border-2 border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border border-gray-300 hover:border-gray-400'
+                    } transition-all duration-200 font-medium cursor-pointer`}
                 >
                   Laki-Laki
                 </button>
                 <button
                   type='button'
                   onClick={() => selectGender(1)}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${
-                    formData.gender === 1
-                      ? 'border-2 border-pink-500 bg-pink-50 text-pink-700'
-                      : 'border border-gray-300 hover:border-gray-400'
-                  } transition-all duration-200 font-medium cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${formData.gender === 1
+                    ? 'border-2 border-pink-500 bg-pink-50 text-pink-700'
+                    : 'border border-gray-300 hover:border-gray-400'
+                    } transition-all duration-200 font-medium cursor-pointer`}
                 >
                   Perempuan
                 </button>
@@ -287,6 +318,7 @@ const FormRegister = () => {
             <h1 className='text-[1.2rem] font-semibold'>Upload Foto</h1>
             <input
               type='file'
+              onChange={handleFileChange}
               className='w-full bg-[#F2F2F2] rounded-lg py-[1.1rem] px-[1.1rem]'
             />
             <p className='text-black'>SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
