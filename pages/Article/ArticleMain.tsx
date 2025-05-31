@@ -3,12 +3,42 @@
 import React from "react";
 import ArticleCard from "@/components/cards/ArticleCard";
 import { Check, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputField from "@/components/form/InputField";
+import { getAllArticles } from "@/api/articleApi";
 
 const ArticleMain = () => {
   const [ratingFilter, setRating] = useState<number>(0);
   const [typeFilter, setType] = useState<number[]>([]);
+  const [articles, setArticles] = useState([{}]);
+  const [isLoading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    console.log(articles);
+  }, [articles]);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await getAllArticles();
+        console.log(response.data)
+        console.log(response.success)
+        if (response.data) {
+          setArticles(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  useEffect(() => {
+    console.log(articles)
+  }, [articles])
 
   const toggleRating = (newRating: number) => {
     setRating((prevRating) => (prevRating === newRating ? 0 : newRating));
@@ -24,6 +54,15 @@ const ArticleMain = () => {
     });
   };
 
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString("id-ID", options);
+  };
+
   return (
     <main>
       <section className="w-full h-screen grid grid-cols-12">
@@ -35,9 +74,8 @@ const ArticleMain = () => {
             <div className="px-[2.313rem] flex flex-row justify-start items-center gap-[1.6rem]">
               <div className="flex flex-col justify-center items-center gap-[0.1rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 1 ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${ratingFilter >= 1 ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleRating(1)}
                 >
                   {ratingFilter >= 1 ? (
@@ -52,9 +90,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-col justify-center items-center gap-[0.1rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 2 ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${ratingFilter >= 2 ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleRating(2)}
                 >
                   {ratingFilter >= 2 ? (
@@ -69,9 +106,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-col justify-center items-center gap-[0.1rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 3 ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${ratingFilter >= 3 ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleRating(3)}
                 >
                   {ratingFilter >= 3 ? (
@@ -86,9 +122,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-col justify-center items-center gap-[0.1rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 4 ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${ratingFilter >= 4 ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleRating(4)}
                 >
                   {ratingFilter >= 4 ? (
@@ -103,9 +138,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-col justify-center items-center gap-[0.1rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 5 ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${ratingFilter >= 5 ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleRating(5)}
                 >
                   {ratingFilter >= 5 ? (
@@ -128,9 +162,8 @@ const ArticleMain = () => {
             <div className="px-[2.313rem] flex flex-col justify-start items-start gap-[1.6rem]">
               <div className="flex flex-row justify-center items-center gap-[0.9rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(1) ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(1) ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleType(1)}
                 >
                   {typeFilter.includes(1) ? (
@@ -147,9 +180,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-row justify-center items-center gap-[0.9rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(2) ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(2) ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleType(2)}
                 >
                   {typeFilter.includes(2) ? (
@@ -166,9 +198,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-row justify-center items-center gap-[0.9rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(3) ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(3) ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleType(3)}
                 >
                   {typeFilter.includes(3) ? (
@@ -185,9 +216,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-row justify-center items-center gap-[0.9rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(4) ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(4) ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleType(4)}
                 >
                   {typeFilter.includes(4) ? (
@@ -202,9 +232,8 @@ const ArticleMain = () => {
               </div>
               <div className="flex flex-row justify-center items-center gap-[0.9rem]">
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(5) ? "bg-[#78D14D]" : "bg-white"
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(5) ? "bg-[#78D14D]" : "bg-white"
+                    }`}
                   onClick={() => toggleType(5)}
                 >
                   {typeFilter.includes(5) ? (
@@ -223,6 +252,7 @@ const ArticleMain = () => {
             <div className="w-full h-[0.063rem] bg-[#C3C6D4] mt-[1.25rem]"></div>
           </div>
         </section>
+
         <section className="col-span-9 px-[4.8rem] py-[1.9rem] flex flex-col justify-start items-start gap-[2.3rem] overflow-y-scroll mb-[1.9rem]">
           <h1 className="text-[2.5rem] font-semibold">Daftar Artikel</h1>
           <div className="w-[40%]">
@@ -235,50 +265,28 @@ const ArticleMain = () => {
               ></MagnifyingGlass>
             </InputField>
           </div>
-          <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            ></ArticleCard>
-          </div>
+
+          {isLoading ? (
+            <div className="w-full flex justify-center items-center">
+              <p>Memuat artikel...</p>
+            </div>
+          ) : articles.length === 0 ? (
+            <div className="w-full flex justify-center items-center">
+              <p>Tidak ada artikel yang tersedia</p>
+            </div>
+          ) : (
+            <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
+              {articles.map((article) => (
+                <ArticleCard
+                  key={article.id_artikel}
+                  imageURL={`http://localhost:2000/api/uploads/articles/${article.gambar_artikel}`}
+                  title={article.judul_artikel}
+                  date={formatDate(article.tanggal_artikel)}
+                  href={`/articles/${article.id_artikel}/details`}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </section>
     </main>
