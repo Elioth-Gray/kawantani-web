@@ -4,7 +4,7 @@ export type TArticle = {
   deskripsi_artikel?: string;
   isi_artikel?: string;
   gambar_artikel?: string;
-  status_artikel: "DRAFT" | "PUBLISHED";
+  status_artikel: 'DRAFT' | 'PUBLISHED';
   status_verifikasi?: boolean;
   status_aktif: boolean;
   tanggal_artikel: string;
@@ -46,7 +46,7 @@ export type TCreateArticle = {
   content: string;
   image: File | string;
   category: string;
-  articleStatus: "DRAFT" | "PUBLISHED";
+  articleStatus: 'DRAFT' | 'PUBLISHED';
 };
 
 export type TUpdateArticle = {
@@ -55,7 +55,7 @@ export type TUpdateArticle = {
   description: string;
   content: string;
   image: File | string;
-  articleStatus: "DRAFT" | "PUBLISHED";
+  articleStatus: 'DRAFT' | 'PUBLISHED';
 };
 
 export type TCommentArticle = {
@@ -70,10 +70,4 @@ export type TSaveArticle = {
 export type TLikeArticle = {
   id: string;
   rating: number;
-};
-
-export type TArticleResponse = {
-  success: boolean;
-  message: string;
-  data: TArticle | TArticle[] | null;
 };
