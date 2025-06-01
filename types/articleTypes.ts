@@ -67,6 +67,10 @@ export type TSaveArticle = {
   id: string;
 };
 
+export type TUnsaveArticle = {
+  id: string;
+};
+
 export type TLikeArticle = {
   id: string;
   rating: number;

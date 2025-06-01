@@ -1,9 +1,8 @@
 "use client";
 
 import PrimaryButton from "@/components/buttons/PrimaryButton";
-import React from "react";
-import { useState, useEffect } from "react";
-import { getAllArticles } from "@/api/articleApi";
+import React, { useState, useEffect } from "react";
+import { unsaveArticle, saveArticle, getArticleById, checkArticleSaved } from "@/api/articleApi";
 import Image from "next/image";
 import {
   Bookmark,
@@ -11,125 +10,172 @@ import {
   Share,
   ArrowLeft,
 } from "@phosphor-icons/react/dist/ssr";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const ArticleDetailMain = () => {
-  const [isLoading, setLoading] = useState<boolean>(true);
-  const [articles, setArticles] = useState([{}]);
+  const [article, setArticle] = useState<any>(null);
+  const [isLoading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const pathname = usePathname();
   const router = useRouter();
 
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-  }
+  // Fungsi untuk mengecek status saved artikel
+  const checkSavedStatus = async (articleId: string) => {
+    try {
+      const response = await checkArticleSaved({ id: articleId });
+      setIsSaved(response?.data?.isSaved || false);
+    } catch (error) {
+      console.error("Error checking saved status:", error);
+      setMessage("Gagal memeriksa status penyimpanan artikel");
+    }
+  };
 
+  // Fungsi untuk handle save/unsave
+  const toggleSave = async () => {
+    if (!article) return;
+
+    try {
+      let response;
+      if (isSaved) {
+        response = await unsaveArticle({ id: article.id_artikel });
+      } else {
+        response = await saveArticle({ id: article.id_artikel });
+      }
+
+      if (response.success) {
+        setIsSaved(!isSaved);
+        setMessage(
+          isSaved
+            ? "Artikel dihapus dari simpan"
+            : "Artikel disimpan"
+        );
+      } else {
+        setMessage(response.message || "Gagal memproses permintaan");
+        // If the error is about already being saved, update the state
+        if (response.message.includes('sudah disimpan')) {
+          setIsSaved(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling save:", error);
+      setMessage("Terjadi kesalahan");
+    } finally {
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString("id-ID", options);
+  };
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchArticle = async () => {
+      const segments = pathname.split("/");
+      const articleId = segments[2];
+
       try {
-        const response = await getAllArticles();
-        console.log(response.data)
-        console.log(response.success)
-        if (response.data) {
-          setArticles(response.data);
+        const response = await getArticleById(articleId);
+        if (response && response.data) {
+          setArticle(response.data);
+          // Cek status saved setelah data artikel didapatkan
+          await checkSavedStatus(articleId);
         }
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error("Error fetching article:", error);
+        setMessage("Gagal memuat artikel");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArticles();
-  }, []);
+    fetchArticle();
+  }, [pathname]);
+
+  if (isLoading) return <div className="text-center py-8">Memuat artikel...</div>;
+  if (!article) return <div className="text-center py-8">Artikel tidak ditemukan.</div>;
 
   return (
     <main className="py-[6.4rem] px-[14rem]">
+      {/* Message display */}
+      {message && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#78D14D] text-white px-4 py-2 rounded-md shadow-lg z-50">
+          {message}
+        </div>
+      )}
+
+      {/* Tombol Kembali */}
       <section className="w-full">
         <div
-          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
-          onClick={() => {
-            router.back();
-          }}
+          className="flex flex-row items-center gap-4 mb-8 cursor-pointer hover:text-[#78D14D] transition"
+          onClick={() => router.back()}
         >
-          <ArrowLeft
-            size={24}
-            color="#00000"
-            weight="bold"
-            className="cursor-pointer"
-          />
-          <p className="cursor-pointer">Kembali</p>
+          <ArrowLeft size={24} weight="bold" />
+          <p>Kembali</p>
         </div>
       </section>
-      {/* Header Section */}
-      <section className="flex flex-col justify-center items-center gap-[0.9rem] mb-[3.75rem]">
-        <div className="flex flex-row justify-center items-center gap-[1.8rem]">
-          <p className="">Diterbitkan `{formatDate(article.tanggal_artikel)}`</p>
-          <div className="w-[1.1rem] h-[1.1rem] rounded-full bg-[#D9D9D9]"></div>
-          <p>Oleh {articles.penulis_artikel}</p>
-        </div>
-        <h1 className="text-center w-[50%] text-[2.5rem] font-semibold">
-          {articles.judul_artikel}
-        </h1>
-        <p className="text-center w-[60%]">
-          {articles.deskripsi_artikel}
-        </p>
-        <PrimaryButton textColor="#ffffff">
-          Teknik Pertanian dan Produksi
-        </PrimaryButton>
-      </section>
-      <section className="w-full mb-[3.75rem]">
-        <div className="flex flex-row justify-center items-center gap-[3.1rem]">
-          <div className="w-[3rem] h-[3rem] rounded-full flex flex-col justify-center items-center border bg-white border-black cursor-pointer group hover:bg-[#78D14D] hover:border-[#78D14D] transition-all ease-in-out duration-200">
-            <Bookmark
-              size={24}
-              color="#0d0d0d"
-              className="group-hover:hidden"
-            />
-            <Bookmark
-              size={24}
-              color="#ffffff"
-              className="hidden group-hover:block"
-            />
-          </div>
-          <div className="w-[3rem] h-[3rem] rounded-full flex flex-col justify-center items-center border bg-white border-black cursor-pointer group hover:bg-[#78D14D] hover:border-[#78D14D] transition-all ease-in-out duration-200">
-            <Star size={24} color="#0d0d0d" className="group-hover:hidden" />
-            <Star
-              size={24}
-              color="#ffffff"
-              className="hidden group-hover:block"
-            />
-          </div>
-          <div className="w-[3rem] h-[3rem] rounded-full flex flex-col justify-center items-center border bg-white border-black cursor-pointer group hover:bg-[#78D14D] hover:border-[#78D14D] transition-all ease-in-out duration-200">
-            <Share size={24} color="#0d0d0d" className="group-hover:hidden" />
-            <Share
-              size={24}
-              color="#ffffff"
-              className="hidden group-hover:block"
-            />
-          </div>
-        </div>
-      </section>
-      {/* Image Section */}
-      <section className="w-full flex flex-row justify-center items-center mb-[3.75rem]">
-        <div className="w-full h-[29rem] overflow-clip object-cover rounded-xl">
-          <Image
-            src="/images/bayam.webp"
-            width={100}
-            height={0}
-            alt="bayam"
-            className="w-full h-[29rem] object-cover"
-            unoptimized
-          ></Image>
-        </div>
-      </section>
-      {/* Text Section */}
-      <section className="w-full mb-[3.75rem]">
-        <div className="flex flex-col justify-start items-start text-[1.2rem] gap-[0.8rem]">
+
+      {/* Header */}
+      <section className="flex flex-col items-center gap-4 mb-12 text-center">
+        <div className="flex flex-row gap-4 items-center text-gray-600">
+          <p>Diterbitkan {formatDate(article.tanggal_artikel)}</p>
+          <div className="w-[1rem] h-[1rem] rounded-full bg-[#D9D9D9]"></div>
           <p>
-            {articles.isi_artikel}
+            Oleh {article.pengguna?.nama_depan_pengguna}{" "}
+            {article.pengguna?.nama_belakang_pengguna}
           </p>
         </div>
+        <h1 className="text-3xl font-semibold">{article.judul_artikel}</h1>
+        <p className="max-w-2xl text-gray-700">{article.deskripsi_artikel}</p>
+        <PrimaryButton textColor="#ffffff" className="mt-4">
+          {article.kategori?.nama_kategori_artikel || "Tanpa Kategori"}
+        </PrimaryButton>
       </section>
+
+      {/* Tombol Aksi */}
+      <section className="mb-12 flex justify-center gap-6">
+        <button
+          onClick={toggleSave}
+          aria-label={isSaved ? "Hapus dari simpan" : "Simpan artikel"}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition cursor-pointer ${isSaved
+              ? "bg-[#78D14D] border-[#78D14D] text-white"
+              : "border border-black hover:bg-[#78D14D] hover:border-[#78D14D]"
+            }`}
+        >
+          <Bookmark size={24} weight={isSaved ? "fill" : "regular"} />
+        </button>
+        <button className="w-12 h-12 rounded-full border border-black flex items-center justify-center hover:bg-[#78D14D] hover:border-[#78D14D] transition">
+          <Star size={24} />
+        </button>
+        <button className="w-12 h-12 rounded-full border border-black flex items-center justify-center hover:bg-[#78D14D] hover:border-[#78D14D] transition">
+          <Share size={24} />
+        </button>
+      </section>
+
+      {/* Gambar Artikel */}
+      <section className="mb-12 flex justify-center">
+        <div className="w-full h-[29rem] overflow-hidden rounded-xl shadow-lg">
+          <Image
+            src={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+            alt={article.judul_artikel}
+            width={1000}
+            height={464}
+            className="w-full h-full object-cover"
+            priority
+          />
+        </div>
+      </section>
+
+      {/* Isi Artikel */}
+      <section className="mb-12 text-lg leading-8 prose max-w-none">
+        <div dangerouslySetInnerHTML={{ __html: article.isi_artikel }} />
+      </section>
+
       {/* Comment Section */}
       <section className="w-full flex flex-col gap-[3.1rem] justify-start items-start">
         <div className="w-full h-[15rem] bg-[#F2F2F2] rounded-lg px-[3.3rem] py-[2.25rem] flex flex-col">

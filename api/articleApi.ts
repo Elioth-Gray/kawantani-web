@@ -4,6 +4,7 @@ import {
   TUpdateArticle,
   TCommentArticle,
   TSaveArticle,
+  TUnsaveArticle,
   TLikeArticle,
 } from "@/types/articleTypes";
 import { getToken } from "./authApi";
@@ -14,7 +15,6 @@ const baseURL =
 export const getAllArticles = async () => {
   try {
     const response = await axios.get(`${baseURL}/articles`);
-    console.log(response.data)
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -198,6 +198,65 @@ export const saveArticle = async (
         },
       }
     );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const unsaveArticle = async (
+  data: TUnsaveArticle
+): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.delete(`${baseURL}/articles/${data.id}/save`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const checkArticleSaved = async (data: {
+  id: string;
+}): Promise<{ success: boolean; isSaved?: boolean; message?: string }> => {
+  const token = getToken();
+  try {
+    const response = await axios.get(
+      `${baseURL}/articles/${data.id}/saved-status`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!" };
+  }
+};
+
+export const getSavedArticles = async (): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/articles/saved`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Saved articles response:", response);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
