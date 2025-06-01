@@ -14,7 +14,7 @@ const baseURL =
 
 export const getAllArticles = async () => {
   try {
-    const response = await axios.get(`${baseURL}/articles`);
+    const response = await axios.get(`${baseURL}/articles/active`);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

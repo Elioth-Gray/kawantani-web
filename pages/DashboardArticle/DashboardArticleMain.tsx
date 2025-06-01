@@ -20,8 +20,15 @@ const DashboardArticleMain = () => {
     const fetchArticles = async () => {
       try {
         const response = await getSavedArticles();
+        console.log('API Response:', response);
+
         if (response.data) {
-          setSavedArticles(response.data);
+          const articlesData = response.data.map((item: any) => ({
+            ...item.artikel,
+            id_penyimpanan: item.id_penyimpanan
+          }));
+          console.log('Processed Articles:', articlesData);
+          setSavedArticles(articlesData);
         }
       } catch (error) {
         console.error('Error fetching articles:', error);
@@ -34,12 +41,19 @@ const DashboardArticleMain = () => {
   }, []);
 
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Tanggal tidak valid';
+
+      const options: Intl.DateTimeFormatOptions = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      };
+      return date.toLocaleDateString('id-ID', options);
+    } catch {
+      return 'Tanggal tidak valid';
+    }
   };
 
 
