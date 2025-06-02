@@ -5,6 +5,7 @@ import { getToken, removeAccessToken } from '@/api/authApi';
 import { jwtDecode } from 'jwt-decode';
 import { DecodedToken } from '@/types/authTypes';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const AdminAvatar = () => {
   const [user, setUser] = useState<DecodedToken>({
@@ -13,6 +14,7 @@ const AdminAvatar = () => {
     firstName: '',
     lastName: '',
     role: '',
+    avatar: '',
     iat: 0,
     exp: 0,
   });
@@ -32,13 +34,20 @@ const AdminAvatar = () => {
     router.push('/auth/super');
   };
 
-  const avatar = user.firstName[0];
   return (
     <div className='flex flex-col justify-start items-start gap-5'>
       <div className='flex flex-row justify-between items-center w-full'>
         <div className='flex flex-row justify-start items-start gap-[1rem]'>
           <div className='size-[2.3rem] rounded-lg flex flex-col justify-center items-center object-center overflow-clip bg-white text-black'>
-            {avatar}
+            <Image
+              className=' object-cover w-full h-[16.8rem] rounded-lg'
+              width={545}
+              height={307}
+              src={`http://localhost:2000/uploads/admin/${user.avatar}`}
+              alt='Admin Avatar'
+              quality={100}
+              unoptimized
+            ></Image>
           </div>
           <div className='flex flex-col justify-start items-start'>
             <p className='font-semibold text-[0.8rem]'>

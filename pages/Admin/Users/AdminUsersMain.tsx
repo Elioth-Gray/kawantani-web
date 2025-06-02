@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useState, useMemo } from 'react';
 import { DownloadSimple } from '@phosphor-icons/react/dist/ssr';
@@ -23,42 +23,59 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { getAllUsers } from '@/api/userApi';
 
-type ParticipantData = {
+// Interface yang sesuai dengan data API
+type UserData = {
   id: number;
-  nomor: number;
-  nama: string;
-  email: string;
-  nomortelepon: string;
+  email_pengguna: string;
+  id_pengguna: string;
+  nama_belakang_pengguna: string;
+  nama_depan_pengguna: string;
+  nomor_telepon_pengguna: string;
 };
 
 type SortConfig = {
-  key: keyof ParticipantData | null;
+  key: keyof UserData | null;
   direction: 'asc' | 'desc';
 };
 
 const AdminUsersMain = () => {
-  const allSalesData: ParticipantData[] = Array(30)
-    .fill(null)
-    .map((_, index) => ({
-      id: index + 1,
-      nomor: index + 1,
-      nama: 'Edi Suharji',
-      email: 'edi@mail.com',
-      nomortelepon: '0812345678',
-    }));
-
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: null,
     direction: 'asc',
   });
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState(''); // Tambahkan state untuk filter
   const itemsPerPage = 10;
 
-  const requestSort = (key: keyof ParticipantData) => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllUsers();
+        if (response.data) {
+          const users = response.data;
+          const segmentedUsers = users.map((user: any, index: number) => ({
+            ...user,
+            id: index + 1,
+          }));
+          setUsers(segmentedUsers);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const requestSort = (key: keyof UserData) => {
     let direction: 'asc' | 'desc' = 'asc';
 
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -68,32 +85,60 @@ const AdminUsersMain = () => {
     setSortConfig({ key, direction });
   };
 
+  // Fungsi untuk memfilter data berdasarkan search term
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return users;
+
+    return users.filter((user) => {
+      const fullName =
+        `${user.nama_depan_pengguna} ${user.nama_belakang_pengguna}`.toLowerCase();
+      const email = user.email_pengguna.toLowerCase();
+      const phone = user.nomor_telepon_pengguna.toLowerCase();
+      const search = searchTerm.toLowerCase();
+
+      return (
+        fullName.includes(search) ||
+        email.includes(search) ||
+        phone.includes(search)
+      );
+    });
+  }, [users, searchTerm]);
+
   const sortedData = useMemo(() => {
-    const sortableData = [...allSalesData];
+    const sortableData = [...filteredData];
     if (sortConfig.key) {
       sortableData.sort((a, b) => {
-        if (a[sortConfig.key!] < b[sortConfig.key!]) {
+        let aValue = a[sortConfig.key!];
+        let bValue = b[sortConfig.key!];
+
+        // Handle special cases for combined fields
+        if (sortConfig.key === 'nama_depan_pengguna') {
+          aValue = `${a.nama_depan_pengguna} ${a.nama_belakang_pengguna}`;
+          bValue = `${b.nama_depan_pengguna} ${b.nama_belakang_pengguna}`;
+        }
+
+        if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        if (a[sortConfig.key!] > b[sortConfig.key!]) {
+        if (aValue > bValue) {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
       });
     }
     return sortableData;
-  }, [allSalesData, sortConfig]);
+  }, [filteredData, sortConfig]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return sortedData.slice(startIndex, startIndex + itemsPerPage);
   }, [sortedData, currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(allSalesData.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
 
   const handleRowSelect = (id: number) => {
     setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
     );
   };
 
@@ -103,7 +148,7 @@ const AdminUsersMain = () => {
 
     if (allSelected) {
       setSelectedRows((prev) =>
-        prev.filter((id) => !currentPageIds.includes(id))
+        prev.filter((id) => !currentPageIds.includes(id)),
       );
     } else {
       setSelectedRows((prev) => {
@@ -119,7 +164,7 @@ const AdminUsersMain = () => {
   };
 
   // Get sort icon for column
-  const getSortIcon = (key: keyof ParticipantData) => {
+  const getSortIcon = (key: keyof UserData) => {
     if (sortConfig.key !== key) {
       return <ArrowUpDown className='ml-1 h-4 w-4 inline opacity-50' />;
     }
@@ -130,6 +175,11 @@ const AdminUsersMain = () => {
       <ArrowDown className='ml-1 h-4 w-4 inline' />
     );
   };
+
+  // Reset pagination when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
@@ -153,6 +203,8 @@ const AdminUsersMain = () => {
             type='text'
             placeholder='Filter Pencarian...'
             className='w-[20rem]'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -166,7 +218,7 @@ const AdminUsersMain = () => {
                     checked={
                       paginatedData.length > 0 &&
                       paginatedData.every((row) =>
-                        selectedRows.includes(row.id)
+                        selectedRows.includes(row.id),
                       )
                     }
                     onCheckedChange={handleSelectAll}
@@ -174,60 +226,80 @@ const AdminUsersMain = () => {
                 </TableHead>
                 <TableHead
                   className='cursor-pointer text-white'
-                  onClick={() => requestSort('nomor')}
+                  onClick={() => requestSort('id')}
                 >
-                  Nomor {getSortIcon('nomor')}
+                  Nomor {getSortIcon('id')}
                 </TableHead>
                 <TableHead
                   className='cursor-pointer text-white'
-                  onClick={() => requestSort('nama')}
+                  onClick={() => requestSort('nama_depan_pengguna')}
                 >
-                  Nama {getSortIcon('nama')}
+                  Nama {getSortIcon('nama_depan_pengguna')}
                 </TableHead>
 
                 <TableHead
                   className='cursor-pointer text-white'
-                  onClick={() => requestSort('email')}
+                  onClick={() => requestSort('email_pengguna')}
                 >
-                  Email {getSortIcon('email')}
+                  Email {getSortIcon('email_pengguna')}
                 </TableHead>
                 <TableHead
                   className='text-right cursor-pointer text-white'
-                  onClick={() => requestSort('nomortelepon')}
+                  onClick={() => requestSort('nomor_telepon_pengguna')}
                 >
-                  Nomor Telepon {getSortIcon('nomortelepon')}
+                  Nomor Telepon {getSortIcon('nomor_telepon_pengguna')}
                 </TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className='hover:bg-zinc-900/50 border-zinc-800'
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedRows.includes(row.id)}
-                      onCheckedChange={() => handleRowSelect(row.id)}
-                    />
-                  </TableCell>
-                  <TableCell>{row.nomor}</TableCell>
-                  <TableCell>{row.nama}</TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell className='text-right'>
-                    {row.nomortelepon}
-                  </TableCell>
-                  <TableCell className='text-right flex flex-row justify-center items-center gap-5'>
-                    <p className='text-red-400 font-semibold cursor-pointer'>
-                      Hapus
-                    </p>
-                    <p className='text-blue-400 font-semibold cursor-pointer'>
-                      Edit
-                    </p>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className='text-center py-8'>
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : paginatedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className='text-center py-8'>
+                    {searchTerm
+                      ? 'Tidak ada data yang sesuai dengan pencarian'
+                      : 'Tidak ada data'}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedData.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-zinc-900/50 border-zinc-800'
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedRows.includes(row.id)}
+                        onCheckedChange={() => handleRowSelect(row.id)}
+                      />
+                    </TableCell>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>
+                      {row.nama_depan_pengguna +
+                        ' ' +
+                        row.nama_belakang_pengguna}
+                    </TableCell>
+                    <TableCell>{row.email_pengguna}</TableCell>
+                    <TableCell className='text-right'>
+                      {row.nomor_telepon_pengguna}
+                    </TableCell>
+                    <TableCell className='text-right flex flex-row justify-center items-center gap-5'>
+                      <p className='text-red-400 font-semibold cursor-pointer'>
+                        Hapus
+                      </p>
+                      <p className='text-blue-400 font-semibold cursor-pointer'>
+                        Edit
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
@@ -235,7 +307,7 @@ const AdminUsersMain = () => {
         {/* Pagination */}
         <div className='flex items-center justify-between mt-4 text-sm text-zinc-400'>
           <div>
-            {selectedRows.length} of {allSalesData.length} row(s) selected.
+            {selectedRows.length} of {sortedData.length} row(s) selected.
           </div>
           <div className='flex items-center gap-2'>
             <Button
