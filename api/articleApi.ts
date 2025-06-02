@@ -6,6 +6,7 @@ import {
   TSaveArticle,
   TUnsaveArticle,
   TLikeArticle,
+  TUnlikeArticle,
 } from "@/types/articleTypes";
 import { getToken } from "./authApi";
 
@@ -49,19 +50,37 @@ export const createArticle = async (
   formData: FormData
 ): Promise<TArticleResponse> => {
   const token = getToken();
+
+  if (!token) {
+    throw new Error("Token tidak ditemukan. Silakan login ulang.");
+  }
+
   try {
+    console.log("Sending request to create article...");
+
+    // Log FormData contents for debugging
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
     const response = await axios.post(`${baseURL}/articles/create`, formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
       },
     });
+
+    console.log("Create article response:", response.data);
     return response.data;
   } catch (error: any) {
+    console.error("Error creating article:", error);
     if (error.response && error.response.data) {
-      return error.response.data;
+      console.error("Server error response:", error.response.data);
+      throw new Error(error.response.data.message || "Gagal membuat artikel");
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+
+    throw new Error(error.message || "Terjadi kesalahan saat membuat artikel");
   }
 };
 
@@ -163,6 +182,15 @@ export const addComment = async (
   data: TCommentArticle
 ): Promise<TArticleResponse> => {
   const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tidak ditemukan. Silakan login ulang.",
+      data: null,
+    };
+  }
+
   try {
     const response = await axios.post(
       `${baseURL}/articles/${data.id}/comments`,
@@ -172,15 +200,25 @@ export const addComment = async (
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
-    return response.data;
+
+    return {
+      success: true,
+      message: response.data.message || "Komentar berhasil ditambahkan",
+      data: response.data.data,
+    };
   } catch (error: any) {
-    if (error.response && error.response.data) {
+    if (error.response) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return {
+      success: false,
+      message: error.message || "Terjadi Kesalahan!",
+      data: null,
+    };
   }
 };
 
@@ -226,28 +264,6 @@ export const unsaveArticle = async (
   }
 };
 
-export const checkArticleSaved = async (data: {
-  id: string;
-}): Promise<{ success: boolean; isSaved?: boolean; message?: string }> => {
-  const token = getToken();
-  try {
-    const response = await axios.get(
-      `${baseURL}/articles/${data.id}/saved-status`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      return error.response.data;
-    }
-    return { success: false, message: "Terjadi Kesalahan!" };
-  }
-};
-
 export const getSavedArticles = async (): Promise<TArticleResponse> => {
   const token = getToken();
   try {
@@ -282,6 +298,25 @@ export const likeArticle = async (
         },
       }
     );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const unlikeArticle = async (
+  data: TUnlikeArticle
+): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.delete(`${baseURL}/articles/${data.id}/like`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

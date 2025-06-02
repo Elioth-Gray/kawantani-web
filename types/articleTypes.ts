@@ -75,3 +75,8 @@ export type TLikeArticle = {
   id: string;
   rating: number;
 };
+
+export type TUnlikeArticle = {
+  id: string;
+  rating: number;
+};
