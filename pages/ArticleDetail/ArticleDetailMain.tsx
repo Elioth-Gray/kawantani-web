@@ -146,8 +146,6 @@ const ArticleDetailMain = () => {
   };
 
   const handleCommentSubmit = async () => {
-     console.log("Tombol diklik!");
-
     if (!article || !commentContent.trim() || isCommenting) return;
 
     setIsCommenting(true);

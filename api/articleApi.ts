@@ -46,6 +46,23 @@ export const getArticleById = async (id: string): Promise<TArticleResponse> => {
   }
 };
 
+export const getYourArticles = async (): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/articles/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
 export const createArticle = async (
   formData: FormData
 ): Promise<TArticleResponse> => {
