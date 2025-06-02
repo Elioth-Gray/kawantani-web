@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
-import { getUserById } from '@/api/userApi';
+import { getUserById, updateUser } from '@/api/userApi';
 
 const userSchema = z
   .object({
@@ -43,7 +43,17 @@ const EditUserMain = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    dateOfBirth: string;
+    gender: number;
+    password: string;
+    confirmPassword: string;
+    file?: File | null;
+  }>({
     firstName: '',
     lastName: '',
     email: '',
@@ -52,7 +62,7 @@ const EditUserMain = () => {
     password: '',
     confirmPassword: '',
     gender: 0,
-    avatar: '',
+    file: null,
   });
 
   const [errors, setErrors] = useState<
@@ -80,8 +90,10 @@ const EditUserMain = () => {
             password: user.password_pengguna,
             confirmPassword: user.password_pengguna,
             gender: user.jenisKelamin ?? 0,
-            avatar: `http://localhost:2000/uploads/users/${user.avatar}`,
           });
+          setAvatarPreview(
+            `http://localhost:2000/uploads/users/${user.avatar}`,
+          );
         } else {
           console.error('Failed to load user:', response.message);
           alert('Gagal memuat data pengguna');
@@ -117,6 +129,10 @@ const EditUserMain = () => {
     const file = e.target.files?.[0];
     if (file) {
       setAvatarFile(file);
+      setFormData((prev) => ({
+        ...prev,
+        file,
+      }));
       const previewUrl = URL.createObjectURL(file);
       setAvatarPreview(previewUrl);
     }
@@ -140,35 +156,35 @@ const EditUserMain = () => {
     setErrors({});
     setLoading(true);
 
+    const form = new FormData();
+
+    // Convert gender to string if backend expects string
+    form.append('firstName', formData.firstName);
+    form.append('lastName', formData.lastName);
+    form.append('email', formData.email);
+    form.append('phoneNumber', formData.phoneNumber);
+    form.append('dateOfBirth', formData.dateOfBirth);
+    form.append('gender', formData.gender?.toString() || '');
+    form.append('password', formData.password);
+    form.append('confirmPassword', formData.confirmPassword);
+
+    if (formData.file) {
+      form.append('avatar', formData.file);
+    }
+
     try {
-      const payload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        dateOfBirth: formData.dateOfBirth,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        gender: formData.gender,
-      };
+      const result = await updateUser(form, id as string);
+      console.log(result);
 
-      if (typeof id !== 'string') {
-        console.error('Invalid ID');
-        alert('ID tidak valid');
-        return;
+      if (!result.success) {
+        alert(result.message);
+      } else {
+        alert(result.message);
+        router.push('/admin/dashboard/facilitators');
       }
-
-      //   const result = await updateUser(id, payload);
-
-      //   if (!result.success) {
-      //     alert(result.message || 'Gagal memperbarui pengguna');
-      //   } else {
-      //     alert(result.message || 'Pengguna berhasil diperbarui');
-      //     router.push('/admin/dashboard/users');
-      //   }
-    } catch (err) {
-      alert('Terjadi kesalahan saat memperbarui data');
-      console.error('Error updating user:', err);
+    } catch (error) {
+      alert('Terjadi kesalahan');
+      console.error('Error updating facilitator:', error);
     } finally {
       setLoading(false);
     }
@@ -197,10 +213,10 @@ const EditUserMain = () => {
         ) : (
           <form className='w-full' onSubmit={handleSubmit}>
             <div className='flex flex-col justify-center items-center w-full mb-10'>
-              {(avatarPreview || formData.avatar) && (
+              {avatarPreview && (
                 <div className='flex flex-col justify-start items-center gap-3 mb-4'>
                   <img
-                    src={avatarPreview || formData.avatar}
+                    src={avatarPreview}
                     alt='Avatar Pengguna'
                     className='w-32 h-32 rounded-full object-cover border-2 border-white'
                   />
@@ -363,7 +379,7 @@ const EditUserMain = () => {
 
               <button
                 type='submit'
-                className='py-[0.8rem] px-[1.2rem] bg-white text-black rounded-lg font-semibold w-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                className='py-[0.8rem] px-[1.2rem] bg-white text-black rounded-lg font-semibold w-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
                 disabled={loading}
               >
                 {loading ? 'Memperbarui...' : 'Perbarui Pengguna'}
