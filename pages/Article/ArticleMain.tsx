@@ -9,14 +9,9 @@ import { getAllArticles } from '@/api/articleApi';
 import { TArticle } from '@/types/articleTypes';
 
 const ArticleMain = () => {
-  const [ratingFilter, setRating] = useState<number>(0);
   const [typeFilter, setType] = useState<number[]>([]);
   const [articles, setArticles] = useState<TArticle[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    console.log(articles);
-  }, [articles]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -34,14 +29,6 @@ const ArticleMain = () => {
 
     fetchArticles();
   }, []);
-
-  useEffect(() => {
-    console.log(articles);
-  }, [articles]);
-
-  const toggleRating = (newRating: number) => {
-    setRating((prevRating) => (prevRating === newRating ? 0 : newRating));
-  };
 
   const toggleType = (filterId: number) => {
     setType((prevFilters) => {
@@ -69,106 +56,14 @@ const ArticleMain = () => {
         <section className='w-[22.875rem] py-[1.9rem] col-span-3 flex flex-col justify-start items-start h-full border-r-2 gap-[3rem]'>
           <h1 className='px-[2.313rem] font-bold text-[2.5rem]'>Filter</h1>
           <div className='flex flex-col justify-start items-start gap-[0.75rem] w-full'>
-            <h1 className='px-[2.313rem] text-[1.5rem] font-bold'>Rating</h1>
-            <div className='px-[2.313rem] flex flex-row justify-start items-center gap-[1.6rem]'>
-              <div className='flex flex-col justify-center items-center gap-[0.1rem]'>
-                <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 1 ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
-                  onClick={() => toggleRating(1)}
-                >
-                  {ratingFilter >= 1 ? (
-                    <>
-                      <Check size={18} color='#ffffff' weight='bold'></Check>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-                <p className='font-bold text-[0.6rem]'>1</p>
-              </div>
-              <div className='flex flex-col justify-center items-center gap-[0.1rem]'>
-                <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 2 ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
-                  onClick={() => toggleRating(2)}
-                >
-                  {ratingFilter >= 2 ? (
-                    <>
-                      <Check size={18} color='#ffffff' weight='bold'></Check>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-                <p className='font-bold text-[0.6rem]'>2</p>
-              </div>
-              <div className='flex flex-col justify-center items-center gap-[0.1rem]'>
-                <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 3 ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
-                  onClick={() => toggleRating(3)}
-                >
-                  {ratingFilter >= 3 ? (
-                    <>
-                      <Check size={18} color='#ffffff' weight='bold'></Check>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-                <p className='font-bold text-[0.6rem]'>3</p>
-              </div>
-              <div className='flex flex-col justify-center items-center gap-[0.1rem]'>
-                <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 4 ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
-                  onClick={() => toggleRating(4)}
-                >
-                  {ratingFilter >= 4 ? (
-                    <>
-                      <Check size={18} color='#ffffff' weight='bold'></Check>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-                <p className='font-bold text-[0.6rem]'>4</p>
-              </div>
-              <div className='flex flex-col justify-center items-center gap-[0.1rem]'>
-                <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    ratingFilter >= 5 ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
-                  onClick={() => toggleRating(5)}
-                >
-                  {ratingFilter >= 5 ? (
-                    <>
-                      <Check size={18} color='#ffffff' weight='bold'></Check>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-                <p className='font-bold text-[0.6rem]'>5</p>
-              </div>
-            </div>
-            <div className='w-full h-[0.063rem] bg-[#C3C6D4] mt-[1.25rem]'></div>
-          </div>
-          <div className='flex flex-col justify-start items-start gap-[0.75rem] w-full'>
             <h1 className='px-[2.313rem] text-[1.5rem] font-bold'>
               Kategori Artikel
             </h1>
             <div className='px-[2.313rem] flex flex-col justify-start items-start gap-[1.6rem]'>
               <div className='flex flex-row justify-center items-center gap-[0.9rem]'>
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(1) ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(1) ? 'bg-[#78D14D]' : 'bg-white'
+                    }`}
                   onClick={() => toggleType(1)}
                 >
                   {typeFilter.includes(1) ? (
@@ -185,9 +80,8 @@ const ArticleMain = () => {
               </div>
               <div className='flex flex-row justify-center items-center gap-[0.9rem]'>
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(2) ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(2) ? 'bg-[#78D14D]' : 'bg-white'
+                    }`}
                   onClick={() => toggleType(2)}
                 >
                   {typeFilter.includes(2) ? (
@@ -204,9 +98,8 @@ const ArticleMain = () => {
               </div>
               <div className='flex flex-row justify-center items-center gap-[0.9rem]'>
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(3) ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(3) ? 'bg-[#78D14D]' : 'bg-white'
+                    }`}
                   onClick={() => toggleType(3)}
                 >
                   {typeFilter.includes(3) ? (
@@ -223,9 +116,8 @@ const ArticleMain = () => {
               </div>
               <div className='flex flex-row justify-center items-center gap-[0.9rem]'>
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(4) ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(4) ? 'bg-[#78D14D]' : 'bg-white'
+                    }`}
                   onClick={() => toggleType(4)}
                 >
                   {typeFilter.includes(4) ? (
@@ -240,9 +132,8 @@ const ArticleMain = () => {
               </div>
               <div className='flex flex-row justify-center items-center gap-[0.9rem]'>
                 <div
-                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${
-                    typeFilter.includes(5) ? 'bg-[#78D14D]' : 'bg-white'
-                  }`}
+                  className={`w-[1.8rem] h-[1.8rem] border-[#78D14D] border-[0.1rem] rounded-md cursor-pointer flex flex-col justify-center items-center ${typeFilter.includes(5) ? 'bg-[#78D14D]' : 'bg-white'
+                    }`}
                   onClick={() => toggleType(5)}
                 >
                   {typeFilter.includes(5) ? (

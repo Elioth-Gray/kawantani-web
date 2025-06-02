@@ -8,7 +8,7 @@ const CreateArtilclePage = () => {
     <>
       <CreateArticleHeader></CreateArticleHeader>
       <CreateArticleMain></CreateArticleMain>
-      <Footer></Footer>
+      {/* <Footer></Footer> */}
     </>
   );
 };

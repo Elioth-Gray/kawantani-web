@@ -4,7 +4,9 @@ import {
   TUpdateArticle,
   TCommentArticle,
   TSaveArticle,
+  TUnsaveArticle,
   TLikeArticle,
+  TUnlikeArticle,
 } from "@/types/articleTypes";
 import { getToken } from "./authApi";
 
@@ -13,8 +15,7 @@ const baseURL =
 
 export const getAllArticles = async () => {
   try {
-    const response = await axios.get(`${baseURL}/articles`);
-    console.log(response.data)
+    const response = await axios.get(`${baseURL}/articles/active`);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -45,15 +46,12 @@ export const getArticleById = async (id: string): Promise<TArticleResponse> => {
   }
 };
 
-export const createArticle = async (
-  formData: FormData
-): Promise<TArticleResponse> => {
+export const getYourArticles = async (): Promise<TArticleResponse> => {
   const token = getToken();
   try {
-    const response = await axios.post(`${baseURL}/articles/create`, formData, {
+    const response = await axios.get(`${baseURL}/articles/own`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
@@ -62,6 +60,44 @@ export const createArticle = async (
       return error.response.data;
     }
     return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const createArticle = async (
+  formData: FormData
+): Promise<TArticleResponse> => {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("Token tidak ditemukan. Silakan login ulang.");
+  }
+
+  try {
+    console.log("Sending request to create article...");
+
+    // Log FormData contents for debugging
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const response = await axios.post(`${baseURL}/articles/create`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Create article response:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error creating article:", error);
+    if (error.response && error.response.data) {
+      console.error("Server error response:", error.response.data);
+      throw new Error(error.response.data.message || "Gagal membuat artikel");
+    }
+
+    throw new Error(error.message || "Terjadi kesalahan saat membuat artikel");
   }
 };
 
@@ -163,6 +199,15 @@ export const addComment = async (
   data: TCommentArticle
 ): Promise<TArticleResponse> => {
   const token = getToken();
+
+  if (!token) {
+    return {
+      success: false,
+      message: "Token tidak ditemukan. Silakan login ulang.",
+      data: null,
+    };
+  }
+
   try {
     const response = await axios.post(
       `${baseURL}/articles/${data.id}/comments`,
@@ -172,15 +217,25 @@ export const addComment = async (
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
-    return response.data;
+
+    return {
+      success: true,
+      message: response.data.message || "Komentar berhasil ditambahkan",
+      data: response.data.data,
+    };
   } catch (error: any) {
-    if (error.response && error.response.data) {
+    if (error.response) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return {
+      success: false,
+      message: error.message || "Terjadi Kesalahan!",
+      data: null,
+    };
   }
 };
 
@@ -207,6 +262,43 @@ export const saveArticle = async (
   }
 };
 
+export const unsaveArticle = async (
+  data: TUnsaveArticle
+): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.delete(`${baseURL}/articles/${data.id}/save`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const getSavedArticles = async (): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/articles/saved`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Saved articles response:", response);
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
 export const likeArticle = async (
   data: TLikeArticle
 ): Promise<TArticleResponse> => {
@@ -223,6 +315,25 @@ export const likeArticle = async (
         },
       }
     );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const unlikeArticle = async (
+  data: TUnlikeArticle
+): Promise<TArticleResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.delete(`${baseURL}/articles/${data.id}/like`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
