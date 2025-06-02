@@ -41,3 +41,22 @@ export const getUserById = async (id: string) => {
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const updateUser = async (formData: FormData, id: string) => {
+  const token = getToken();
+  console.log(token);
+  try {
+    const response = await axios.put(`${baseURL}/users/edit/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};

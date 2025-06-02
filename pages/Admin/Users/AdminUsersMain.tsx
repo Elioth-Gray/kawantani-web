@@ -24,6 +24,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { getAllUsers } from '@/api/userApi';
+import { usePathname, useRouter } from 'next/navigation';
 
 // Interface yang sesuai dengan data API
 type UserData = {
@@ -51,6 +52,8 @@ const AdminUsersMain = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(''); // Tambahkan state untuk filter
   const itemsPerPage = 10;
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -181,6 +184,10 @@ const AdminUsersMain = () => {
     setCurrentPage(1);
   }, [searchTerm]);
 
+  const onEditUser = (id: string) => {
+    router.push(`${pathname}/edit/${id}`);
+  };
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -293,7 +300,12 @@ const AdminUsersMain = () => {
                       <p className='text-red-400 font-semibold cursor-pointer'>
                         Hapus
                       </p>
-                      <p className='text-blue-400 font-semibold cursor-pointer'>
+                      <p
+                        className='text-blue-400 font-semibold cursor-pointer'
+                        onClick={() => {
+                          onEditUser(row.id_pengguna);
+                        }}
+                      >
                         Edit
                       </p>
                     </TableCell>
