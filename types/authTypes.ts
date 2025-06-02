@@ -20,6 +20,7 @@ export type DecodedToken = {
   firstName: string;
   lastName: string;
   role: string;
+  avatar: string;
   iat: number;
   exp: number;
 };

@@ -79,6 +79,8 @@ const SuperLoginMain = () => {
           const decodedToken = jwtDecode<DecodedToken>(token);
           if (decodedToken.role === 'admin') {
             router.push('/admin/dashboard/home');
+          } else if (decodedToken.role === 'facilitator') {
+            router.push('/facilitator/dashboard/home');
           }
         }
       }
@@ -114,6 +116,7 @@ const SuperLoginMain = () => {
                 <Label htmlFor='password'>Password</Label>
                 <Input
                   id='password'
+                  type='password'
                   name='password'
                   placeholder='Password Anda'
                   value={formData.password}

@@ -13,7 +13,7 @@ interface InputProps extends React.ComponentProps<'input'> {
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     { className, type, error, showPasswordToggle = false, length, ...props },
-    ref
+    ref,
   ) => {
     const [showPassword, setShowPassword] = React.useState(false);
 
@@ -38,7 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
               'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
               showPasswordToggle && type === 'password' ? 'pr-10' : '',
-              className
+              className,
             )}
             {...props}
           />
@@ -51,9 +51,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               tabIndex={-1}
             >
               {showPassword ? (
-                <EyeOff className='h-4 w-4 text-white' />
+                <EyeOff className='h-4 w-4 text-muted-foreground' />
               ) : (
-                <Eye className='h-4 w-4 text-white' />
+                <Eye className='h-4 w-4 text-muted-foreground' />
               )}
             </button>
           )}
@@ -61,7 +61,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && <p className='text-destructive text-sm mt-1'>{error}</p>}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';

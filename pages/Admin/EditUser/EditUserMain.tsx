@@ -1,0 +1,379 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { z } from 'zod';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
+import { getUserById } from '@/api/userApi';
+
+const userSchema = z
+  .object({
+    firstName: z.string().min(1, 'Nama depan wajib diisi'),
+    lastName: z.string().min(1, 'Nama belakang wajib diisi'),
+    email: z.string().email('Email tidak valid').min(1, 'Email wajib diisi'),
+    phoneNumber: z.string().min(1, 'Nomor telepon wajib diisi'),
+    dateOfBirth: z.string().min(1, 'Tanggal Lahir Harus diisi!'),
+    gender: z.number().min(0, { message: 'Jenis kelamin harus diisi!' }),
+    password: z.string().min(6, 'Password minimal 6 karakter'),
+    confirmPassword: z
+      .string()
+      .min(6, 'Konfirmasi password minimal 6 karakter'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Password dan konfirmasi tidak sama',
+    path: ['confirmPassword'],
+  });
+
+const EditUserMain = () => {
+  const params = useParams();
+  const id = params?.id || '';
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    dateOfBirth: '',
+    password: '',
+    confirmPassword: '',
+    gender: 0,
+    avatar: '',
+  });
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof formData, string>>
+  >({});
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      setInitialLoading(true);
+      try {
+        const response = await getUserById(id as string);
+        const user = response.data;
+        console.log('Loaded user data:', user);
+        if (response.data) {
+          setFormData({
+            firstName: user.nama_depan_pengguna || '',
+            lastName: user.nama_belakang_pengguna || '',
+            email: user.email_pengguna || '',
+            phoneNumber: user.nomor_telepon_pengguna || '',
+            dateOfBirth: user.tanggal_lahir_pengguna
+              ? new Date(user.tanggal_lahir_pengguna)
+                  .toISOString()
+                  .split('T')[0]
+              : '',
+            password: user.password_pengguna,
+            confirmPassword: user.password_pengguna,
+            gender: user.jenisKelamin ?? 0,
+            avatar: `http://localhost:2000/uploads/users/${user.avatar}`,
+          });
+        } else {
+          console.error('Failed to load user:', response.message);
+          alert('Gagal memuat data pengguna');
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        alert('Terjadi kesalahan saat memuat data');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    if (id) {
+      loadUserData();
+    }
+  }, [id]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === 'phoneNumber' && value.length > 13) {
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name as keyof typeof formData]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const parsed = userSchema.safeParse(formData);
+
+    if (!parsed.success) {
+      const fieldErrors: any = {};
+      parsed.error.errors.forEach((err) => {
+        const fieldName = err.path[0] as keyof typeof formData;
+        fieldErrors[fieldName] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    setLoading(true);
+
+    try {
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        dateOfBirth: formData.dateOfBirth,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        gender: formData.gender,
+      };
+
+      if (typeof id !== 'string') {
+        console.error('Invalid ID');
+        alert('ID tidak valid');
+        return;
+      }
+
+      //   const result = await updateUser(id, payload);
+
+      //   if (!result.success) {
+      //     alert(result.message || 'Gagal memperbarui pengguna');
+      //   } else {
+      //     alert(result.message || 'Pengguna berhasil diperbarui');
+      //     router.push('/admin/dashboard/users');
+      //   }
+    } catch (err) {
+      alert('Terjadi kesalahan saat memperbarui data');
+      console.error('Error updating user:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+      <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
+        <div
+          className='w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointer'
+          onClick={() => router.back()}
+        >
+          <ArrowLeft size={24} color='#fff' weight='bold' />
+          <p>Kembali</p>
+        </div>
+
+        <div className='w-full mb-[3.1rem]'>
+          <h1 className='text-[2.25rem] font-semibold'>Edit Pengguna</h1>
+          <p>Perbarui data pengguna di sistem</p>
+        </div>
+
+        {initialLoading ? (
+          <div className='flex justify-center items-center py-10'>
+            <p>Memuat data pengguna...</p>
+          </div>
+        ) : (
+          <form className='w-full' onSubmit={handleSubmit}>
+            <div className='flex flex-col justify-center items-center w-full mb-10'>
+              {(avatarPreview || formData.avatar) && (
+                <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+                  <img
+                    src={avatarPreview || formData.avatar}
+                    alt='Avatar Pengguna'
+                    className='w-32 h-32 rounded-full object-cover border-2 border-white'
+                  />
+                  <p>Foto Profil</p>
+                </div>
+              )}
+              {/* Input Avatar */}
+              <div>
+                <Input
+                  type='file'
+                  accept='image/*'
+                  onChange={handleAvatarChange}
+                  className='text-white w-full'
+                />
+              </div>
+            </div>
+            <div className='flex flex-col gap-[2.1rem] w-full'>
+              {/* Baris Nama dan Email */}
+              <div className='flex flex-row gap-[3.5rem]'>
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Nama Depan</Label>
+                  <Input
+                    name='firstName'
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder='Nama Depan'
+                    className='w-[19rem] h-[2.5rem]'
+                  />
+                  {errors.firstName && (
+                    <p className='text-red-500 text-sm'>{errors.firstName}</p>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Nama Belakang</Label>
+                  <Input
+                    name='lastName'
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder='Nama Belakang'
+                    className='w-[19rem] h-[2.5rem]'
+                  />
+                  {errors.lastName && (
+                    <p className='text-red-500 text-sm'>{errors.lastName}</p>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Email</Label>
+                  <Input
+                    name='email'
+                    type='email'
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder='Email Pengguna'
+                    className='w-[19rem] h-[2.5rem]'
+                  />
+                  {errors.email && (
+                    <p className='text-red-500 text-sm'>{errors.email}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Telepon dan Tanggal Lahir */}
+              <div className='flex flex-row gap-[3.5rem]'>
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Nomor Telepon</Label>
+                  <Input
+                    name='phoneNumber'
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    placeholder='Nomor Telepon'
+                    className='w-[19rem] h-[2.5rem]'
+                    maxLength={13}
+                  />
+                  <p className='text-xs text-gray-400'>
+                    Maksimal 13 digit ({formData.phoneNumber.length}/13)
+                  </p>
+                  {errors.phoneNumber && (
+                    <p className='text-red-500 text-sm'>{errors.phoneNumber}</p>
+                  )}
+                </div>
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Jenis Kelamin</Label>
+                  <Select
+                    value={formData.gender.toString()}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        gender: parseInt(value, 10),
+                      }))
+                    }
+                    disabled={loading || initialLoading}
+                  >
+                    <SelectTrigger className='w-[19rem] h-[2.5rem]'>
+                      <SelectValue placeholder='Pilih Jenis Kelamin' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='0'>Pria</SelectItem>
+                      <SelectItem value='1'>Wanita</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.gender && (
+                    <p className='text-red-500 text-sm'>{errors.gender}</p>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Tanggal Lahir</Label>
+                  <Input
+                    name='dateOfBirth'
+                    type='date'
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
+                    className='w-[19rem] h-[2.5rem]'
+                  />
+                  {errors.dateOfBirth && (
+                    <p className='text-red-500 text-sm'>{errors.dateOfBirth}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className='flex flex-row gap-[3.5rem]'>
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Password Baru</Label>
+                  <Input
+                    name='password'
+                    value={formData.password}
+                    onChange={handleChange}
+                    type='password'
+                    placeholder='Password Baru (opsional)'
+                    className='w-[19rem] h-[2.5rem]'
+                  />
+                  <p className='text-xs text-gray-400'>
+                    Biarkan jika tidak ingin mengubah password
+                  </p>
+                  {errors.password && (
+                    <p className='text-red-500 text-sm'>{errors.password}</p>
+                  )}
+                </div>
+
+                <div className='flex flex-col gap-[0.6rem]'>
+                  <Label className='text-[1.25rem]'>Konfirmasi Password</Label>
+                  <Input
+                    name='confirmPassword'
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    type='password'
+                    placeholder='Konfirmasi Password Baru'
+                    className='w-[19rem] h-[2.5rem]'
+                  />
+                  {errors.confirmPassword && (
+                    <p className='text-red-500 text-sm'>
+                      {errors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type='submit'
+                className='py-[0.8rem] px-[1.2rem] bg-white text-black rounded-lg font-semibold w-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                disabled={loading}
+              >
+                {loading ? 'Memperbarui...' : 'Perbarui Pengguna'}
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
+    </main>
+  );
+};
+
+export default EditUserMain;

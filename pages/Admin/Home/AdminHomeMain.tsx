@@ -1,7 +1,5 @@
 'use client';
-
-import React from 'react';
-
+import React, { use, useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -11,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import {
   ChartContainer,
@@ -19,10 +16,87 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { CalendarDots, DownloadSimple } from '@phosphor-icons/react/dist/ssr';
-import Image from 'next/image';
-import Link from 'next/link';
+import { getAllUsers } from '@/api/userApi';
+import { getAllFacilitator } from '@/api/facilitatorApi';
+import { getAllArticles } from '@/api/articleApi';
+import { getVerifiedWorkshops } from '@/api/workshopApi';
 
 const AdminHomeMain = () => {
+  const [users, setUsers] = useState([]);
+  const [facilitators, setFacilitators] = useState([]);
+  const [articles, setArticles] = useState([]);
+  const [workshops, setWorkshops] = useState([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllUsers();
+        if (response.data) {
+          setUsers(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchFaciliators = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllFacilitator();
+        if (response.data) {
+          setFacilitators(response.data.facilitator);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchArticles = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllArticles();
+        if (response.data) {
+          setArticles(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchWorkshops = async () => {
+      setLoading(true);
+      try {
+        const response = await getVerifiedWorkshops();
+        console.log(response);
+        if (response.data) {
+          setWorkshops(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+    fetchFaciliators();
+    fetchArticles();
+    fetchWorkshops();
+  }, []);
+
+  useEffect(() => {
+    console.log(facilitators);
+    console.log(users);
+  }, [facilitators]);
+
   const salesData = [
     { month: 'January', sales: 4500 },
     { month: 'February', sales: 5200 },
@@ -33,7 +107,6 @@ const AdminHomeMain = () => {
     { month: 'July', sales: 8200 },
     { month: 'August', sales: 7600 },
   ];
-
   const chartConfig = {
     sales: {
       label: 'Sales',
@@ -62,12 +135,14 @@ const AdminHomeMain = () => {
             <div className='flex flex-row justify-between items-center w-full'>
               <div className='flex flex-col justify-center items-start py-[1.5rem] px-[1.4rem] border-[0.3rem] border-[#27272A] rounded-xl w-[17rem] h-[9.4rem] gap-[0.5rem]'>
                 <p>Total Pengguna (Reguler)</p>
-                <p className='font-semibold text-[1.5rem]'>100</p>
+                <p className='font-semibold text-[1.5rem]'>{users.length}</p>
                 <p>Pengguna terdaftar</p>
               </div>
               <div className='flex flex-col justify-center items-start py-[1.5rem] px-[1.4rem] border-[0.3rem] border-[#27272A] rounded-xl w-[17rem] h-[9.4rem] gap-[0.5rem]'>
                 <p>Total Facilitator </p>
-                <p className='font-semibold text-[1.5rem]'>50</p>
+                <p className='font-semibold text-[1.5rem]'>
+                  {facilitators.length > 0 ? facilitators.length : '0'}
+                </p>
                 <p>Facilitator Terdaftar</p>
               </div>
             </div>
@@ -118,12 +193,17 @@ const AdminHomeMain = () => {
             <div className='flex flex-col justify-between items-end w-full gap-[2rem] h-full'>
               <div className='flex flex-col justify-center items-start py-[1.5rem] px-[1.4rem] border-[0.3rem] border-[#27272A] rounded-xl w-[17rem] h-[9.4rem] gap-[0.5rem]'>
                 <p>Artikel Terpublish</p>
-                <p className='font-semibold text-[1.5rem]'>10</p>
+                <p className='font-semibold text-[1.5rem]'>
+                  {' '}
+                  {articles.length > 0 ? articles.length : '0'}
+                </p>
                 <p>Dari total artikel</p>
               </div>
               <div className='flex flex-col justify-center items-start py-[1.5rem] px-[1.4rem] border-[0.3rem] border-[#27272A] rounded-xl w-[17rem] h-[9.4rem] gap-[0.5rem]'>
                 <p>Workshop Terverifikasi</p>
-                <p className='font-semibold text-[1.5rem]'>20</p>
+                <p className='font-semibold text-[1.5rem]'>
+                  {workshops.length > 0 ? workshops.length : '0'}
+                </p>
                 <p>Dari total workshop</p>
               </div>
               <div className='flex flex-col justify-center items-start py-[1.5rem] px-[1.4rem] border-[0.3rem] border-[#27272A] rounded-xl w-[17rem] h-[9.4rem] gap-[0.5rem]'>
