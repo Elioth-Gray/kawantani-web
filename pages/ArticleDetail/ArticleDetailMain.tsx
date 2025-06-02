@@ -57,7 +57,6 @@ const ArticleDetailMain = () => {
     try {
       const response = await getArticleById(articleId);
       if (response && response.data) {
-        // Cek apakah user sudah like artikel ini
         const liked = response.data.artikel_disukai?.some(
           (like: any) => like.id_pengguna === response.data.pengguna?.id_pengguna
         );
@@ -91,7 +90,7 @@ const ArticleDetailMain = () => {
         response = await saveArticle({ id: article.id_artikel });
       }
 
-      if (!response.success) {
+      if (!response) {
         setIsSaved(previousState);
         setMessage(response.message ||
           (previousState ? "Gagal menghapus dari simpan" : "Gagal menyimpan artikel"));
@@ -119,12 +118,15 @@ const ArticleDetailMain = () => {
       let response;
 
       if (previousState) {
-        response = await unlikeArticle({ id: article.id_artikel });
+        response = await unlikeArticle({
+          id: article.id_artikel,
+          rating: 0
+        });
       } else {
         response = await likeArticle({ id: article.id_artikel, rating: 5 });
       }
 
-      if (!response.success) {
+      if (!response) {
         setIsLiked(previousState);
         setMessage(response.message ||
           (previousState ? "Gagal menghapus like" : "Gagal memberikan like"));
@@ -157,18 +159,16 @@ const ArticleDetailMain = () => {
 
       console.log("Response from backend:", response); // Debug
 
-      if (response.success && response.data) {
+      if (response && response.data) {
         setMessage(response.message);
         setCommentContent("");
 
-        // Update komentar di state
         setArticle(prev => ({
           ...prev,
           komentar_artikel: [
             ...(prev.komentar_artikel || []),
             {
               ...response.data,
-              pengguna: req.user // Asumsikan user data tersedia
             }
           ]
         }));
@@ -322,8 +322,7 @@ const ArticleDetailMain = () => {
           <div className="flex flex-row justify-end items-center h-[20%] w-full">
             <PrimaryButton
               textColor="#ffffff"
-              onClick={handleCommentSubmit}
-              disabled={false}
+              onClickHandler={handleCommentSubmit}
             >
               Kirim Komentar
             </PrimaryButton>

@@ -207,7 +207,7 @@ const CreateArticleMain = () => {
             <div className="flex flex-row justify-start items-start gap-[2rem]">
               <PrimaryButton
                 textColor="#ffffff"
-                onClick={(e: any) => {
+                onClickHandler={(e: any) => {
                   e.preventDefault();
                   handleSubmit("DRAFT");
                 }}
@@ -217,7 +217,7 @@ const CreateArticleMain = () => {
               </PrimaryButton>
               <PrimaryButton
                 textColor="#ffffff"
-                onClick={(e: any) => {
+                onClickHandler={(e: any) => {
                   e.preventDefault();
                   handleSubmit("PUBLISHED");
                 }}
