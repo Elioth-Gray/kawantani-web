@@ -59,7 +59,7 @@ const AdminAvatar = () => {
       </div>
       <button
         onClick={onLogout}
-        className='mt-4 flex items-center gap-2 text-sm text-red-500 hover:text-red-600 font-semibold transition'
+        className='mt-4 flex items-center gap-2 text-sm text-red-500 hover:text-red-600 font-semibold transition cursor-pointer'
       >
         <SignOut size={16} />
         Logout

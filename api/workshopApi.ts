@@ -43,9 +43,7 @@ export const getVerifiedWorkshops = async () => {
   }
 };
 
-export const getWorkshopById = async (
-  id: string,
-): Promise<TWorkshopDetailResponse> => {
+export const getWorkshopById = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/workshops/${id}`, {
@@ -82,13 +80,11 @@ export const createWorkshop = async (
   }
 };
 
-export const verifyWorkshop = async (
-  data: TWorkshopVerificationRequest,
-): Promise<TWorkshopDetailResponse> => {
+export const verifyWorkshop = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.put(
-      `${baseURL}/workshops/${data.id}`,
+      `${baseURL}/workshops/${id}`,
       {},
       {
         headers: {
@@ -105,9 +101,7 @@ export const verifyWorkshop = async (
   }
 };
 
-export const deleteWorkshop = async (
-  id: string,
-): Promise<TWorkshopDetailResponse> => {
+export const deleteWorkshop = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.delete(`${baseURL}/workshops/${id}`, {
