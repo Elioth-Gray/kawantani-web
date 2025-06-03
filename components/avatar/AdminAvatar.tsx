@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { DecodedToken } from '@/types/authTypes';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { SignOut } from '@phosphor-icons/react';
 
 const AdminAvatar = () => {
   const [user, setUser] = useState<DecodedToken>({
@@ -35,36 +36,34 @@ const AdminAvatar = () => {
   };
 
   return (
-    <div className='flex flex-col justify-start items-start gap-5'>
-      <div className='flex flex-row justify-between items-center w-full'>
-        <div className='flex flex-row justify-start items-start gap-[1rem]'>
-          <div className='size-[2.3rem] rounded-lg flex flex-col justify-center items-center object-center overflow-clip bg-white text-black'>
-            <Image
-              className=' object-cover w-full h-[16.8rem] rounded-lg'
-              width={545}
-              height={307}
-              src={`http://localhost:2000/uploads/admin/${user.avatar}`}
-              alt='Admin Avatar'
-              quality={100}
-              unoptimized
-            ></Image>
-          </div>
-          <div className='flex flex-col justify-start items-start'>
-            <p className='font-semibold text-[0.8rem]'>
-              {user.firstName} {user.lastName}
-            </p>
-            <p className='text-[0.75rem]'>{user.email}</p>
-          </div>
+    <div className='w-full bg-[#1F1F22] rounded-xl p-4 shadow-md text-white'>
+      <div className='flex items-center gap-4'>
+        <div className='w-10 h-10 rounded-full border-2 border-blue-500 overflow-hidden bg-gray-200'>
+          <Image
+            src={`http://localhost:2000/uploads/admin/${user.avatar}`}
+            alt='Admin Avatar'
+            width={48}
+            height={48}
+            className='object-cover w-full h-full'
+            unoptimized
+          />
+        </div>
+        <div className='flex flex-col'>
+          <span className='text-sm font-semibold leading-tight'>
+            {user.firstName} {user.lastName}
+          </span>
+          <span className='text-xs text-gray-400 leading-tight'>
+            {user.email}
+          </span>
         </div>
       </div>
-      <div className='w-full flex flex-row justify-end items-center'>
-        <button
-          className='text-red-500 cursor-pointer font-semibold hover:text-red-600 transition'
-          onClick={onLogout}
-        >
-          Logout
-        </button>
-      </div>
+      <button
+        onClick={onLogout}
+        className='mt-4 flex items-center gap-2 text-sm text-red-500 hover:text-red-600 font-semibold transition'
+      >
+        <SignOut size={16} />
+        Logout
+      </button>
     </div>
   );
 };
