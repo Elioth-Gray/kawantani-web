@@ -15,8 +15,13 @@ export const getToken = () => {
 };
 
 export const getAllWorkshops = async (): Promise<TWorkshopResponse> => {
+  const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/workshops`);
+    const response = await axios.get(`${baseURL}/workshops`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
