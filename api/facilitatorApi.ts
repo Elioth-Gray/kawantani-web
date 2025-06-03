@@ -104,3 +104,54 @@ export const updateFacilitator = async (id: string, formData: FormData) => {
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const getTotalRevenue = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/facilitator/revenue`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getTicketsSold = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/facilitator/sold`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getLatestSales = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/facilitator/sales/recent`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
