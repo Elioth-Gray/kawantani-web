@@ -114,6 +114,14 @@ const AdminHomeMain = () => {
     },
   };
 
+  const date = new Date();
+
+  const formattedDate = date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
     <main className='w-full h-screen bg-[#09090B]  px-[5.1rem] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -122,7 +130,7 @@ const AdminHomeMain = () => {
           <div className='flex flex-row justify-end items-center gap-[0.4rem]'>
             <div className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center border-[0.18rem] border-[#27272A] rounded-lg gap-[0.5rem]'>
               <CalendarDots size={24} color='#ffff'></CalendarDots>
-              <p className='font-semibold'>12 April 2025</p>
+              <p className='font-semibold'>{formattedDate}</p>
             </div>
             <button className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-white text-black rounded-lg gap-[0.5rem]'>
               <DownloadSimple size={24} color='#fffff'></DownloadSimple>
