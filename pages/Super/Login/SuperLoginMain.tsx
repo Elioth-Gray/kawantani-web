@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 import { jwtDecode } from 'jwt-decode';
-import { getToken, loginAdmin } from '@/api/authApi';
+import { getToken, loginAdmin, loginFacilitator } from '@/api/authApi';
 import { DecodedToken } from '@/types/authTypes';
 import PrimaryLink from '@/components/links/PrimaryLink';
 import SecondaryLink from '@/components/links/SecondaryLink';
@@ -68,22 +68,36 @@ const SuperLoginMain = () => {
     } else {
       setErrors({});
       setLoading(true);
-      const result = await loginAdmin(formData);
-      if (result.success == false) {
-        setWarning(result.message);
-        setLoading(false);
-      } else {
-        setWarning('');
-        const token = getToken();
-        if (token) {
-          const decodedToken = jwtDecode<DecodedToken>(token);
-          if (decodedToken.role === 'admin') {
-            router.push('/admin/dashboard/home');
-          } else if (decodedToken.role === 'facilitator') {
-            router.push('/facilitator/dashboard/home');
-          }
+
+      // Coba login sebagai admin
+      const adminResult = await loginAdmin(formData);
+
+      if (!adminResult.success) {
+        // Jika gagal, coba login sebagai facilitator
+        const facilitatorResult = await loginFacilitator(formData);
+
+        if (!facilitatorResult.success) {
+          setWarning(facilitatorResult.message);
+          setLoading(false);
+          return;
         }
       }
+
+      // Kalau berhasil login, reset warning dan redirect berdasarkan role
+      setWarning('');
+      const token = getToken();
+
+      if (token) {
+        const decodedToken = jwtDecode<DecodedToken>(token);
+
+        if (decodedToken.role === 'admin') {
+          router.push('/admin/dashboard/home');
+        } else if (decodedToken.role === 'facilitator') {
+          router.push('/facilitator/dashboard/home');
+        }
+      }
+
+      setLoading(false);
     }
   };
 

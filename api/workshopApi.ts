@@ -117,3 +117,40 @@ export const deleteWorkshop = async (id: string) => {
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const getOwnActiveParticipants = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(
+      `${baseURL}/workshops/participants/active/own`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getOwnPopularWorkshops = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/popular/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
