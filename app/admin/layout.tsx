@@ -3,10 +3,9 @@ import {
   DotsThreeVertical,
   Folders,
   House,
-  Scales,
+  Person,
   UsersThree,
-  MicrophoneStage,
-  Newspaper,
+  OfficeChair,
 } from '@phosphor-icons/react/dist/ssr';
 import './super.css';
 import Link from 'next/link';
@@ -44,11 +43,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Link href='/admin/dashboard/home'>Home</Link>
                 </div>
                 <div className='flex flex-row justify-start items-center gap-[0.5rem]'>
-                  <UsersThree size={16} color='#ffff'></UsersThree>
+                  <Person size={16} color='#ffff'></Person>
                   <Link href='/admin/dashboard/users'>Pengguna</Link>
                 </div>
                 <div className='flex flex-row justify-start items-center gap-[0.5rem]'>
-                  <UsersThree size={16} color='#ffff'></UsersThree>
+                  <OfficeChair size={16} color='#ffff'></OfficeChair>
                   <Link href='/admin/dashboard/facilitators'>Facilitator</Link>
                 </div>
               </div>

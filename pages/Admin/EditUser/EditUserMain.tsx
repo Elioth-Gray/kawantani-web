@@ -15,6 +15,9 @@ import {
 import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import { getUserById, updateUser } from '@/api/userApi';
 
+const baseURL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
+
 const userSchema = z
   .object({
     firstName: z.string().min(1, 'Nama depan wajib diisi'),
@@ -174,13 +177,12 @@ const EditUserMain = () => {
 
     try {
       const result = await updateUser(form, id as string);
-      console.log(result);
-
-      if (!result.success) {
+      if (!result.data) {
         alert(result.message);
       } else {
         alert(result.message);
-        router.push('/admin/dashboard/facilitators');
+        console.log('Navigating to /admin/dashboard/users');
+        router.push('/admin/dashboard/users');
       }
     } catch (error) {
       alert('Terjadi kesalahan');

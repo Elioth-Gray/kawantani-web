@@ -50,7 +50,7 @@ export const getFacilitatorById = async (id: string) => {
   }
 };
 
-export const createFacilitator = async (formData: TRegisterFacilitator) => {
+export const createFacilitator = async (formData: FormData) => {
   const token = getToken();
   try {
     const response = await axios.post(
@@ -60,7 +60,7 @@ export const createFacilitator = async (formData: TRegisterFacilitator) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response.data;
   } catch (error: any) {
@@ -88,13 +88,10 @@ export const deleteFacilitator = async (id: string) => {
   }
 };
 
-export const updateFacilitator = async (
-  id: string,
-  data: TUpdateFacilitator
-) => {
+export const updateFacilitator = async (id: string, formData: FormData) => {
   const token = getToken();
   try {
-    const response = await axios.put(`${baseURL}/facilitator/${id}`, data, {
+    const response = await axios.put(`${baseURL}/facilitator/${id}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
