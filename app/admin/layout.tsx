@@ -4,8 +4,8 @@ import {
   Folders,
   House,
   Person,
-  UsersThree,
   OfficeChair,
+  BookOpenText,
 } from '@phosphor-icons/react/dist/ssr';
 import './super.css';
 import Link from 'next/link';
@@ -49,6 +49,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className='flex flex-row justify-start items-center gap-[0.5rem]'>
                   <OfficeChair size={16} color='#ffff'></OfficeChair>
                   <Link href='/admin/dashboard/facilitators'>Facilitator</Link>
+                </div>
+                <div className='flex flex-row justify-start items-center gap-[0.5rem]'>
+                  <BookOpenText size={16} color='#ffff'></BookOpenText>
+                  <Link href='/admin/dashboard/articles'>Artikel</Link>
                 </div>
               </div>
             </div>
