@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {
+  TArticleResponse,
   TUpdateArticle,
   TCommentArticle,
   TSaveArticle,

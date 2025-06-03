@@ -23,7 +23,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { getAllUsers } from '@/api/userApi';
+import { deleteUser, getAllUsers } from '@/api/userApi';
 import { usePathname, useRouter } from 'next/navigation';
 
 // Interface yang sesuai dengan data API
@@ -77,6 +77,27 @@ const AdminUsersMain = () => {
 
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getAllUsers();
+        if (response.data) {
+          const users = response.data;
+          const segmentedUsers = users.map((user: any, index: number) => ({
+            ...user,
+            id: index + 1,
+          }));
+          setUsers(segmentedUsers);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+      }
+    };
+
+    fetchUsers();
+  }, [users]);
 
   const requestSort = (key: keyof UserData) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -188,6 +209,35 @@ const AdminUsersMain = () => {
     router.push(`${pathname}/edit/${id}`);
   };
 
+  const onDeleteUser = async (id_pengguna: string) => {
+    const confirmed = window.confirm(
+      'Apakah kamu ingin menghapus pengguna ini?',
+    );
+    if (!confirmed) return;
+
+    try {
+      const result = await deleteUser(id_pengguna);
+      if (result.status === true) {
+        setUsers((prev) => {
+          const filtered = prev.filter(
+            (user) => user.id_pengguna !== id_pengguna,
+          );
+          return filtered.map((user, index) => ({
+            ...user,
+            id: index + 1,
+          }));
+        });
+
+        setSelectedRows([]);
+
+        alert('Berhasil menghapus pengguna.');
+      } else {
+        alert(result.message || 'Ada kesalahan');
+      }
+    } catch (error) {
+      alert('Ada kesalahan saat menghapus pengguna');
+    }
+  };
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -297,7 +347,12 @@ const AdminUsersMain = () => {
                       {row.nomor_telepon_pengguna}
                     </TableCell>
                     <TableCell className='text-right flex flex-row justify-center items-center gap-5'>
-                      <p className='text-red-400 font-semibold cursor-pointer'>
+                      <p
+                        className='text-red-400 font-semibold cursor-pointer'
+                        onClick={() => {
+                          onDeleteUser(row.id_pengguna);
+                        }}
+                      >
                         Hapus
                       </p>
                       <p
