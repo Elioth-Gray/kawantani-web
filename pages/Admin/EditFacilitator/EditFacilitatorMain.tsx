@@ -34,10 +34,8 @@ const facilitatorSchema = z
     provinceId: z.number().min(2, { message: 'Provinsi wajib dipilih' }),
     regencyId: z.number().min(2, { message: 'Kabupaten wajib dipilih' }),
     fullAddress: z.string().min(1, 'Alamat wajib diisi'),
-    password: z.string().min(6, 'Password minimal 6 karakter'),
-    confirmPassword: z
-      .string()
-      .min(6, 'Konfirmasi password minimal 6 karakter'),
+    password: z.string(),
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Password dan konfirmasi tidak sama',
@@ -127,8 +125,8 @@ const EditFacilitatorMain = () => {
             provinceId: provinceId,
             regencyId: regencyId,
             fullAddress: facilitator.alamat_lengkap_facilitator,
-            password: facilitator.password_facilitator,
-            confirmPassword: facilitator.password_facilitator,
+            password: '',
+            confirmPassword: '',
           });
           setAvatarPreview(
             `http://localhost:2000/uploads/facilitators/${facilitator.avatar}`,

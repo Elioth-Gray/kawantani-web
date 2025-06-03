@@ -26,10 +26,8 @@ const userSchema = z
     phoneNumber: z.string().min(1, 'Nomor telepon wajib diisi'),
     dateOfBirth: z.string().min(1, 'Tanggal Lahir Harus diisi!'),
     gender: z.number().min(0, { message: 'Jenis kelamin harus diisi!' }),
-    password: z.string().min(6, 'Password minimal 6 karakter'),
-    confirmPassword: z
-      .string()
-      .min(6, 'Konfirmasi password minimal 6 karakter'),
+    password: z.string(),
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Password dan konfirmasi tidak sama',
@@ -90,8 +88,8 @@ const EditUserMain = () => {
                   .toISOString()
                   .split('T')[0]
               : '',
-            password: user.password_pengguna,
-            confirmPassword: user.password_pengguna,
+            password: '',
+            confirmPassword: '',
             gender: user.jenisKelamin ?? 0,
           });
           setAvatarPreview(
@@ -354,7 +352,7 @@ const EditUserMain = () => {
                     className='w-[19rem] h-[2.5rem]'
                   />
                   <p className='text-xs text-gray-400'>
-                    Biarkan jika tidak ingin mengubah password
+                    Kosongkan jika tidak ingin mengubah password
                   </p>
                   {errors.password && (
                     <p className='text-red-500 text-sm'>{errors.password}</p>
