@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { SignOut } from '@phosphor-icons/react';
 
-const AdminAvatar = () => {
+const FacilitatorAvatar = () => {
   const [user, setUser] = useState<DecodedToken>({
     id: '',
     email: '',
@@ -38,9 +38,9 @@ const AdminAvatar = () => {
   return (
     <div className='w-full bg-[#1F1F22] rounded-xl p-4 shadow-md text-white'>
       <div className='flex items-center gap-4'>
-        <div className='w-10 h-10 rounded-full border-2 border-blue-500 overflow-hidden bg-gray-200'>
+        <div className='w-8 h-8 rounded-full border-2 border-blue-500 overflow-hidden bg-gray-200'>
           <Image
-            src={`http://localhost:2000/uploads/admin/${user.avatar}`}
+            src={`http://localhost:2000/uploads/facilitators/${user.avatar}`}
             alt='Admin Avatar'
             width={48}
             height={48}
@@ -50,7 +50,7 @@ const AdminAvatar = () => {
         </div>
         <div className='flex flex-col'>
           <span className='text-sm font-semibold leading-tight'>
-            {user.firstName} {user.lastName}
+            {user.firstName}
           </span>
           <span className='text-xs text-gray-400 leading-tight'>
             {user.email}
@@ -68,4 +68,4 @@ const AdminAvatar = () => {
   );
 };
 
-export default AdminAvatar;
+export default FacilitatorAvatar;

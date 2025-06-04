@@ -15,6 +15,7 @@ import {
 import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import { getAllProvinces, getProvinceRegency } from '@/api/locationApi';
 import { createFacilitator } from '@/api/facilitatorApi';
+import { User } from '@phosphor-icons/react/dist/ssr';
 
 type Provinces = {
   id_provinsi: number;
@@ -38,6 +39,18 @@ const facilitatorSchema = z
     confirmPassword: z
       .string()
       .min(6, 'Konfirmasi password minimal 6 karakter'),
+    // Buat file optional di Zod karena kita validasi manual
+    file: z
+      .instanceof(File)
+      .refine(
+        (file) => file.size <= 5 * 1024 * 1024, // 5MB
+        'Ukuran file maksimal 5MB',
+      )
+      .refine(
+        (file) => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type),
+        'Format file harus JPG, JPEG, atau PNG',
+      )
+      .optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Password dan konfirmasi tidak sama',
@@ -47,9 +60,21 @@ const facilitatorSchema = z
 const CreateFacilitatorsMain = () => {
   const [provinces, setProvinces] = useState<Provinces[]>([]);
   const [regencies, setRegencies] = useState<Regency[]>([]);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    email: string;
+    phoneNumber: string;
+    provinceId: number;
+    regencyId: number;
+    fullAddress: string;
+    password: string;
+    confirmPassword: string;
+    file?: File | null;
+  }>({
     name: '',
     email: '',
     phoneNumber: '',
@@ -58,6 +83,7 @@ const CreateFacilitatorsMain = () => {
     fullAddress: '',
     password: '',
     confirmPassword: '',
+    file: null,
   });
 
   const [errors, setErrors] = useState<
@@ -106,8 +132,33 @@ const CreateFacilitatorsMain = () => {
     }
   };
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setFormData((prev) => ({
+        ...prev,
+        file,
+      }));
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+
+      // Clear file error ketika user memilih file
+      if (errors.file) {
+        setErrors((prev) => ({ ...prev, file: undefined }));
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Manual validation untuk file sebelum Zod validation
+    if (!formData.file) {
+      setErrors((prev) => ({ ...prev, file: 'Foto profil wajib diunggah' }));
+      return;
+    }
+
     const parsed = facilitatorSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -121,17 +172,21 @@ const CreateFacilitatorsMain = () => {
     }
     setErrors({});
     setLoading(true);
+    const form = new FormData();
+
+    // Convert gender to string if backend expects string
+    form.append('name', formData.name);
+    form.append('email', formData.email);
+    form.append('phoneNumber', formData.phoneNumber);
+    form.append('regencyId', formData.regencyId?.toString() || '');
+    form.append('password', formData.password);
+    form.append('confirmPassword', formData.confirmPassword);
+    form.append('fullAddress', formData.fullAddress);
+    if (formData.file) {
+      form.append('avatar', formData.file);
+    }
     try {
-      const payload = {
-        name: formData.name,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        fullAddress: formData.fullAddress,
-        regencyId: formData.regencyId,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      };
-      const result = await createFacilitator(payload);
+      const result = await createFacilitator(form);
       if (result.success == false) {
         alert(result.message);
         setLoading(false);
@@ -158,11 +213,46 @@ const CreateFacilitatorsMain = () => {
         </div>
 
         <div className='w-full mb-[3.1rem]'>
-          <h1 className='text-[2.25rem] font-semibold'>Tambah Fasilitator</h1>
-          <p>Masukkan data fasilitator baru ke sistem</p>
+          <h1 className='text-[2.25rem] font-semibold'>Tambah Facilitator</h1>
+          <p>Masukkan data facilitator baru ke sistem</p>
         </div>
 
         <form className='w-full' onSubmit={handleSubmit}>
+          <div className='flex flex-col justify-center items-center w-full mb-10'>
+            {avatarPreview ? (
+              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+                <img
+                  src={avatarPreview}
+                  alt='Avatar Pengguna'
+                  className='w-32 h-32 rounded-full object-cover border-2 border-white'
+                />
+                <p>
+                  Foto Profil <span className='text-red-500'>*</span>
+                </p>
+              </div>
+            ) : (
+              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+                <div className='size-32 bg-white rounded-full flex flex-col justify-center items-center'>
+                  <User size={32} color='#09090B'></User>
+                </div>
+                <p>
+                  Foto Profil <span className='text-red-500'>*</span>
+                </p>
+              </div>
+            )}
+            {/* Input Avatar */}
+            <div className='w-full max-w-sm'>
+              <Input
+                type='file'
+                accept='image/*'
+                onChange={handleAvatarChange}
+                className='text-white w-full'
+              />
+              {errors.file && (
+                <p className='text-red-500 text-sm mt-1'>{errors.file}</p>
+              )}
+            </div>
+          </div>
           <div className='flex flex-col gap-[2.1rem] w-full'>
             <div className='flex flex-row gap-[3.5rem]'>
               <div className='flex flex-col gap-[0.6rem]'>
@@ -313,10 +403,10 @@ const CreateFacilitatorsMain = () => {
             </div>
             <button
               type='submit'
-              className='py-[0.5rem] px-[0.8rem] bg-white text-black rounded-lg font-semibold w-fit cursor-pointer w-full'
+              className='py-[0.8rem] px-[1.2rem] bg-white text-black rounded-lg font-semibold w-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Tambah Fasilitator'}
+              {loading ? 'Menambah facilitator...' : 'Tambah Fasilitator'}
             </button>
           </div>
         </form>

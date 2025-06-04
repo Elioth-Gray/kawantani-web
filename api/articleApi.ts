@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {
+  TArticleResponse,
   TUpdateArticle,
   TCommentArticle,
   TSaveArticle,
@@ -28,9 +29,35 @@ export const getAllArticles = async () => {
   }
 };
 
-export const getAllArticlesAdmin = async () => {
+export const getAllCategoies = async () => {
+  const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/articles/active`);
+    const response = await axios.get(`${baseURL}/categories/article`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return {
+      success: false,
+      message: 'Terjadi Kesalahan saat mengambil semua artikel!',
+      data: null,
+    };
+  }
+};
+
+export const getAllArticlesAdmin = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/articles`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

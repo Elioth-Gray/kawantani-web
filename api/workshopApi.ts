@@ -14,33 +14,58 @@ export const getToken = () => {
   return token;
 };
 
-export const getAllWorkshopsAdmin = async (): Promise<TWorkshopResponse> => {
+export const getAllWorkshops = async (): Promise<TWorkshopResponse> => {
+  const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/workshops`);
+    const response = await axios.get(`${baseURL}/workshops`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
-export const getVerifiedWorkshops = async () => {
+export const getOwnWorkshops = async () => {
+  const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/workshops/verified`);
+    const response = await axios.get(`${baseURL}/workshops/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
-export const getWorkshopById = async (
-  id: string
-): Promise<TWorkshopDetailResponse> => {
+export const getOwnWorkshops = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getWorkshopById = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/workshops/${id}`, {
@@ -65,7 +90,7 @@ export const createWorkshopFacilitator = async (
     const response = await axios.post(`${baseURL}/workshops/create`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;
@@ -73,107 +98,32 @@ export const createWorkshopFacilitator = async (
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
-export const verifyWorkshopAdmin = async (
-  data: TWorkshopVerificationRequest
-): Promise<TWorkshopDetailResponse> => {
+export const verifyWorkshop = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.put(
-      `${baseURL}/workshops/${data.id}`,
+      `${baseURL}/workshops/${id}`,
       {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      return error.response.data;
-    }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
-  }
-};
-
-export const deleteWorkshop = async (
-  id: string
-): Promise<TWorkshopDetailResponse> => {
-  const token = getToken();
-  try {
-    const response = await axios.delete(`${baseURL}/workshops/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
       },
-    });
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      return error.response.data;
-    }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
-  }
-};
-
-export const registerWorkshop = async (
-  id: string,
-  data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phoneNumber: string;
-    gender: number;
-    paymentMethod: number;
-  }
-): Promise<TWorkshopDetailResponse> => {
-  const token = getToken();
-  try {
-    const response = await axios.post(
-      `${baseURL}/workshops/${id}/register`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
     );
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
-export const payWorkshopRegistration = async (
-  ticketNumber: string
-): Promise<TWorkshopDetailResponse> => {
-  const token = getToken();
-  try {
-    const response = await axios.post(
-      `${baseURL}/workshops/pay`,
-      { ticketNumber },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      return error.response.data;
-    }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
-  }
-};
-
-export const getWorkshopParticipantsFacilitator = async (): Promise<any> => {
+export const deleteWorkshop = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/workshops/participants`, {
@@ -186,14 +136,34 @@ export const getWorkshopParticipantsFacilitator = async (): Promise<any> => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
-export const getFacilitatorWorkshops = async (): Promise<TWorkshopResponse> => {
+export const getOwnActiveParticipants = async () => {
   const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/workshops/facilitator`, {
+    const response = await axios.get(
+      `${baseURL}/workshops/participants/active/own`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getOwnPopularWorkshops = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/popular/own`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -203,6 +173,40 @@ export const getFacilitatorWorkshops = async (): Promise<TWorkshopResponse> => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getAllSales = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/sales`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getAllParticipants = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/participants`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };

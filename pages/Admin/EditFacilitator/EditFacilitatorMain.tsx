@@ -34,10 +34,8 @@ const facilitatorSchema = z
     provinceId: z.number().min(2, { message: 'Provinsi wajib dipilih' }),
     regencyId: z.number().min(2, { message: 'Kabupaten wajib dipilih' }),
     fullAddress: z.string().min(1, 'Alamat wajib diisi'),
-    password: z.string().min(6, 'Password minimal 6 karakter'),
-    confirmPassword: z
-      .string()
-      .min(6, 'Konfirmasi password minimal 6 karakter'),
+    password: z.string(),
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Password dan konfirmasi tidak sama',
@@ -55,8 +53,20 @@ const EditFacilitatorMain = () => {
   const [loading, setLoading] = useState(false);
   const [loadingRegencies, setLoadingRegencies] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    email: string;
+    phoneNumber: string;
+    provinceId: number;
+    regencyId: number;
+    fullAddress: string;
+    password: string;
+    confirmPassword: string;
+    file?: File | null;
+  }>({
     name: '',
     email: '',
     phoneNumber: '',
@@ -65,6 +75,7 @@ const EditFacilitatorMain = () => {
     fullAddress: '',
     password: '',
     confirmPassword: '',
+    file: null,
   });
 
   const [errors, setErrors] = useState<
@@ -114,9 +125,12 @@ const EditFacilitatorMain = () => {
             provinceId: provinceId,
             regencyId: regencyId,
             fullAddress: facilitator.alamat_lengkap_facilitator,
-            password: facilitator.password_facilitator,
-            confirmPassword: facilitator.password_facilitator,
+            password: '',
+            confirmPassword: '',
           });
+          setAvatarPreview(
+            `http://localhost:2000/uploads/facilitators/${facilitator.avatar}`,
+          );
         } else {
           console.error('Failed to load facilitator:', response.message);
         }
@@ -179,6 +193,19 @@ const EditFacilitatorMain = () => {
     }
   };
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setFormData((prev) => ({
+        ...prev,
+        file,
+      }));
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -196,35 +223,30 @@ const EditFacilitatorMain = () => {
 
     setErrors({});
     setLoading(true);
+    const form = new FormData();
 
+    // Convert gender to string if backend expects string
+    form.append('name', formData.name);
+    form.append('email', formData.email);
+    form.append('phoneNumber', formData.phoneNumber);
+    form.append('regencyId', formData.regencyId?.toString() || '');
+    form.append('password', formData.password);
+    form.append('confirmPassword', formData.confirmPassword);
+    form.append('fullAddress', formData.fullAddress);
+    if (formData.file) {
+      form.append('avatar', formData.file);
+    }
     try {
-      const payload = {
-        id: id as string,
-        name: formData.name,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        fullAddress: formData.fullAddress,
-        regencyId: formData.regencyId,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      };
-
-      if (typeof id !== 'string') {
-        console.error('Invalid ID');
-        return;
-      }
-
-      const result = await updateFacilitator(id, payload);
-
-      if (!result.success) {
+      const result = await updateFacilitator(id as string, form);
+      if (result.success == false) {
         alert(result.message);
+        setLoading(false);
       } else {
         alert(result.message);
         router.push('/admin/dashboard/facilitators');
       }
     } catch (err) {
       alert('Terjadi kesalahan');
-      console.error('Error updating facilitator:', err);
     } finally {
       setLoading(false);
     }
@@ -252,6 +274,27 @@ const EditFacilitatorMain = () => {
           </div>
         ) : (
           <form className='w-full' onSubmit={handleSubmit}>
+            <div className='flex flex-col justify-center items-center w-full mb-10'>
+              {avatarPreview && (
+                <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+                  <img
+                    src={avatarPreview}
+                    alt='Avatar Pengguna'
+                    className='w-32 h-32 rounded-full object-cover border-2 border-white'
+                  />
+                  <p>Foto Profil</p>
+                </div>
+              )}
+              {/* Input Avatar */}
+              <div>
+                <Input
+                  type='file'
+                  accept='image/*'
+                  onChange={handleAvatarChange}
+                  className='text-white w-full'
+                />
+              </div>
+            </div>
             <div className='flex flex-col gap-[2.1rem] w-full'>
               <div className='flex flex-row gap-[3.5rem]'>
                 <div className='flex flex-col gap-[0.6rem]'>

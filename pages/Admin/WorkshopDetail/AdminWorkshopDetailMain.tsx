@@ -215,7 +215,7 @@ const AdminWorkshopDetailMain = () => {
                 Alamat:{' '}
                 <span className='font-semibold'>
                   {workshop
-                    ? `${workshop.alaamt_lengkap_workshop}, Kabupaten ${workshop.kabupaten.nama_kabupaten}, Provinsi ${workshop.kabupaten.provinsi.nama_provinsi}`
+                    ? `${workshop.alaamt_lengkap_workshop}, Kabupaten ${workshop.kabupaten.nama_kabupaten}P, rovinsi ${workshop.kabupaten.provinsi.nama_provinsi}`
                     : '-'}
                 </span>
               </p>
@@ -258,15 +258,25 @@ const AdminWorkshopDetailMain = () => {
               {!workshop?.status_verifikasi && (
                 <button
                   onClick={() => {
-                    onDeleteWorkshop(workshop?.id_workshop || '');
+                    onVerifyWorkshop(workshop?.id_workshop || '');
                   }}
                   disabled={loading}
-                  className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                  className='flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
                 >
-                  <Trash size={20} weight='bold' />
-                  Hapus Workshop
+                  <CheckCircle size={20} weight='bold' />
+                  Verifikasi Workshop
                 </button>
               )}
+              <button
+                onClick={() => {
+                  onDeleteWorkshop(workshop?.id_workshop || '');
+                }}
+                disabled={loading}
+                className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+              >
+                <Trash size={20} weight='bold' />
+                Hapus Workshop
+              </button>
             </div>
           </div>
         </div>

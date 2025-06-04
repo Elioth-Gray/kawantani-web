@@ -50,7 +50,7 @@ export const getFacilitatorById = async (id: string) => {
   }
 };
 
-export const createFacilitator = async (formData: TRegisterFacilitator) => {
+export const createFacilitator = async (formData: FormData) => {
   const token = getToken();
   try {
     const response = await axios.post(
@@ -60,7 +60,7 @@ export const createFacilitator = async (formData: TRegisterFacilitator) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response.data;
   } catch (error: any) {
@@ -88,13 +88,61 @@ export const deleteFacilitator = async (id: string) => {
   }
 };
 
-export const updateFacilitator = async (
-  id: string,
-  data: TUpdateFacilitator
-) => {
+export const updateFacilitator = async (id: string, formData: FormData) => {
   const token = getToken();
   try {
-    const response = await axios.put(`${baseURL}/facilitator/${id}`, data, {
+    const response = await axios.put(`${baseURL}/facilitator/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getTotalRevenue = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/facilitator/revenue`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getTicketsSold = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/facilitator/sold`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getLatestSales = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/facilitator/sales/recent`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

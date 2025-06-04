@@ -23,26 +23,30 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { deleteUser, getAllUsers } from '@/api/userApi';
 import { usePathname, useRouter } from 'next/navigation';
+import { getAllWorkshops } from '@/api/workshopApi'; // Assuming you have this API function
 
-// Interface yang sesuai dengan data API
-type UserData = {
+// Interface untuk workshop data
+type WorkshopResponse = {
   id: number;
-  email_pengguna: string;
-  id_pengguna: string;
-  nama_belakang_pengguna: string;
-  nama_depan_pengguna: string;
-  nomor_telepon_pengguna: string;
+  id_workshop: string;
+  judul_workshop: string;
+  tanggal_workshop: string;
+  status_verifikasi: boolean;
+  status_aktif: boolean;
+  gambar_workshop: string;
+  facilitator: {
+    nama_facilitator: string;
+  };
 };
 
 type SortConfig = {
-  key: keyof UserData | null;
+  key: keyof WorkshopResponse | 'facilitator_name' | null;
   direction: 'asc' | 'desc';
 };
 
-const AdminUsersMain = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
+const AdminWorkshopsMain = () => {
+  const [workshops, setWorkshops] = useState<WorkshopResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -50,56 +54,39 @@ const AdminUsersMain = () => {
     direction: 'asc',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(''); // Tambahkan state untuk filter
+  const [searchTerm, setSearchTerm] = useState('');
+  const [verificationFilter, setVerificationFilter] = useState('');
   const itemsPerPage = 10;
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchWorkshops = async () => {
       setLoading(true);
       try {
-        const response = await getAllUsers();
+        const response = await getAllWorkshops();
+        console.log(response);
         if (response.data) {
-          const users = response.data;
-          const segmentedUsers = users.map((user: any, index: number) => ({
-            ...user,
-            id: index + 1,
-          }));
-          setUsers(segmentedUsers);
+          const workshops = response.data;
+          const segmentedWorkshops = workshops.map(
+            (workshop: any, index: number) => ({
+              ...workshop,
+              id: index + 1,
+            }),
+          );
+          setWorkshops(segmentedWorkshops);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching workshops:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchWorkshops();
   }, []);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await getAllUsers();
-        if (response.data) {
-          const users = response.data;
-          const segmentedUsers = users.map((user: any, index: number) => ({
-            ...user,
-            id: index + 1,
-          }));
-          setUsers(segmentedUsers);
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-      }
-    };
-
-    fetchUsers();
-  }, [users]);
-
-  const requestSort = (key: keyof UserData) => {
+  const requestSort = (key: keyof WorkshopResponse | 'facilitator_name') => {
     let direction: 'asc' | 'desc' = 'asc';
 
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -109,36 +96,61 @@ const AdminUsersMain = () => {
     setSortConfig({ key, direction });
   };
 
-  // Fungsi untuk memfilter data berdasarkan search term
+  // Fungsi untuk memfilter data berdasarkan search term dan filter
   const filteredData = useMemo(() => {
-    if (!searchTerm) return users;
+    let filtered = workshops;
 
-    return users.filter((user) => {
-      const fullName =
-        `${user.nama_depan_pengguna} ${user.nama_belakang_pengguna}`.toLowerCase();
-      const email = user.email_pengguna.toLowerCase();
-      const phone = user.nomor_telepon_pengguna.toLowerCase();
-      const search = searchTerm.toLowerCase();
+    // Filter berdasarkan search term
+    if (searchTerm) {
+      filtered = filtered.filter((workshop) => {
+        const title = workshop.judul_workshop.toLowerCase();
+        const facilitatorName =
+          workshop.facilitator.nama_facilitator.toLowerCase();
+        const search = searchTerm.toLowerCase();
 
-      return (
-        fullName.includes(search) ||
-        email.includes(search) ||
-        phone.includes(search)
-      );
-    });
-  }, [users, searchTerm]);
+        return title.includes(search) || facilitatorName.includes(search);
+      });
+    }
+
+    // Filter berdasarkan status verifikasi
+    if (verificationFilter) {
+      if (verificationFilter !== 'all') {
+        const isVerified = verificationFilter === 'verified';
+        filtered = filtered.filter(
+          (workshop) => workshop.status_verifikasi === isVerified,
+        );
+      }
+    }
+
+    return filtered;
+  }, [workshops, searchTerm, verificationFilter]);
 
   const sortedData = useMemo(() => {
     const sortableData = [...filteredData];
     if (sortConfig.key) {
       sortableData.sort((a, b) => {
-        let aValue = a[sortConfig.key!];
-        let bValue = b[sortConfig.key!];
+        let aValue: any;
+        let bValue: any;
 
         // Handle special cases for combined fields
-        if (sortConfig.key === 'nama_depan_pengguna') {
-          aValue = `${a.nama_depan_pengguna} ${a.nama_belakang_pengguna}`;
-          bValue = `${b.nama_depan_pengguna} ${b.nama_belakang_pengguna}`;
+        if (sortConfig.key === 'facilitator_name') {
+          aValue = a.facilitator.nama_facilitator;
+          bValue = b.facilitator.nama_facilitator;
+        } else {
+          aValue = a[sortConfig.key as keyof WorkshopResponse];
+          bValue = b[sortConfig.key as keyof WorkshopResponse];
+        }
+
+        // Convert to string for comparison if needed
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        // Handle date comparison
+        if (sortConfig.key === 'tanggal_workshop') {
+          aValue = new Date(aValue).getTime();
+          bValue = new Date(bValue).getTime();
         }
 
         if (aValue < bValue) {
@@ -188,7 +200,7 @@ const AdminUsersMain = () => {
   };
 
   // Get sort icon for column
-  const getSortIcon = (key: keyof UserData) => {
+  const getSortIcon = (key: keyof WorkshopResponse | 'facilitator_name') => {
     if (sortConfig.key !== key) {
       return <ArrowUpDown className='ml-1 h-4 w-4 inline opacity-50' />;
     }
@@ -200,53 +212,74 @@ const AdminUsersMain = () => {
     );
   };
 
-  // Reset pagination when search changes
+  // Reset pagination when search or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, verificationFilter]);
 
-  const onEditUser = (id: string) => {
-    router.push(`${pathname}/edit/${id}`);
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setVerificationFilter('');
   };
 
-  const onDeleteUser = async (id_pengguna: string) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const getStatusBadge = (status: boolean) => {
+    const baseClass = 'px-2 py-1 rounded-full text-xs font-semibold';
+    return status
+      ? `${baseClass} bg-green-100 text-green-800`
+      : `${baseClass} bg-red-100 text-red-800`;
+  };
+
+  const onViewWorkshop = (id: string) => {
+    router.push(`${pathname}/${id}`);
+  };
+
+  const onDeleteWorkshop = async (id_workshop: string) => {
     const confirmed = window.confirm(
-      'Apakah kamu ingin menghapus pengguna ini?',
+      'Apakah kamu ingin menghapus workshop ini?',
     );
     if (!confirmed) return;
 
     try {
-      const result = await deleteUser(id_pengguna);
-      if (result.status === true) {
-        setUsers((prev) => {
-          const filtered = prev.filter(
-            (user) => user.id_pengguna !== id_pengguna,
-          );
-          return filtered.map((user, index) => ({
-            ...user,
-            id: index + 1,
-          }));
-        });
+      // Assuming you have a deleteWorkshop API function
+      // const result = await deleteWorkshop(id_workshop);
+      // if (result.status === true) {
+      setWorkshops((prev) => {
+        const filtered = prev.filter(
+          (workshop) => workshop.id_workshop !== id_workshop,
+        );
+        return filtered.map((workshop, index) => ({
+          ...workshop,
+          id: index + 1,
+        }));
+      });
 
-        setSelectedRows([]);
-
-        alert('Berhasil menghapus pengguna.');
-      } else {
-        alert(result.message || 'Ada kesalahan');
-      }
+      setSelectedRows([]);
+      alert('Berhasil menghapus workshop.');
+      // } else {
+      //   alert(result.message || 'Ada kesalahan');
+      // }
     } catch (error) {
-      alert('Ada kesalahan saat menghapus pengguna');
+      alert('Ada kesalahan saat menghapus workshop');
     }
   };
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
         <div className='w-full flex flex-row justify-between items-center mb-[2rem]'>
           <div>
-            <h1 className='text-[2.25rem] font-semibold'>
-              Daftar Pengguna (Reguler)
-            </h1>
-            <p>Lihat daftar pengguna yang ada pada sistem</p>
+            <h1 className='text-[2.25rem] font-semibold'>Daftar Workshop</h1>
+            <p>Lihat daftar workshop yang ada pada sistem</p>
           </div>
           <div className='flex flex-row justify-end items-center gap-[0.4rem]'>
             <button className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-white text-black rounded-lg gap-[0.5rem]'>
@@ -255,17 +288,45 @@ const AdminUsersMain = () => {
             </button>
           </div>
         </div>
-        <div className='w-full flex flex-row jutify-between items-center gap-[1rem] mb-6'>
-          <Input
-            type='text'
-            placeholder='Filter Pencarian...'
-            className='w-[20rem]'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+
+        <div className='w-full flex flex-row justify-between items-center gap-[1rem] mb-6'>
+          <div className='flex flex-row items-center gap-4'>
+            <Input
+              type='text'
+              placeholder='Cari workshop atau fasilitator...'
+              className='w-[20rem]'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            <Select
+              value={verificationFilter}
+              onValueChange={setVerificationFilter}
+            >
+              <SelectTrigger className='w-[160px]'>
+                <SelectValue placeholder='Semua Verifikasi' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>Semua Verifikasi</SelectItem>
+                <SelectItem value='verified'>Terverifikasi</SelectItem>
+                <SelectItem value='unverified'>Belum Verifikasi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Clear Filters Button */}
+          {(searchTerm || verificationFilter) && (
+            <Button
+              variant='outline'
+              onClick={clearAllFilters}
+              className='bg-zinc-900 border-zinc-800 hover:bg-zinc-800'
+            >
+              Clear Filters
+            </Button>
+          )}
         </div>
 
-        {/* Sales Table */}
+        {/* Workshops Table */}
         <div className='rounded-lg border border-zinc-800 overflow-hidden'>
           <Table>
             <TableHeader className='bg-zinc-900'>
@@ -285,43 +346,48 @@ const AdminUsersMain = () => {
                   className='cursor-pointer text-white'
                   onClick={() => requestSort('id')}
                 >
-                  Nomor {getSortIcon('id')}
+                  No {getSortIcon('id')}
                 </TableHead>
                 <TableHead
                   className='cursor-pointer text-white'
-                  onClick={() => requestSort('nama_depan_pengguna')}
+                  onClick={() => requestSort('judul_workshop')}
                 >
-                  Nama {getSortIcon('nama_depan_pengguna')}
+                  Judul Workshop {getSortIcon('judul_workshop')}
                 </TableHead>
-
                 <TableHead
                   className='cursor-pointer text-white'
-                  onClick={() => requestSort('email_pengguna')}
+                  onClick={() => requestSort('facilitator_name')}
                 >
-                  Email {getSortIcon('email_pengguna')}
+                  Fasilitator {getSortIcon('facilitator_name')}
                 </TableHead>
                 <TableHead
-                  className='text-right cursor-pointer text-white'
-                  onClick={() => requestSort('nomor_telepon_pengguna')}
+                  className='cursor-pointer text-white'
+                  onClick={() => requestSort('tanggal_workshop')}
                 >
-                  Nomor Telepon {getSortIcon('nomor_telepon_pengguna')}
+                  Tanggal {getSortIcon('tanggal_workshop')}
                 </TableHead>
-                <TableHead></TableHead>
+                <TableHead
+                  className='cursor-pointer text-white'
+                  onClick={() => requestSort('status_verifikasi')}
+                >
+                  Verifikasi {getSortIcon('status_verifikasi')}
+                </TableHead>
+                <TableHead className='text-center'>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className='text-center py-8'>
+                  <TableCell colSpan={7} className='text-center py-8'>
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className='text-center py-8'>
-                    {searchTerm
-                      ? 'Tidak ada data yang sesuai dengan pencarian'
-                      : 'Tidak ada data'}
+                  <TableCell colSpan={7} className='text-center py-8'>
+                    {searchTerm || verificationFilter
+                      ? 'Tidak ada workshop yang sesuai dengan filter'
+                      : 'Tidak ada workshop'}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -337,32 +403,27 @@ const AdminUsersMain = () => {
                       />
                     </TableCell>
                     <TableCell>{row.id}</TableCell>
+                    <TableCell className='max-w-[200px] truncate'>
+                      {row.judul_workshop}
+                    </TableCell>
+                    <TableCell>{row.facilitator.nama_facilitator}</TableCell>
+                    <TableCell>{formatDate(row.tanggal_workshop)}</TableCell>
                     <TableCell>
-                      {row.nama_depan_pengguna +
-                        ' ' +
-                        row.nama_belakang_pengguna}
+                      <span className={getStatusBadge(row.status_verifikasi)}>
+                        {row.status_verifikasi
+                          ? 'Terverifikasi'
+                          : 'Belum Verifikasi'}
+                      </span>
                     </TableCell>
-                    <TableCell>{row.email_pengguna}</TableCell>
-                    <TableCell className='text-right'>
-                      {row.nomor_telepon_pengguna}
-                    </TableCell>
-                    <TableCell className='text-right flex flex-row justify-center items-center gap-5'>
-                      <p
-                        className='text-red-400 font-semibold cursor-pointer'
-                        onClick={() => {
-                          onDeleteUser(row.id_pengguna);
-                        }}
-                      >
-                        Hapus
-                      </p>
-                      <p
-                        className='text-blue-400 font-semibold cursor-pointer'
-                        onClick={() => {
-                          onEditUser(row.id_pengguna);
-                        }}
-                      >
-                        Edit
-                      </p>
+                    <TableCell className='text-center'>
+                      <div className='flex flex-row justify-center items-center gap-3'>
+                        <button
+                          className='text-blue-400 font-semibold hover:text-blue-300 transition-colors cursor-pointer'
+                          onClick={() => onViewWorkshop(row.id_workshop)}
+                        >
+                          Lihat Detail
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -373,8 +434,15 @@ const AdminUsersMain = () => {
 
         {/* Pagination */}
         <div className='flex items-center justify-between mt-4 text-sm text-zinc-400'>
-          <div>
-            {selectedRows.length} of {sortedData.length} row(s) selected.
+          <div className='flex items-center gap-4'>
+            <span>
+              {selectedRows.length} dari {sortedData.length} workshop dipilih.
+            </span>
+            {(searchTerm || verificationFilter) && (
+              <span className='text-xs bg-zinc-800 px-2 py-1 rounded'>
+                Menampilkan {sortedData.length} dari {workshops.length} workshop
+              </span>
+            )}
           </div>
           <div className='flex items-center gap-2'>
             <Button
@@ -434,4 +502,4 @@ const AdminUsersMain = () => {
   );
 };
 
-export default AdminUsersMain;
+export default AdminWorkshopsMain;

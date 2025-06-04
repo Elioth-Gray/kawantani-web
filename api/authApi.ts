@@ -1,20 +1,20 @@
-import axios from "axios";
-import { TRegister, TLogin } from "@/types/authTypes";
+import axios from 'axios';
+import { TRegister, TLogin } from '@/types/authTypes';
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:2000/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
 
 export const putToken = (token: string) => {
-  localStorage.setItem("accessToken", token);
+  localStorage.setItem('accessToken', token);
 };
 
 export const getToken = () => {
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem('accessToken');
   return token;
 };
 
 export const removeAccessToken = () => {
-  localStorage.setItem("accessToken", "");
+  localStorage.setItem('accessToken', '');
 };
 
 export const registerAccount = async (formData: FormData) => {
@@ -25,7 +25,7 @@ export const registerAccount = async (formData: FormData) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
@@ -39,7 +39,7 @@ export const loginAccount = async (formData: TLogin) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
@@ -57,7 +57,7 @@ export const getUserProfile = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
@@ -71,14 +71,14 @@ export const activateUserAccount = async (code: string) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
 
@@ -92,6 +92,23 @@ export const loginAdmin = async (formData: TLogin) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: "Terjadi Kesalahan!", data: null };
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const loginFacilitator = async (formData: TLogin) => {
+  try {
+    const response = await axios.post(
+      `${baseURL}/auth/facilitator/login`,
+      formData,
+    );
+    console.log(response.data.data.token);
+    putToken(response.data.data.token);
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
