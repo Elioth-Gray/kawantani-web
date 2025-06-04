@@ -1,16 +1,16 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   TCreateWorkshopRequest,
   TWorkshopResponse,
   TWorkshopDetailResponse,
   TWorkshopVerificationRequest,
-} from '@/types/workshopTypes';
+} from "@/types/workshopTypes";
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:2000/api";
 
 export const getToken = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   return token;
 };
 
@@ -48,9 +48,14 @@ export const getOwnWorkshops = async () => {
   }
 };
 
-export const getVerifiedWorkshops = async () => {
+export const getOwnWorkshops = async () => {
+  const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/workshops/verified`);
+    const response = await axios.get(`${baseURL}/workshops/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -73,12 +78,12 @@ export const getWorkshopById = async (id: string) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
-export const createWorkshop = async (
-  formData: FormData,
+export const createWorkshopFacilitator = async (
+  formData: FormData
 ): Promise<TWorkshopDetailResponse> => {
   const token = getToken();
   try {
@@ -121,7 +126,7 @@ export const verifyWorkshop = async (id: string) => {
 export const deleteWorkshop = async (id: string) => {
   const token = getToken();
   try {
-    const response = await axios.delete(`${baseURL}/workshops/${id}`, {
+    const response = await axios.get(`${baseURL}/workshops/participants`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
