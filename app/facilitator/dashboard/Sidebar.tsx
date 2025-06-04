@@ -5,8 +5,7 @@ import {
   Folders,
   House,
   Person,
-  OfficeChair,
-  BookOpenText,
+  CurrencyDollar,
   Ticket,
 } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
@@ -62,14 +61,14 @@ export default function Sidebar() {
                 href='/facilitator/dashboard/sales'
                 className={navItemClass('/facilitator/dashboard/sales')}
               >
-                <Person size={16} />
+                <CurrencyDollar size={16} />
                 Penjualan
               </Link>
               <Link
                 href='/facilitator/dashboard/participants'
                 className={navItemClass('/facilitator/dashboard/participants')}
               >
-                <OfficeChair size={16} />
+                <Person size={16} />
                 Peserta
               </Link>
               <Link

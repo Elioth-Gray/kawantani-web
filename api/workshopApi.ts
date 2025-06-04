@@ -31,6 +31,23 @@ export const getAllWorkshops = async (): Promise<TWorkshopResponse> => {
   }
 };
 
+export const getOwnWorkshops = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
 export const getVerifiedWorkshops = async () => {
   try {
     const response = await axios.get(`${baseURL}/workshops/verified`);
@@ -142,6 +159,40 @@ export const getOwnPopularWorkshops = async () => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/workshops/popular/own`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getAllSales = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/sales`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getAllParticipants = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/participants`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -1,129 +1,346 @@
-"use client";
+'use client';
 
-import React from "react";
-import Image from "next/image";
+import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, CheckCircle, Trash } from '@phosphor-icons/react/dist/ssr';
+import Image from 'next/image';
+import { deleteArticle, getArticleById, verifyArticle } from '@/api/articleApi';
 import {
-  Calendar,
-  Timer,
-  MapPin,
-  Pencil,
-  XCircle,
-  ArrowLeft,
-} from "@phosphor-icons/react/dist/ssr";
-import PrimaryButton from "@/components/buttons/PrimaryButton";
-import { useRouter, usePathname } from "next/navigation";
+  deleteWorkshop,
+  getWorkshopById,
+  verifyWorkshop,
+} from '@/api/workshopApi';
 
-const FacilitatorWorkshopDetailMain = () => {
+export type Provinsi = {
+  id_provinsi: number;
+  nama_provinsi: string;
+};
+
+export type Kabupaten = {
+  id_kabupaten: number;
+  nama_kabupaten: string;
+  type: string;
+  id_provinsi: number;
+  provinsi: Provinsi;
+};
+
+export type Facilitator = {
+  id_facilitator: string;
+  nama_facilitator: string;
+  email_facilitator: string;
+  nomor_telepon_facilitator: string;
+  password_facilitator: string;
+  tanggal_pembuatan_akun: string;
+  alamat_lengkap_facilitator: string;
+  avatar: string;
+  status_aktif: boolean;
+  id_kabupaten: number;
+  kabupaten: Kabupaten; // tambahkan ini agar lengkap
+};
+
+export type Workshop = {
+  id_workshop: string;
+  judul_workshop: string;
+  tanggal_workshop: string;
+  alaamt_lengkap_workshop: string;
+  deskripsi_workshop: string;
+  harga_workshop: string;
+  kapasitas: number;
+  status_verifikasi: boolean;
+  lat_lokasi: number;
+  long_lokasi: number;
+  gambar_workshop: string;
+  status_aktif: boolean;
+  id_facilitator: string;
+  id_kabupaten: number;
+  facilitator: Facilitator;
+  kabupaten: Kabupaten;
+};
+
+const AdminWorkshopDetailMain = () => {
+  const [workshop, setWorkshop] = useState<Workshop>();
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
+  const params = useParams();
+  const id = params?.id || '';
 
-  const edit = () => {
-    router.push(`${pathname}/edit`);
+  useEffect(() => {
+    const fetchArticle = async () => {
+      setInitialLoading(true);
+      try {
+        const response = await getWorkshopById(id as string);
+        console.log(response);
+        if (response.data) {
+          setWorkshop(response.data);
+        } else {
+          console.error('Failed to load workshop:', response.message);
+          alert('Gagal memuat data artikel');
+        }
+      } catch (error) {
+        console.error('Error loading workshop:', error);
+        alert('Terjadi kesalahan saat memuat data');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchArticle();
+  }, [id]);
+
+  const getStatusBadge = (status: string) => {
+    const baseClass = 'px-2 py-1 rounded-full text-xs font-semibold';
+    switch (status) {
+      case 'PUBLISHED':
+        return `${baseClass} bg-green-100 text-green-800`;
+      case 'DRAFT':
+        return `${baseClass} bg-yellow-100 text-yellow-800`;
+      default:
+        return `${baseClass} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  function formatToRupiah(value: number | string): string {
+    const number = typeof value === 'string' ? parseInt(value) : value;
+    if (isNaN(number)) return 'Rp0';
+
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(number);
+  }
+
+  const onVerifyWorkshop = async (id_workshop: string) => {
+    setLoading(true);
+    const confirmed = window.confirm(
+      'Apakah kamu ingin memverifkasi workshop ini?',
+    );
+    if (!confirmed) return;
+
+    try {
+      const result = await verifyWorkshop(id_workshop);
+      if (result.data) {
+        alert('Berhasil memverifikasi workshop.');
+        router.push('/admin/dashboard/workshops');
+      } else {
+        alert(result.message || 'Ada kesalahan');
+      }
+    } catch (error) {
+      console.error('Error verify workshop:', error);
+      alert('Ada kesalahan saat veridfikasi workshop');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onDeleteWorkshop = async (id_workshop: string) => {
+    setLoading(true);
+    const confirmed = window.confirm(
+      'Apakah kamu ingin menghapus workshop ini?',
+    );
+    if (!confirmed) return;
+
+    try {
+      const result = await deleteWorkshop(id_workshop);
+      if (result.data) {
+        alert('Berhasil menghapus workshop.');
+        router.push('/admin/dashboard/workshops');
+      } else {
+        alert(result.message || 'Ada kesalahan');
+      }
+    } catch (error) {
+      console.error('Error deleting workshop:', error);
+      alert('Ada kesalahan saat menghapus workshop');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getGoogleMapsEmbedUrlWithoutKey = (lat: number, lng: number) => {
+    return `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed`;
   };
 
   return (
-    <section className="w-full h-screen bg-[#09090B]  px-[5.1rem] text-white overflow-auto">
-      <div className="w-full h-fit my-[4.5rem] mb-[4.5rem]">
-        <section className="w-full">
-          <div
-            className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
-            onClick={() => {
-              router.back();
-            }}
-          >
-            <ArrowLeft
-              size={24}
-              color="#fff"
-              weight="bold"
-              className="cursor-pointer"
+    <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+      <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
+        <div
+          className='w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointer'
+          onClick={() => router.back()}
+        >
+          <ArrowLeft size={24} color='#fff' weight='bold' />
+          <p>Kembali</p>
+        </div>
+
+        <div className='w-full mb-[3.1rem]'>
+          <h1 className='text-[2.25rem] font-semibold'>Detail Workshop</h1>
+          <p>Lihat detail workshop pada sistem</p>
+        </div>
+
+        <div className='w-full h-76 grid grid-cols-2 gap-x-10'>
+          <div className='col-span-1 w-full h-full  rounded-xl overflow-hidden'>
+            <img
+              src={
+                workshop?.gambar_workshop
+                  ? `http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`
+                  : undefined
+              }
+              width={0}
+              height={0}
+              alt='workshop'
+              className='w-full h-full object-cover'
             />
-            <p className="cursor-pointer">Kembali</p>
           </div>
-        </section>
-        <section>
-          <div className="w-full h-full grid grid-cols-2 gap-x-[2.8rem]">
-            <div className="w-full h-[19.8rem] object-cover overflow-hidden rounded-lg col-span-1">
-              <Image
-                className=" object-cover w-full h-full"
-                width={545}
-                height={307}
-                src="/images/workshop-image.webp"
-                alt="cabai"
-                quality={100}
-                unoptimized
-              ></Image>
-            </div>
-            <div className="flex flex-col justify-between items-start">
-              <h1 className="text-[1.5rem] font-semibold w-[70%]">
-                Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah
+
+          <div className='col-span-1 w-full h-full flex flex-col justify-start items-start gap-3'>
+            <div className='w-full flex flex-col justify-start items-start gap-1'>
+              <h1 className='text-[1.5rem] font-semibold'>
+                {workshop?.judul_workshop || '-'}
               </h1>
-              <div className="flex flex-col justify-start items-start gap-[0.9rem]">
-                <div className="flex flex-row justify-start items-center gap-[0.75rem]">
-                  <Calendar size={26} color="#fff" />
-                  <p className="text-[0.75rem]">Jumat, 15 Februari 2025</p>
-                </div>
-                <div className="flex flex-row justify-start items-center gap-[0.75rem]">
-                  <MapPin size={26} color="#fff" />
-                  <p className="text-[0.75rem]">Mojokerto, Jawa Timur</p>
-                </div>
-                <div className="flex flex-row justify-start items-center gap-[0.75rem]">
-                  <Timer size={26} color="#fff" />
-                  <p className="text-[0.75rem]">07.00 - 15.00 WIB</p>
-                </div>
-              </div>
-              <div className="w-full flex flex-row justify-start items-center gap-[0.5rem]">
-                <button
-                  className="py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-white text-black rounded-lg gap-[0.5rem] cursor-pointer"
-                  onClick={() => edit()}
+              <p className='text-gray-400 text-sm'>
+                ID: {workshop?.id_workshop || '-'}
+              </p>
+            </div>
+            <div className='w-full flex flex-col justify-start items-start gap-2'>
+              <p>
+                Alamat:{' '}
+                <span className='font-semibold'>
+                  {workshop
+                    ? `${workshop.alaamt_lengkap_workshop}, Kabupaten ${workshop.kabupaten.nama_kabupaten}, Provinsi ${workshop.kabupaten.provinsi.nama_provinsi}`
+                    : '-'}
+                </span>
+              </p>
+              <p>
+                Tanggal Pelaksanaan:{' '}
+                <span className='font-semibold'>
+                  {workshop ? formatDate(workshop.tanggal_workshop) : '-'}
+                </span>
+              </p>
+              <p>
+                Harga Tiket:{' '}
+                <span className='font-semibold'>
+                  {workshop
+                    ? `${formatToRupiah(workshop.harga_workshop)}/pax`
+                    : '-'}
+                </span>
+              </p>
+              <p>
+                Kapasitas:{' '}
+                <span className='font-semibold'>
+                  {workshop ? `${workshop.kapasitas} Peserta` : '-'}
+                </span>
+              </p>
+              <p>
+                Status Verifikasi:{' '}
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    workshop?.status_verifikasi
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
                 >
-                  <Pencil size={24} color="#000000" />
-                  <p className="font-semibold">Edit Workshop</p>
+                  {workshop?.status_verifikasi
+                    ? 'Terverifikasi'
+                    : 'Belum Verifikasi'}
+                </span>
+              </p>
+            </div>
+            <div className='flex gap-4 mt-6'>
+              {!workshop?.status_verifikasi && (
+                <button
+                  onClick={() => {
+                    onDeleteWorkshop(workshop?.id_workshop || '');
+                  }}
+                  disabled={loading}
+                  className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                >
+                  <Trash size={20} weight='bold' />
+                  Hapus Workshop
                 </button>
-                <button className="py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-white text-black rounded-lg gap-[0.5rem] cursor-pointer">
-                  <XCircle size={24} color="#000000" />
-                  <p className="font-semibold">Hapus Workshop</p>
-                </button>
-              </div>
+              )}
             </div>
           </div>
-        </section>
-        {/* Description Section */}
-        <section className="grid grid-cols-2 justify-between items-start gap-3 mt-[2.8rem]">
-          <div className="flex flex-col justify-start items-start gap-[1.3rem] col-span-1  w-full h-full  ">
-            <h1 className="text-[2rem] font-bold">Deskripsi</h1>
-            <p className="text-[1.1rem]">
-              Workshop "Teknik Tanam Padi" adalah sebuah acara yang dirancang
-              untuk memberikan pelatihan dan pengetahuan kepada para petani atau
-              praktisi pertanian tentang teknik-teknik terbaru dalam
-              meningkatkan hasil produksi padi. Dalam workshop ini, peserta akan
-              mempelajari berbagai metode inovatif untuk meningkatkan efisiensi
-              dan produktivitas lahan pertanian padi, termasuk teknik
-              pengelolaan air yang tepat, pemilihan varietas padi unggul,
-              penggunaan pupuk yang efektif, serta pengendalian hama dan
-              penyakit secara ramah lingkungan.
-            </p>
+        </div>
+
+        <div className='w-full h-76 grid grid-cols-2 gap-x-10 mt-[3.1rem]'>
+          <div className='w-full mb-[3.1rem] mt-[3.1rem]'>
+            <h1 className='text-[2rem] font-semibold'>Deskripsi Workshop</h1>
+            <p>{workshop?.deskripsi_workshop || '-'}</p>
           </div>
-          <div className="flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full">
-            <h1 className="text-[2rem] font-bold">Lokasi</h1>
-            <div className="w-full h-full">
+          <div className='w-full mb-[3.1rem] mt-[3.1rem]'>
+            <h1 className='text-[2rem] font-semibold'>Lokasi Workshop</h1>
+            {workshop?.lat_lokasi && workshop?.long_lokasi ? (
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2219901290355!2d-74.00369368400567!3d40.71277447933185!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a47df06b185%3A0xc80f9cfce5383d5d!2sBrooklyn%20Bridge!5e0!3m2!1sen!2sus!4v1586548183327!5m2!1sen!2sus"
-                width="100%"
-                height="100%"
+                src={getGoogleMapsEmbedUrlWithoutKey(
+                  workshop.lat_lokasi,
+                  workshop.long_lokasi,
+                )}
+                width='100%'
+                height='100%'
                 style={{ border: 0 }}
                 allowFullScreen={true}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Google Maps"
-                aria-label="Location map"
-                className="w-full h-full"
+                loading='lazy'
+                referrerPolicy='no-referrer-when-downgrade'
+                title={`Lokasi Workshop: ${workshop?.judul_workshop}`}
+                aria-label={`Peta lokasi workshop ${workshop?.judul_workshop}`}
+                className='w-full h-full rounded-lg'
               />
+            ) : (
+              <p className='text-gray-400'>Lokasi tidak tersedia</p>
+            )}
+          </div>
+        </div>
+
+        <div className='w-full h-76 grid grid-cols-2 gap-x-10 mt-[3.1rem]'>
+          <div className='w-full mb-[3.1rem] mt-[3.1rem] col-span-2'>
+            <h1 className='text-[2rem] font-semibold mb-2'>
+              Informasi Penyelenggara
+            </h1>
+            <div className='w-full flex flex-col justify-start items-start gap-3'>
+              <p>
+                Nama Penyelenggara:{' '}
+                <span className='font-semibold'>
+                  {workshop ? workshop.facilitator.nama_facilitator : '-'}
+                </span>
+              </p>
+              <p>
+                Email Penyelenggara:{' '}
+                <span className='font-semibold'>
+                  {workshop ? workshop.facilitator.email_facilitator : '-'}
+                </span>
+              </p>
+              <p>
+                Nomor Telepon Penyelenggara:{' '}
+                <span className='font-semibold'>
+                  {workshop
+                    ? workshop.facilitator.nomor_telepon_facilitator
+                    : '-'}
+                </span>
+              </p>
+              <p>
+                Alamat Penyelenggara:{' '}
+                <span className='font-semibold'>
+                  {workshop
+                    ? `${workshop.facilitator.alamat_lengkap_facilitator}, Kabupaten ${workshop.facilitator.kabupaten.nama_kabupaten}, Provinsi ${workshop.facilitator.kabupaten.provinsi.nama_provinsi}`
+                    : '-'}
+                </span>
+              </p>
             </div>
           </div>
-        </section>
-      </div>
-    </section>
+          <div className='w-full mb-[3.1rem] mt-[3.1rem]'></div>
+        </div>
+      </section>
+    </main>
   );
 };
 
-export default FacilitatorWorkshopDetailMain;
+export default AdminWorkshopDetailMain;
