@@ -1,18 +1,68 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WorkshopCard from "@/components/cards/WorkshopCard";
 import { useRouter, usePathname } from "next/navigation";
 import InputField from "@/components/form/InputField";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
+import { getVerifiedWorkshops } from "@/api/workshopApi";
 
 const WorkshopMain = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const navigate = () => {
-    router.push(`${pathname}/122121/details`);
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        const response = await getVerifiedWorkshops();
+        if (response.data) {
+          setWorkshops(response.data);
+        } else {
+          setError(response.message || "Gagal memuat data workshop");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat memuat data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshops();
+  }, []);
+
+  const navigate = (id: string) => {
+    router.push(`${pathname}/${id}/details`);
   };
+
+  const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  };
+  return date.toLocaleDateString('id-ID', options);
+};
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Memuat data workshop...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <main>
@@ -90,41 +140,23 @@ const WorkshopMain = () => {
             </InputField>
           </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-              onClickHandler={navigate}
-            ></WorkshopCard>
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-              onClickHandler={navigate}
-            ></WorkshopCard>
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-              onClickHandler={navigate}
-            ></WorkshopCard>
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-              onClickHandler={navigate}
-            ></WorkshopCard>
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-              onClickHandler={navigate}
-            ></WorkshopCard>
+            {workshops.length > 0 ? (
+              workshops.map((workshop) => (
+                <WorkshopCard
+                  key={workshop.id_workshop}
+                  imageURL={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                  title={workshop.judul_workshop}
+                  date={formatDate(workshop.tanggal_workshop)}
+                  location={`${workshop.alaamt_lengkap_workshop}, ${workshop.kabupaten.nama_kabupaten}, ${workshop.kabupaten.provinsi.nama_provinsi}`}
+                  // price={workshop.harga_workshop}
+                  onClickHandler={() => navigate(workshop.id_workshop)}
+                />
+              ))
+            ) : (
+              <p className="col-span-2 text-center py-10">
+                Tidak ada workshop tersedia
+              </p>
+            )}
           </div>
         </section>
       </section>
