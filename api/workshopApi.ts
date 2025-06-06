@@ -32,14 +32,9 @@ export const getAllWorkshops = async (): Promise<TWorkshopResponse> => {
   }
 };
 
-export const getVerifiedWorkshops = async (): Promise<TVerifiedWorkshopResponse> => {
-  const token = getToken();
+export const getVerifiedWorkshops = async () => {
   try {
-    const response = await axios.get(`${baseURL}/workshops/verified`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(`${baseURL}/workshops/verified`);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -48,6 +43,32 @@ export const getVerifiedWorkshops = async (): Promise<TVerifiedWorkshopResponse>
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const createWorkshop = async (formData: FormData) => {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error('Token tidak ditemukan. Silakan login ulang.');
+  }
+
+  try {
+    const response = await axios.post(`${baseURL}/workshops/create`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log('Create article response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error creating article:', error);
+    if (error.response && error.response.data) {
+      console.error('Server error response:', error.response.data);
+      throw new Error(error.response.data.message || 'Gagal membuat artikel');
+    }
+
+    throw new Error(error.message || 'Terjadi kesalahan saat membuat artikel');
 
 export const getOwnWorkshops = async () => {
   const token = getToken();
