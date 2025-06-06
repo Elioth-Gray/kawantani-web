@@ -351,9 +351,8 @@ const WorkshopTableMain = () => {
     router.push(`${pathname}/${id}`);
   };
 
-  const onEditWorkshop = (id: string) => {
-    console.log('Edit workshop:', id);
-    // router.push(`${pathname}/edit/${id}`);
+  const onCreateWorkshop = () => {
+    router.push(`${pathname}/create`);
   };
 
   const onDeleteWorkshop = (id: string) => {
@@ -372,7 +371,12 @@ const WorkshopTableMain = () => {
             <p>Kelola workshop yang telah Anda buat</p>
           </div>
           <div className='flex flex-row justify-end items-center gap-[0.4rem]'>
-            <button className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-blue-600 text-white rounded-lg gap-[0.5rem] hover:bg-blue-700'>
+            <button
+              className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-blue-600 text-white rounded-lg gap-[0.5rem] hover:bg-blue-700'
+              onClick={() => {
+                onCreateWorkshop();
+              }}
+            >
               <span className='text-lg'>+</span>
               <p className='font-semibold'>Tambah Workshop</p>
             </button>
