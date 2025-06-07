@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from "next/navigation";
+import { getAllArticles } from '@/api/articleApi';
+import { TArticle } from '@/types/articleTypes';
 import Image from "next/image";
 import { Drop } from "@phosphor-icons/react/dist/ssr";
 import { Check } from "@phosphor-icons/react/dist/ssr";
@@ -8,6 +11,7 @@ import { Square } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import ArticleCard from "@/components/cards/ArticleCard";
 import WorkshopCard from "@/components/cards/WorkshopCard";
+import { getVerifiedWorkshops } from "@/api/workshopApi";
 
 const DashboardMain = () => {
   const [completedTasks, setCompletedTasks] = useState(
@@ -32,8 +36,29 @@ const DashboardMain = () => {
     })
   });
 
+  const [articles, setArticles] = useState<TArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const [workshops, setWorkshops] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await getAllArticles();
+        if (response.data) {
+          setArticles(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   useEffect(() => {
     const getLocationAndWeather = async () => {
@@ -143,6 +168,63 @@ const DashboardMain = () => {
     setTaskDate(day);
   };
 
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid date';
+
+      const options: Intl.DateTimeFormatOptions = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      };
+      return date.toLocaleDateString('id-ID', options);
+    } catch {
+      return 'Invalid date';
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        const response = await getVerifiedWorkshops();
+        if (response.data) {
+          setWorkshops(response.data);
+        } else {
+          setError(response.message || "Gagal memuat data workshop");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat memuat data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshops();
+  }, []);
+
+  const navigate = (id: string) => {
+    router.push(`${pathname}/${id}/details`);
+  };
+
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Memuat data workshop...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   const toggleTaskCompletions = (index) => {
     const updatedTasks = [...completedTasks];
     updatedTasks[index] = !updatedTasks[index];
@@ -249,8 +331,8 @@ const DashboardMain = () => {
                         }}
                         key={index}
                         className={`p-[0.8rem] ${taskDate == index
-                            ? "bg-[#50B34B] text-white"
-                            : "bg-white text-black"
+                          ? "bg-[#50B34B] text-white"
+                          : "bg-white text-black"
                           } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                       >
                         {index + 1}
@@ -274,8 +356,8 @@ const DashboardMain = () => {
                       <button
                         onClick={() => toggleTaskCompletions(index)}
                         className={`py-[0.8rem] px-[1rem] ${isCompleted
-                            ? "bg-[#50B34B] text-white"
-                            : "bg-none text-black"
+                          ? "bg-[#50B34B] text-white"
+                          : "bg-none text-black"
                           } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         key={index}
                       >
@@ -311,8 +393,8 @@ const DashboardMain = () => {
                       <button
                         onClick={() => toggleMaintainCompletions(index)}
                         className={`py-[0.8rem] px-[1rem] ${isCompleted
-                            ? "bg-[#50B34B] text-white"
-                            : "bg-none text-black"
+                          ? "bg-[#50B34B] text-white"
+                          : "bg-none text-black"
                           } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         key={index}
                       >
@@ -434,30 +516,27 @@ const DashboardMain = () => {
             </div>
           </div>
           <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            />
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            />
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            />
-            <ArticleCard
-              imageURL="/images/bayam.webp"
-              title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
-              date="14 Februari 2025"
-              href="/articles/1/details"
-            />
+            {loading ? (
+              <div>
+                <p>Memuat artikel...</p>
+              </div>
+            ) : !articles || articles.length === 0 ? (
+              <div>
+                <p>Tidak ada artikel yang tersedia</p>
+              </div>
+            ) : (
+              <div>
+                {articles.map((article) => (
+                  <ArticleCard
+                    key={article.id_artikel}
+                    imageURL={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                    title={article.judul_artikel}
+                    date={formatDate(article.tanggal_artikel)}
+                    href={`/articles/${article.id_artikel}/details`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="w-full flex flex-col justify-start items-start gap-[2.4rem] mt-[6.3rem]">
@@ -475,18 +554,23 @@ const DashboardMain = () => {
             </div>
           </div>
           <div className="w-full grid grid-cols-2 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-            />
-            <WorkshopCard
-              imageURL="/images/workshop-image.webp"
-              title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
-              date="Jumat, 15 Februari 2025"
-              location="Balai Kota Solo, Jawa Tengah"
-            />
+            {workshops.length > 0 ? (
+              workshops.map((workshop) => (
+                <WorkshopCard
+                  key={workshop.id_workshop}
+                  imageURL={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                  title={workshop.judul_workshop}
+                  date={formatDate(workshop.tanggal_workshop)}
+                  location={`${workshop.alaamt_lengkap_workshop}, ${workshop.kabupaten.nama_kabupaten}, ${workshop.kabupaten.provinsi.nama_provinsi}`}
+                  // price={workshop.harga_workshop}
+                  onClickHandler={() => navigate(workshop.id_workshop)}
+                />
+              ))
+            ) : (
+              <p className="col-span-2 text-center py-10">
+                Tidak ada workshop tersedia
+              </p>
+            )}
           </div>
         </div>
       </section>
