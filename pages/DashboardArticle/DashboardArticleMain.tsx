@@ -16,6 +16,7 @@ const DashboardArticleMain = () => {
   const [isLoading, setLoading] = useState<boolean>(true);
   const [typeFilter, setType] = useState<number[]>([]);
   const [isYourArticle, setIsYourArticle] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Added search state
 
   // State for user's own articles
   const [yourArticles, setYourArticles] = useState<TArticle[]>([]);
@@ -32,7 +33,7 @@ const DashboardArticleMain = () => {
           const articlesData = response.data.map((item: any) => ({
             ...item.artikel,
             id_penyimpanan: item.id_penyimpanan,
-            status_artikel: item.artikel.status_artikel?.toLowerCase() // Normalize to lowercase
+            status_artikel: item.artikel.status_artikel?.toLowerCase()
           }));
           setSavedArticles(articlesData);
         }
@@ -46,7 +47,6 @@ const DashboardArticleMain = () => {
     fetchArticles();
   }, []);
 
-  // Fetch user's own articles when tab is switched
   useEffect(() => {
     const fetchYourArticles = async () => {
       try {
@@ -57,7 +57,7 @@ const DashboardArticleMain = () => {
         if (response.data) {
           const normalizedArticles = response.data.map((article: any) => ({
             ...article,
-            status_artikel: article.status_artikel?.toLowerCase() // Normalize to lowercase
+            status_artikel: article.status_artikel?.toLowerCase()
           }));
           setYourArticles(normalizedArticles);
         }
@@ -99,21 +99,55 @@ const DashboardArticleMain = () => {
 
   const showYourArticle = () => {
     setIsYourArticle(true);
-    setStatusFilter('semua'); // Reset filter when switching tabs
+    setStatusFilter('semua');
+    // Reset filters when switching views
+    setType([]);
+    setSearchQuery("");
   };
 
   const showNormalArticle = () => {
     setIsYourArticle(false);
+    // Reset filters when switching views
+    setType([]);
+    setSearchQuery("");
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setStatusFilter(e.target.value as 'semua' | 'draft' | 'published');
   };
 
-  // Filter articles based on selected status
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Filter function for saved articles
+  const filteredSavedArticles = savedArticles.filter(article => {
+    // Search filter
+    const matchesSearch = searchQuery === "" ||
+      article.judul_artikel?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Category filter - assuming article has kategori_id or similar field
+    const matchesCategory = typeFilter.length === 0 ||
+      typeFilter.includes(article.id_kategori_artikel);
+
+    return matchesSearch && matchesCategory;
+  });
+
+  // Filter function for user's articles
   const filteredYourArticles = yourArticles.filter(article => {
-    if (statusFilter === 'semua') return true;
-    return article.status_artikel === statusFilter;
+    // Status filter
+    const matchesStatus = statusFilter === 'semua' ||
+      article.status_artikel === statusFilter;
+
+    // Search filter
+    const matchesSearch = searchQuery === "" ||
+      article.judul_artikel?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Category filter
+    const matchesCategory = typeFilter.length === 0 ||
+      typeFilter.includes(article.kategori_id || article.id_kategori);
+
+    return matchesStatus && matchesSearch && matchesCategory;
   });
 
   return (
@@ -216,6 +250,22 @@ const DashboardArticleMain = () => {
                 </p>
               </div>
             </div>
+
+            {/* Clear filters button */}
+            {(typeFilter.length > 0 || searchQuery !== "") && (
+              <div className="px-[2.313rem] w-full">
+                <button
+                  onClick={() => {
+                    setType([]);
+                    setSearchQuery("");
+                  }}
+                  className="text-sm text-gray-600 hover:text-[#78D14D] underline"
+                >
+                  Hapus semua filter
+                </button>
+              </div>
+            )}
+
             <div className="w-full h-[0.063rem] bg-[#C3C6D4] mt-[1.25rem]"></div>
           </div>
         </section>
@@ -228,8 +278,8 @@ const DashboardArticleMain = () => {
               <button
                 onClick={showNormalArticle}
                 className={`py-[0.9rem] px-[2.6rem] rounded-lg ${!isYourArticle
-                    ? "bg-[#78D14D] text-white"
-                    : "bg-none text-[#78D14D]"
+                  ? "bg-[#78D14D] text-white"
+                  : "bg-none text-[#78D14D]"
                   } cursor-pointer text-[1rem]`}
               >
                 Artikel Disimpan
@@ -238,8 +288,8 @@ const DashboardArticleMain = () => {
               <button
                 onClick={showYourArticle}
                 className={`py-[0.9rem] px-[2.6rem] rounded-lg ${isYourArticle
-                    ? "bg-[#78D14D] text-white"
-                    : "bg-none text-[#78D14D]"
+                  ? "bg-[#78D14D] text-white"
+                  : "bg-none text-[#78D14D]"
                   } cursor-pointer text-[1rem]`}
               >
                 Artikel Milikmu
@@ -261,14 +311,21 @@ const DashboardArticleMain = () => {
           </div>
 
           <div className="w-[40%]">
-            <InputField placeholder="Cari Artikel..." type="text">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Cari Artikel..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#78D14D] focus:border-transparent"
+              />
               <MagnifyingGlass
                 size={24}
-                color="#fffff"
+                color="#6B7280"
                 weight="bold"
-                className="absolute left-[1.5rem]"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2"
               />
-            </InputField>
+            </div>
           </div>
 
           {isYourArticle ? (
@@ -286,6 +343,16 @@ const DashboardArticleMain = () => {
                 </select>
               </div>
 
+              {/* Show active filters info */}
+              {(typeFilter.length > 0 || searchQuery !== "" || statusFilter !== "semua") && (
+                <div className="text-sm text-gray-600">
+                  Menampilkan {filteredYourArticles.length} dari {yourArticles.length} artikel
+                  {typeFilter.length > 0 && ` • ${typeFilter.length} kategori dipilih`}
+                  {searchQuery !== "" && ` • Pencarian: "${searchQuery}"`}
+                  {statusFilter !== "semua" && ` • Status: ${statusFilter}`}
+                </div>
+              )}
+
               {isLoading ? (
                 <div>Memuat artikel...</div>
               ) : filteredYourArticles.length > 0 ? (
@@ -297,7 +364,7 @@ const DashboardArticleMain = () => {
                       title={article.judul_artikel}
                       date={formatDate(article.tanggal_artikel)}
                       href={
-                        article.status_artikel === 'DRAFT'
+                        article.status_artikel === 'draft'
                           ? `/dashboard/articles/${article.id_artikel}/details`
                           : `/articles/${article.id_artikel}/details`
                       }
@@ -307,19 +374,28 @@ const DashboardArticleMain = () => {
                 </div>
               ) : (
                 <div className="text-gray-500">
-                  {statusFilter === 'semua'
+                  {yourArticles.length === 0
                     ? 'Belum ada artikel yang dibuat'
-                    : `Tidak ada artikel dengan status ${statusFilter}`}
+                    : 'Tidak ada artikel yang sesuai dengan filter'}
                 </div>
               )}
             </>
           ) : (
             <>
+              {/* Show active filters info */}
+              {(typeFilter.length > 0 || searchQuery !== "") && (
+                <div className="text-sm text-gray-600">
+                  Menampilkan {filteredSavedArticles.length} dari {savedArticles.length} artikel
+                  {typeFilter.length > 0 && ` • ${typeFilter.length} kategori dipilih`}
+                  {searchQuery !== "" && ` • Pencarian: "${searchQuery}"`}
+                </div>
+              )}
+
               {isLoading ? (
                 <div>Memuat artikel...</div>
-              ) : savedArticles.length > 0 ? (
+              ) : filteredSavedArticles.length > 0 ? (
                 <div className="w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]">
-                  {savedArticles.map((article) => (
+                  {filteredSavedArticles.map((article) => (
                     <ArticleCard
                       key={article.id_artikel}
                       imageURL={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
@@ -330,7 +406,11 @@ const DashboardArticleMain = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-gray-500">Belum ada artikel yang disimpan</div>
+                <div className="text-gray-500">
+                  {savedArticles.length === 0
+                    ? 'Belum ada artikel yang disimpan'
+                    : 'Tidak ada artikel yang sesuai dengan filter'}
+                </div>
               )}
             </>
           )}
