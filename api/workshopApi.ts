@@ -69,6 +69,8 @@ export const createWorkshop = async (formData: FormData) => {
     }
 
     throw new Error(error.message || 'Terjadi kesalahan saat membuat artikel');
+  }
+};
 
 export const getOwnWorkshops = async () => {
   const token = getToken();
