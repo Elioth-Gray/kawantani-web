@@ -33,6 +33,34 @@ export type TWorkshopResponse = {
     | null;
 };
 
+export type TVerifiedWorkshopResponse = {
+  success: boolean;
+  message: string;
+  data:
+    | {
+        id_workshop: string;
+        judul_workshop: string;
+        tanggal_workshop: string;
+        status_verifikasi: boolean;
+        status_aktif: boolean;
+        gambar_workshop: string;
+        alaamt_lengkap_workshop: string;
+        harga_workshop: string;
+        waktu_berakhir: string;
+        waktu_mulai: string;
+        facilitator: {
+          nama_facilitator: string;
+        };
+        kabupaten: {
+          nama_kabupaten: string;
+          provinsi: {
+            nama_provinsi: string;
+          };
+        };
+      }[]
+    | null;
+};
+
 export type TWorkshopDetailResponse = {
   success: boolean;
   message: string;
