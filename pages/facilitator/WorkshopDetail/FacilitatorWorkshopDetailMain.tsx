@@ -146,72 +146,6 @@ const AdminWorkshopDetailMain = () => {
     }).format(number);
   }
 
-  const onVerifyWorkshop = async (id_workshop: string) => {
-    setLoading(true);
-    const confirmed = window.confirm(
-      'Apakah kamu ingin memverifikasi workshop ini?',
-    );
-    if (!confirmed) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const result = await verifyWorkshop(id_workshop);
-      if (result.data) {
-        alert('Berhasil memverifikasi workshop.');
-        // Update local state to reflect the change
-        setWorkshop((prev) =>
-          prev
-            ? {
-                ...prev,
-                status_verifikasi: StatusVerifikasiWorkshop.DIVERIFIKASI,
-              }
-            : prev,
-        );
-      } else {
-        alert(result.message || 'Ada kesalahan');
-      }
-    } catch (error) {
-      console.error('Error verify workshop:', error);
-      alert('Ada kesalahan saat verifikasi workshop');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onRejectWorkshop = async (id_workshop: string) => {
-    setLoading(true);
-    const confirmed = window.confirm('Apakah kamu ingin menolak workshop ini?');
-    if (!confirmed) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const result = await verifyWorkshop(id_workshop);
-      if (result.data) {
-        alert('Berhasil menolak workshop.');
-        // Update local state to reflect the change
-        setWorkshop((prev) =>
-          prev
-            ? {
-                ...prev,
-                status_verifikasi: StatusVerifikasiWorkshop.DITOLAK,
-              }
-            : prev,
-        );
-      } else {
-        alert(result.message || 'Ada kesalahan');
-      }
-    } catch (error) {
-      console.error('Error reject workshop:', error);
-      alert('Ada kesalahan saat menolak workshop');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onDeleteWorkshop = async (id_workshop: string) => {
     setLoading(true);
     const confirmed = window.confirm(
@@ -339,102 +273,96 @@ const AdminWorkshopDetailMain = () => {
               </p>
             </div>
             <div className='flex gap-4 mt-6'>
-              {workshop.status_verifikasi ===
-                StatusVerifikasiWorkshop.MENUNGGU && (
+              {(workshop.status_verifikasi ===
+                StatusVerifikasiWorkshop.MENUNGGU ||
+                workshop.status_verifikasi ===
+                  StatusVerifikasiWorkshop.DITOLAK) && (
                 <>
                   <button
-                    onClick={() => onVerifyWorkshop(workshop.id_workshop)}
+                    onClick={() => onDeleteWorkshop(workshop.id_workshop)}
                     disabled={loading}
-                    className='flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                    className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
                   >
-                    <CheckCircle size={20} weight='bold' />
-                    Verifikasi Workshop
-                  </button>
-                  <button
-                    onClick={() => onRejectWorkshop(workshop.id_workshop)}
-                    disabled={loading}
-                    className='flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
-                  >
-                    <XCircle size={20} weight='bold' />
-                    Tolak Workshop
+                    <Trash size={20} weight='bold' />
+                    Hapus Workshop
                   </button>
                 </>
               )}
-              <button
-                onClick={() => onDeleteWorkshop(workshop.id_workshop)}
-                disabled={loading}
-                className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
-              >
-                <Trash size={20} weight='bold' />
-                Hapus Workshop
-              </button>
             </div>
           </div>
         </div>
 
         <div className='w-full h-76 grid grid-cols-2 gap-x-10 mt-[3.1rem]'>
           <div className='w-full mb-[3.1rem] mt-[3.1rem]'>
-            <h1 className='text-[2rem] font-semibold'>Deskripsi Workshop</h1>
-            <p>{workshop?.deskripsi_workshop || '-'}</p>
+            <h1 className='text-[2rem] font-semibold mb-4'>
+              Deskripsi Workshop
+            </h1>
+            <div className='bg-zinc-900 rounded-lg p-6 border border-zinc-800'>
+              <p className='leading-relaxed'>
+                {workshop.deskripsi_workshop || 'Tidak ada deskripsi workshop.'}
+              </p>
+            </div>
           </div>
           <div className='w-full mb-[3.1rem] mt-[3.1rem]'>
-            <h1 className='text-[2rem] font-semibold'>Lokasi Workshop</h1>
-            {workshop?.lat_lokasi && workshop?.long_lokasi ? (
-              <iframe
-                src={getGoogleMapsEmbedUrlWithoutKey(
-                  workshop.lat_lokasi,
-                  workshop.long_lokasi,
-                )}
-                width='100%'
-                height='100%'
-                style={{ border: 0 }}
-                allowFullScreen={true}
-                loading='lazy'
-                referrerPolicy='no-referrer-when-downgrade'
-                title={`Lokasi Workshop: ${workshop?.judul_workshop}`}
-                aria-label={`Peta lokasi workshop ${workshop?.judul_workshop}`}
-                className='w-full h-full rounded-lg'
-              />
-            ) : (
-              <p className='text-gray-400'>Lokasi tidak tersedia</p>
-            )}
+            <h1 className='text-[2rem] font-semibold mb-4'>Lokasi Workshop</h1>
+            <div className='bg-zinc-900 rounded-lg p-6 border border-zinc-800 h-full'>
+              {workshop.lat_lokasi && workshop.long_lokasi ? (
+                <iframe
+                  src={getGoogleMapsEmbedUrlWithoutKey(
+                    workshop.lat_lokasi,
+                    workshop.long_lokasi,
+                  )}
+                  width='100%'
+                  height='100%'
+                  style={{ border: 0 }}
+                  allowFullScreen={true}
+                  loading='lazy'
+                  referrerPolicy='no-referrer-when-downgrade'
+                  title={`Lokasi Workshop: ${workshop.judul_workshop}`}
+                  aria-label={`Peta lokasi workshop ${workshop.judul_workshop}`}
+                  className='w-full h-full rounded-lg'
+                />
+              ) : (
+                <div className='w-full h-full flex items-center justify-center text-zinc-400'>
+                  <p>Lokasi tidak tersedia</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         <div className='w-full h-76 grid grid-cols-2 gap-x-10 mt-[3.1rem]'>
           <div className='w-full mb-[3.1rem] mt-[3.1rem] col-span-2'>
-            <h1 className='text-[2rem] font-semibold mb-2'>
+            <h1 className='text-[2rem] font-semibold mb-4'>
               Informasi Penyelenggara
             </h1>
-            <div className='w-full flex flex-col justify-start items-start gap-3'>
-              <p>
-                Nama Penyelenggara:{' '}
-                <span className='font-semibold'>
-                  {workshop ? workshop.facilitator.nama_facilitator : '-'}
-                </span>
-              </p>
-              <p>
-                Email Penyelenggara:{' '}
-                <span className='font-semibold'>
-                  {workshop ? workshop.facilitator.email_facilitator : '-'}
-                </span>
-              </p>
-              <p>
-                Nomor Telepon Penyelenggara:{' '}
-                <span className='font-semibold'>
-                  {workshop
-                    ? workshop.facilitator.nomor_telepon_facilitator
-                    : '-'}
-                </span>
-              </p>
-              <p>
-                Alamat Penyelenggara:{' '}
-                <span className='font-semibold'>
-                  {workshop
-                    ? `${workshop.facilitator.alamat_lengkap_facilitator}, Kabupaten ${workshop.facilitator.kabupaten.nama_kabupaten}, Provinsi ${workshop.facilitator.kabupaten.provinsi.nama_provinsi}`
-                    : '-'}
-                </span>
-              </p>
+            <div className='bg-zinc-900 rounded-lg p-6 border border-zinc-800'>
+              <div className='w-full flex flex-col justify-start items-start gap-3'>
+                <p>
+                  Nama Penyelenggara:{' '}
+                  <span className='font-semibold'>
+                    {workshop.facilitator.nama_facilitator}
+                  </span>
+                </p>
+                <p>
+                  Email Penyelenggara:{' '}
+                  <span className='font-semibold'>
+                    {workshop.facilitator.email_facilitator}
+                  </span>
+                </p>
+                <p>
+                  Nomor Telepon Penyelenggara:{' '}
+                  <span className='font-semibold'>
+                    {workshop.facilitator.nomor_telepon_facilitator}
+                  </span>
+                </p>
+                <p>
+                  Alamat Penyelenggara:{' '}
+                  <span className='font-semibold'>
+                    {`${workshop.facilitator.alamat_lengkap_facilitator}, Kabupaten ${workshop.facilitator.kabupaten.nama_kabupaten}, Provinsi ${workshop.facilitator.kabupaten.provinsi.nama_provinsi}`}
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
