@@ -176,12 +176,15 @@ export const updateArticle = async (
   }
 };
 
-export const verifyArticle = async (id: string): Promise<TArticleResponse> => {
+export const verifyArticle = async (
+  id: string,
+  status: string,
+): Promise<TArticleResponse> => {
   const token = getToken();
   try {
     const response = await axios.patch(
       `${baseURL}/articles/${id}/verify`,
-      {},
+      { status: status },
       {
         headers: {
           Authorization: `Bearer ${token}`,

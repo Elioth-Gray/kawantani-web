@@ -27,6 +27,13 @@ import { deleteUser, getAllUsers } from '@/api/userApi';
 import { usePathname, useRouter } from 'next/navigation';
 import { getAllArticlesAdmin, getAllCategoies } from '@/api/articleApi';
 
+// Enum untuk status verifikasi
+enum StatusVerifikasiWorkshop {
+  MENUNGGU = 'MENUNGGU',
+  DIVERIFIKASI = 'DIVERIFIKASI',
+  DITOLAK = 'DITOLAK',
+}
+
 // Interface yang sesuai dengan data API
 type ArticleResponse = {
   id: number;
@@ -43,7 +50,7 @@ type ArticleResponse = {
   status_aktif: boolean;
   status_artikel: 'DRAFT' | 'PUBLISHED' | string;
   gambar_artikel: string;
-  status_verifikasi: boolean;
+  status_verifikasi: StatusVerifikasiWorkshop;
 };
 
 type ArticleCategory = {
@@ -171,9 +178,8 @@ const AdminArticlesMain = () => {
     // Filter berdasarkan status verifikasi
     if (verificationFilter) {
       if (verificationFilter !== 'all') {
-        const isVerified = verificationFilter === 'verified';
         filtered = filtered.filter(
-          (article) => article.status_verifikasi === isVerified,
+          (article) => article.status_verifikasi === verificationFilter,
         );
       }
     }
@@ -307,6 +313,35 @@ const AdminArticlesMain = () => {
     }
   };
 
+  // Fungsi untuk mendapatkan badge status verifikasi
+  const getVerificationBadge = (status: StatusVerifikasiWorkshop) => {
+    const baseClass = 'px-2 py-1 rounded-full text-xs font-semibold';
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return `${baseClass} bg-green-100 text-green-800`;
+      case StatusVerifikasiWorkshop.MENUNGGU:
+        return `${baseClass} bg-yellow-100 text-yellow-800`;
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return `${baseClass} bg-red-100 text-red-800`;
+      default:
+        return `${baseClass} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  // Fungsi untuk mendapatkan teks status verifikasi
+  const getVerificationText = (status: StatusVerifikasiWorkshop) => {
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return 'Diverifikasi';
+      case StatusVerifikasiWorkshop.MENUNGGU:
+        return 'Menunggu';
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return 'Ditolak';
+      default:
+        return 'Unknown';
+    }
+  };
+
   const onViewArticle = (id: string) => {
     router.push(`${pathname}/${id}`);
   };
@@ -354,6 +389,45 @@ const AdminArticlesMain = () => {
               <DownloadSimple size={24} color='#000000' />
               <p className='font-semibold'>Download</p>
             </button>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Menunggu Verifikasi</h3>
+            <p className='text-2xl font-bold font-bold text-yellow-400'>
+              {
+                articles.filter(
+                  (article) =>
+                    article.status_verifikasi ===
+                    StatusVerifikasiWorkshop.MENUNGGU,
+                ).length
+              }
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Diverifikasi</h3>
+            <p className='text-2xl font-bold text-green-400'>
+              {
+                articles.filter(
+                  (article) =>
+                    article.status_verifikasi ===
+                    StatusVerifikasiWorkshop.DIVERIFIKASI,
+                ).length
+              }
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Ditolak</h3>
+            <p className='text-2xl font-bold text-red-400'>
+              {
+                articles.filter(
+                  (article) =>
+                    article.status_verifikasi ===
+                    StatusVerifikasiWorkshop.DITOLAK,
+                ).length
+              }
+            </p>
           </div>
         </div>
 
@@ -405,8 +479,15 @@ const AdminArticlesMain = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>Semua Verifikasi</SelectItem>
-                <SelectItem value='verified'>Terverifikasi</SelectItem>
-                <SelectItem value='unverified'>Belum Verifikasi</SelectItem>
+                <SelectItem value={StatusVerifikasiWorkshop.DIVERIFIKASI}>
+                  Diverifikasi
+                </SelectItem>
+                <SelectItem value={StatusVerifikasiWorkshop.MENUNGGU}>
+                  Menunggu
+                </SelectItem>
+                <SelectItem value={StatusVerifikasiWorkshop.DITOLAK}>
+                  Ditolak
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -535,15 +616,9 @@ const AdminArticlesMain = () => {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          row.status_verifikasi
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
+                        className={getVerificationBadge(row.status_verifikasi)}
                       >
-                        {row.status_verifikasi
-                          ? 'Terverifikasi'
-                          : 'Belum Verifikasi'}
+                        {getVerificationText(row.status_verifikasi)}
                       </span>
                     </TableCell>
                     <TableCell className='text-center'>

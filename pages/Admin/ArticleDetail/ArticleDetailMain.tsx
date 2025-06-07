@@ -2,9 +2,21 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, CheckCircle, Trash } from '@phosphor-icons/react/dist/ssr';
+import {
+  ArrowLeft,
+  CheckCircle,
+  Trash,
+  XCircle,
+} from '@phosphor-icons/react/dist/ssr';
 import Image from 'next/image';
 import { deleteArticle, getArticleById, verifyArticle } from '@/api/articleApi';
+
+// Enum untuk status verifikasi (sama dengan yang di halaman list)
+enum StatusVerifikasiArtikel {
+  MENUNGGU = 'MENUNGGU',
+  DIVERIFIKASI = 'DIVERIFIKASI',
+  DITOLAK = 'DITOLAK',
+}
 
 export type KategoriArtikel = {
   id_kategori_artikel: number;
@@ -34,7 +46,7 @@ export type Artikel = {
   deskripsi_artikel: string;
   isi_artikel: string;
   status_artikel: 'PUBLISHED' | 'DRAFT' | string;
-  status_verifikasi: boolean;
+  status_verifikasi: StatusVerifikasiArtikel; // Ubah dari boolean ke enum
   gambar_artikel: string;
   status_aktif: boolean;
   id_kategori_artikel: number;
@@ -87,6 +99,35 @@ const ArticleDetailMain = () => {
     }
   };
 
+  // Fungsi untuk mendapatkan badge status verifikasi
+  const getVerificationBadge = (status: StatusVerifikasiArtikel) => {
+    const baseClass = 'px-2 py-1 rounded-full text-xs font-semibold';
+    switch (status) {
+      case StatusVerifikasiArtikel.DIVERIFIKASI:
+        return `${baseClass} bg-green-100 text-green-800`;
+      case StatusVerifikasiArtikel.MENUNGGU:
+        return `${baseClass} bg-yellow-100 text-yellow-800`;
+      case StatusVerifikasiArtikel.DITOLAK:
+        return `${baseClass} bg-red-100 text-red-800`;
+      default:
+        return `${baseClass} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  // Fungsi untuk mendapatkan teks status verifikasi
+  const getVerificationText = (status: StatusVerifikasiArtikel) => {
+    switch (status) {
+      case StatusVerifikasiArtikel.DIVERIFIKASI:
+        return 'Diverifikasi';
+      case StatusVerifikasiArtikel.MENUNGGU:
+        return 'Menunggu Verifikasi';
+      case StatusVerifikasiArtikel.DITOLAK:
+        return 'Ditolak';
+      default:
+        return 'Status Tidak Diketahui';
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', {
@@ -99,21 +140,70 @@ const ArticleDetailMain = () => {
   const onVerifyArticle = async (id_artikel: string) => {
     setLoading(true);
     const confirmed = window.confirm(
-      'Apakah kamu ingin memverifkasi artikel ini?',
+      'Apakah kamu ingin memverifikasi artikel ini?',
     );
-    if (!confirmed) return;
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
 
     try {
-      const result = await verifyArticle(id_artikel);
+      const result = await verifyArticle(
+        id_artikel,
+        StatusVerifikasiArtikel.DIVERIFIKASI,
+      );
       if (result.data) {
         alert('Berhasil memverifikasi artikel.');
-        router.push('/admin/dashboard/articles');
+        // Update local state untuk menghindari reload
+        setArticle((prev) =>
+          prev
+            ? {
+                ...prev,
+                status_verifikasi: StatusVerifikasiArtikel.DIVERIFIKASI,
+              }
+            : prev,
+        );
       } else {
         alert(result.message || 'Ada kesalahan');
       }
     } catch (error) {
       console.error('Error verify article:', error);
-      alert('Ada kesalahan saat veridikasi artikel');
+      alert('Ada kesalahan saat verifikasi artikel');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRejectArticle = async (id_artikel: string) => {
+    setLoading(true);
+    const confirmed = window.confirm('Apakah kamu ingin menolak artikel ini?');
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await verifyArticle(
+        id_artikel,
+        StatusVerifikasiArtikel.DITOLAK,
+      );
+      if (result.data) {
+        alert('Berhasil menolak artikel.');
+        // Update local state
+        setArticle((prev) =>
+          prev
+            ? {
+                ...prev,
+                status_verifikasi: StatusVerifikasiArtikel.DITOLAK,
+              }
+            : prev,
+        );
+      } else {
+        alert(result.message || 'Ada kesalahan');
+      }
+    } catch (error) {
+      console.error('Error reject article:', error);
+      alert('Ada kesalahan saat menolak artikel');
     } finally {
       setLoading(false);
     }
@@ -124,7 +214,10 @@ const ArticleDetailMain = () => {
     const confirmed = window.confirm(
       'Apakah kamu ingin menghapus artikel ini?',
     );
-    if (!confirmed) return;
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await deleteArticle(id_artikel);
@@ -142,11 +235,42 @@ const ArticleDetailMain = () => {
     }
   };
 
+  if (initialLoading) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='flex items-center justify-center h-full'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
+            <p>Memuat artikel...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!article) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='flex items-center justify-center h-full'>
+          <div className='text-center'>
+            <p className='text-red-400 mb-4'>Artikel tidak ditemukan</p>
+            <button
+              onClick={() => router.back()}
+              className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg'
+            >
+              Kembali
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
         <div
-          className='w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointer'
+          className='w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointer hover:text-blue-400 transition-colors'
           onClick={() => router.back()}
         >
           <ArrowLeft size={24} color='#fff' weight='bold' />
@@ -158,28 +282,28 @@ const ArticleDetailMain = () => {
           <p>Lihat detail artikel pada sistem</p>
         </div>
 
-        <div className='w-full h-76 grid grid-cols-2 gap-x-10'>
-          <div className='col-span-1 w-full h-full  rounded-xl overflow-hidden'>
-            <img
-              src={
-                article?.gambar_artikel
-                  ? `http://localhost:2000/uploads/articles/${article.gambar_artikel}`
-                  : undefined
-              }
-              width={0}
-              height={0}
-              alt='article'
-              className='w-full h-full object-cover'
-            />
+        <div className='w-full h-76 grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-6'>
+          <div className='col-span-1 w-full h-full rounded-xl overflow-hidden bg-zinc-900'>
+            {article.gambar_artikel ? (
+              <img
+                src={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                alt={article.judul_artikel}
+                className='w-full h-full object-cover'
+              />
+            ) : (
+              <div className='w-full h-full flex items-center justify-center text-zinc-400'>
+                <p>Tidak ada gambar</p>
+              </div>
+            )}
           </div>
 
           <div className='col-span-1 w-full h-full flex flex-col justify-start items-start gap-3'>
             <div className='w-full flex flex-col justify-start items-start gap-1'>
               <h1 className='text-[1.5rem] font-semibold'>
-                {article?.judul_artikel || '-'}
+                {article.judul_artikel}
               </h1>
               <h1 className='text-[1rem] font-semibold text-blue-500'>
-                {article?.kategori?.nama_kategori_artikel || '-'}
+                {article.kategori?.nama_kategori_artikel}
               </h1>
             </div>
 
@@ -187,74 +311,91 @@ const ArticleDetailMain = () => {
               <p>
                 Penulis:{' '}
                 <span className='font-semibold'>
-                  {article
-                    ? `${article.pengguna.nama_depan_pengguna} ${article.pengguna.nama_belakang_pengguna}`
-                    : '-'}
+                  {`${article.pengguna.nama_depan_pengguna} ${article.pengguna.nama_belakang_pengguna}`}
                 </span>
               </p>
               <p>
                 Tanggal ditulis:{' '}
                 <span className='font-semibold'>
-                  {article ? formatDate(article.tanggal_artikel) : '-'}
+                  {formatDate(article.tanggal_artikel)}
                 </span>
               </p>
               <p>
                 Status artikel:{' '}
-                <span className={getStatusBadge(article?.status_artikel || '')}>
-                  {article?.status_artikel}
+                <span className={getStatusBadge(article.status_artikel)}>
+                  {article.status_artikel}
                 </span>
               </p>
               <p>
                 Status Verifikasi:{' '}
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    article?.status_verifikasi
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
+                  className={getVerificationBadge(article.status_verifikasi)}
                 >
-                  {article?.status_verifikasi
-                    ? 'Terverifikasi'
-                    : 'Belum Verifikasi'}
+                  {getVerificationText(article.status_verifikasi)}
                 </span>
               </p>
             </div>
 
-            <div className='flex gap-4 mt-6'>
-              {!article?.status_verifikasi && (
+            <div className='flex gap-4 mt-6 flex-wrap'>
+              {/* Tombol verifikasi dan tolak - hanya muncul saat status MENUNGGU */}
+              {article.status_verifikasi ===
+                StatusVerifikasiArtikel.MENUNGGU && (
+                <>
+                  <button
+                    onClick={() => onVerifyArticle(article.id_artikel)}
+                    disabled={loading}
+                    className='flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors'
+                  >
+                    <CheckCircle size={20} weight='bold' />
+                    {loading ? 'Processing...' : 'Verifikasi Artikel'}
+                  </button>
+                  <button
+                    onClick={() => onRejectArticle(article.id_artikel)}
+                    disabled={loading}
+                    className='flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors'
+                  >
+                    <XCircle size={20} weight='bold' />
+                    {loading ? 'Processing...' : 'Tolak Artikel'}
+                  </button>
+                </>
+              )}
+
+              {/* Tombol hapus - hanya muncul saat status DIVERIFIKASI atau DITOLAK */}
+              {(article.status_verifikasi ===
+                StatusVerifikasiArtikel.DIVERIFIKASI ||
+                article.status_verifikasi ===
+                  StatusVerifikasiArtikel.DITOLAK) && (
                 <button
-                  onClick={() => {
-                    onVerifyArticle(article?.id_artikel || '');
-                  }}
+                  onClick={() => onDeleteArticle(article.id_artikel)}
                   disabled={loading}
-                  className='flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                  className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors'
                 >
-                  <CheckCircle size={20} weight='bold' />
-                  Verifikasi Artikel
+                  <Trash size={20} weight='bold' />
+                  {loading ? 'Processing...' : 'Hapus Artikel'}
                 </button>
               )}
-              <button
-                onClick={() => {
-                  onDeleteArticle(article?.id_artikel || '');
-                }}
-                disabled={loading}
-                className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
-              >
-                <Trash size={20} weight='bold' />
-                Hapus Artikel
-              </button>
             </div>
           </div>
         </div>
 
         <div className='w-full mb-[3.1rem] mt-[3.1rem]'>
-          <h1 className='text-[2rem] font-semibold'>Deskripsi Artikel</h1>
-          <p>{article?.deskripsi_artikel || '-'}</p>
+          <h1 className='text-[2rem] font-semibold mb-4'>Deskripsi Artikel</h1>
+          <div className='bg-zinc-900 rounded-lg p-6 border border-zinc-800'>
+            <p className='leading-relaxed'>
+              {article.deskripsi_artikel || 'Tidak ada deskripsi artikel.'}
+            </p>
+          </div>
         </div>
 
         <div className='w-full mb-[3.1rem] mt-[3.1rem]'>
-          <h1 className='text-[2rem] font-semibold'>Isi Artikel</h1>
-          <p>{article?.isi_artikel || '-'}</p>
+          <h1 className='text-[2rem] font-semibold mb-4'>Isi Artikel</h1>
+          <div className='bg-zinc-900 rounded-lg p-6 border border-zinc-800'>
+            <div className='prose prose-invert max-w-none'>
+              <p className='leading-relaxed whitespace-pre-wrap'>
+                {article.isi_artikel || 'Tidak ada isi artikel.'}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </main>

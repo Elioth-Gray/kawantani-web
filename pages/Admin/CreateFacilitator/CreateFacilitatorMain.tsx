@@ -63,6 +63,7 @@ const CreateFacilitatorsMain = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -96,11 +97,14 @@ const CreateFacilitatorsMain = () => {
 
   useEffect(() => {
     const fetchProvinces = async () => {
+      setInitialLoading(true);
       try {
         const response = await getAllProvinces();
         setProvinces(response.data.provinces);
       } catch (error) {
         console.error('Failed to fetch provinces:', error);
+      } finally {
+        setInitialLoading(false);
       }
     };
     fetchProvinces();
@@ -200,6 +204,19 @@ const CreateFacilitatorsMain = () => {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='flex items-center justify-center h-full'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
+            <p>Memuat halaman...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>

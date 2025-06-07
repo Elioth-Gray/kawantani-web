@@ -24,7 +24,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { getAllWorkshops } from '@/api/workshopApi'; // Assuming you have this API function
+import { getAllWorkshops } from '@/api/workshopApi';
+
+// Enum untuk status verifikasi workshop
+enum StatusVerifikasiWorkshop {
+  MENUNGGU = 'MENUNGGU',
+  DIVERIFIKASI = 'DIVERIFIKASI',
+  DITOLAK = 'DITOLAK',
+}
 
 // Interface untuk workshop data
 type WorkshopResponse = {
@@ -32,7 +39,7 @@ type WorkshopResponse = {
   id_workshop: string;
   judul_workshop: string;
   tanggal_workshop: string;
-  status_verifikasi: boolean;
+  status_verifikasi: StatusVerifikasiWorkshop;
   status_aktif: boolean;
   gambar_workshop: string;
   facilitator: {
@@ -113,13 +120,10 @@ const AdminWorkshopsMain = () => {
     }
 
     // Filter berdasarkan status verifikasi
-    if (verificationFilter) {
-      if (verificationFilter !== 'all') {
-        const isVerified = verificationFilter === 'verified';
-        filtered = filtered.filter(
-          (workshop) => workshop.status_verifikasi === isVerified,
-        );
-      }
+    if (verificationFilter && verificationFilter !== 'all') {
+      filtered = filtered.filter(
+        (workshop) => workshop.status_verifikasi === verificationFilter,
+      );
     }
 
     return filtered;
@@ -232,11 +236,30 @@ const AdminWorkshopsMain = () => {
     });
   };
 
-  const getStatusBadge = (status: boolean) => {
+  const getStatusBadge = (status: StatusVerifikasiWorkshop) => {
     const baseClass = 'px-2 py-1 rounded-full text-xs font-semibold';
-    return status
-      ? `${baseClass} bg-green-100 text-green-800`
-      : `${baseClass} bg-red-100 text-red-800`;
+
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return `${baseClass} bg-green-100 text-green-800`;
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return `${baseClass} bg-red-100 text-red-800`;
+      case StatusVerifikasiWorkshop.MENUNGGU:
+      default:
+        return `${baseClass} bg-yellow-100 text-yellow-800`;
+    }
+  };
+
+  const getStatusLabel = (status: StatusVerifikasiWorkshop) => {
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return 'Diverifikasi';
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return 'Ditolak';
+      case StatusVerifikasiWorkshop.MENUNGGU:
+      default:
+        return 'Menunggu';
+    }
   };
 
   const onViewWorkshop = (id: string) => {
@@ -288,6 +311,44 @@ const AdminWorkshopsMain = () => {
             </button>
           </div>
         </div>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Menunggu Verifikasi</h3>
+            <p className='text-2xl font-bold font-bold text-yellow-400'>
+              {
+                workshops.filter(
+                  (workshop) =>
+                    workshop.status_verifikasi ===
+                    StatusVerifikasiWorkshop.MENUNGGU,
+                ).length
+              }
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Diverifikasi</h3>
+            <p className='text-2xl font-bold text-green-400'>
+              {
+                workshops.filter(
+                  (workshop) =>
+                    workshop.status_verifikasi ===
+                    StatusVerifikasiWorkshop.DIVERIFIKASI,
+                ).length
+              }
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Ditolak</h3>
+            <p className='text-2xl font-bold text-red-400'>
+              {
+                workshops.filter(
+                  (article) =>
+                    article.status_verifikasi ===
+                    StatusVerifikasiWorkshop.DITOLAK,
+                ).length
+              }
+            </p>
+          </div>
+        </div>
 
         <div className='w-full flex flex-row justify-between items-center gap-[1rem] mb-6'>
           <div className='flex flex-row items-center gap-4'>
@@ -308,8 +369,15 @@ const AdminWorkshopsMain = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>Semua Verifikasi</SelectItem>
-                <SelectItem value='verified'>Terverifikasi</SelectItem>
-                <SelectItem value='unverified'>Belum Verifikasi</SelectItem>
+                <SelectItem value={StatusVerifikasiWorkshop.MENUNGGU}>
+                  Menunggu
+                </SelectItem>
+                <SelectItem value={StatusVerifikasiWorkshop.DIVERIFIKASI}>
+                  Diverifikasi
+                </SelectItem>
+                <SelectItem value={StatusVerifikasiWorkshop.DITOLAK}>
+                  Ditolak
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -410,9 +478,7 @@ const AdminWorkshopsMain = () => {
                     <TableCell>{formatDate(row.tanggal_workshop)}</TableCell>
                     <TableCell>
                       <span className={getStatusBadge(row.status_verifikasi)}>
-                        {row.status_verifikasi
-                          ? 'Terverifikasi'
-                          : 'Belum Verifikasi'}
+                        {getStatusLabel(row.status_verifikasi)}
                       </span>
                     </TableCell>
                     <TableCell className='text-center'>
