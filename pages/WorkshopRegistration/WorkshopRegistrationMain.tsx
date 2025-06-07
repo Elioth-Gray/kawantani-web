@@ -11,23 +11,151 @@ import {
 import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ActionButton from "@/components/buttons/ActionButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useParams } from "next/navigation";
+import { getWorkshopById, registerWorkshop } from "@/api/workshopApi";
 
 const WorkshopRegistrationMain = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [genderSelected, setGenderSelected] = useState<number>();
   const [paymentSelected, setPaymentSelected] = useState<number>();
+  const [registrationResult, setRegistrationResult] = useState<any>(null);
+  const params = useParams();
+  const [workshop, setWorkshop] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    gender: 0,
+    paymentMethod: 0,
+  });
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    };
+    return date.toLocaleDateString('id-ID', options);
+  };
+
+  const formatTime = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'WIB' : 'WIB';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  useEffect(() => {
+    const fetchWorkshop = async () => {
+      try {
+        const response = await getWorkshopById(params.id as string);
+        if (response.data) {
+          setWorkshop(response.data);
+        } else {
+          setError(response.message || "Gagal memuat detail workshop");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat memuat data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshop();
+  }, [params.id]);
 
   const setGender = (newGender: number) => {
     setGenderSelected(newGender);
+    setFormData(prev => ({ ...prev, gender: newGender }));
   };
 
   const setPayment = (newPayment: number) => {
     setPaymentSelected(newPayment);
-    console.log(newPayment);
+    setFormData(prev => ({ ...prev, paymentMethod: newPayment }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const errors = [];
+
+      if (!formData.firstName.trim()) errors.push('Nama Depan');
+      if (!formData.lastName.trim()) errors.push('Nama Belakang');
+      if (!formData.email.trim()) errors.push('Email');
+      if (!formData.phoneNumber.trim()) errors.push('Nomor Telepon');
+
+      if (formData.gender === 0 || !formData.gender) {
+        errors.push('Jenis Kelamin');
+      }
+
+      if (formData.paymentMethod === 0 || !formData.paymentMethod) {
+        errors.push('Metode Pembayaran');
+      }
+
+      if (errors.length > 0) {
+        alert(`Harap isi field berikut: ${errors.join(', ')}`);
+        return;
+      }
+
+      if (!/^[0-9]{10,15}$/.test(formData.phoneNumber)) {
+        alert('Nomor telepon harus berupa angka (10-15 digit)');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        alert('Format email tidak valid');
+        return;
+      }
+
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        gender: formData.gender,
+        paymentMethod: formData.paymentMethod,
+      };
+      setLoading(true);
+
+      const response = await registerWorkshop(params.id as string, registrationData);
+
+      if (response && response.data) {
+        setRegistrationResult(response.data);
+        setCurrentIndex(2);
+      } else {
+        alert(response.message || 'Gagal mendaftar workshop');
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      alert(error.message || 'Terjadi kesalahan saat mendaftar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPaymentMethodName = (methodId: number) => {
+    switch (methodId) {
+      case 1: return 'Gopay';
+      case 2: return 'DANA';
+      case 3: return 'OVO';
+      case 4: return 'QRIS';
+      default: return 'Unknown';
+    }
   };
 
   const router = useRouter();
@@ -36,8 +164,48 @@ const WorkshopRegistrationMain = () => {
 
   const navigate = (e: any) => {
     e.preventDefault();
+
+    const registrationTicketData = {
+      ticketNumber: registrationResult?.ticketNumber || registrationResult?.id || 'N/A',
+
+      // User form data
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      gender: formData.gender,
+      paymentMethod: formData.paymentMethod,
+
+      paymentStatus: 'Berhasil'
+    };
+
+    localStorage.setItem('workshopTicket', JSON.stringify(registrationTicketData));
     router.push(`${pathname}/success`);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Memuat detail workshop...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!workshop) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Workshop tidak ditemukan</p>
+      </div>
+    );
+  }
 
   const nextIndex = (e: any) => {
     e.preventDefault();
@@ -74,11 +242,10 @@ const WorkshopRegistrationMain = () => {
         <div className="w-full flex flex-row justify-center items-center gap-[2.3rem]">
           <div className="flex flex-row justify-start items-center gap-[1.3rem]">
             <div
-              className={`rounded-full border-[0.2rem] ${
-                currentIndex == 0
-                  ? "bg-[#78D14D] text-white"
-                  : "bg-white text-black"
-              } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
+              className={`rounded-full border-[0.2rem] ${currentIndex == 0
+                ? "bg-[#78D14D] text-white"
+                : "bg-white text-black"
+                } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
             >
               <p className="font-semibold text-[0.8rem]">1</p>
             </div>
@@ -87,11 +254,10 @@ const WorkshopRegistrationMain = () => {
           <CaretRight size={26} color="#000000" />
           <div className="flex flex-row justify-start items-center gap-[1.3rem]">
             <div
-              className={`rounded-full border-[0.2rem] ${
-                currentIndex == 1
-                  ? "bg-[#78D14D] text-white"
-                  : "bg-white text-black"
-              } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
+              className={`rounded-full border-[0.2rem] ${currentIndex == 1
+                ? "bg-[#78D14D] text-white"
+                : "bg-white text-black"
+                } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
             >
               <p className="font-semibold text-[0.8rem]">2</p>
             </div>
@@ -100,11 +266,10 @@ const WorkshopRegistrationMain = () => {
           <CaretRight size={26} color="#000000" />
           <div className="flex flex-row justify-start items-center gap-[1.3rem]">
             <div
-              className={`rounded-full border-[0.2rem] ${
-                currentIndex == 2
-                  ? "bg-[#78D14D] text-white"
-                  : "bg-white text-black"
-              } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
+              className={`rounded-full border-[0.2rem] ${currentIndex == 2
+                ? "bg-[#78D14D] text-white"
+                : "bg-white text-black"
+                } border-[#78D14D] w-[3.6rem] h-[3.6rem] flex flex-col justify-center items-center`}
             >
               <p className="font-semibold text-[0.8rem]">3</p>
             </div>
@@ -133,48 +298,58 @@ const WorkshopRegistrationMain = () => {
                   </div>
                   <div className="flex flex-col justify-start items-start gap-[0.1rem] w-[60%]">
                     <p className="text-[0.8rem]">Nama Depan*</p>
-                    <InputField type="text"></InputField>
+                    <InputField
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
                     <p className="text-[0.8rem]">Nama Belakang*</p>
-                    <InputField type="text"></InputField>
+                    <InputField
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
                     <p className="text-[0.8rem]">Email*</p>
-                    <InputField type="text"></InputField>
+                    <InputField
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
                     <p className="text-[0.8rem]">Nomor Telepon*</p>
-                    <InputField type="text"></InputField>
-                  </div>
-                  <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
-                    <p className="text-[0.8rem]">Tanggal Lahir*</p>
-                    <div className="flex flex-row w-full justify-between items-center gap-[1.8rem]">
-                      <InputField type="text"></InputField>
-                      <InputField type="text"></InputField>
-                      <InputField type="text"></InputField>
-                    </div>
+                    <InputField
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[60%] gap-[0.1rem]">
                     <p className="text-[0.8rem]">Jenis Kelamin*</p>
                     <div className="flex flex-row w-full justify-between items-center gap-[1.8rem]">
                       <button
-                        className={`py-[1.125rem]  w-full rounded-lg text-[1rem]  font-semibold cursor-pointer ${
-                          genderSelected == 1
-                            ? "bg-[#78D14D] text-white"
-                            : "bg-[#F2F2F2] text-[#4993FA]"
-                        }`}
+                        className={`py-[1.125rem]  w-full rounded-lg text-[1rem]  font-semibold cursor-pointer ${genderSelected == 1
+                          ? "bg-[#78D14D] text-white"
+                          : "bg-[#F2F2F2] text-[#4993FA]"
+                          }`}
                         type="button"
                         onClick={() => setGender(1)}
                       >
                         Laki-Laki
                       </button>
                       <button
-                        className={`py-[1.125rem]  w-full rounded-lg text-[1rem]  font-semibold cursor-pointer ${
-                          genderSelected == 2
-                            ? "bg-[#78D14D] text-white"
-                            : "bg-[#F2F2F2] text-[#FF7C7C]"
-                        }`}
+                        className={`py-[1.125rem]  w-full rounded-lg text-[1rem]  font-semibold cursor-pointer ${genderSelected == 2
+                          ? "bg-[#78D14D] text-white"
+                          : "bg-[#F2F2F2] text-[#FF7C7C]"
+                          }`}
                         type="button"
                         onClick={() => setGender(2)}
                       >
@@ -202,11 +377,10 @@ const WorkshopRegistrationMain = () => {
                     </p>
                   </div>
                   <button
-                    className={`px-[2.3rem] ${
-                      paymentSelected == 1
-                        ? " bg-[#78D14D] text-white"
-                        : "bg-[#F2F2F2] text-black"
-                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
+                    className={`px-[2.3rem] ${paymentSelected == 1
+                      ? " bg-[#78D14D] text-white"
+                      : "bg-[#F2F2F2] text-black"
+                      } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
                     onClick={() => setPayment(1)}
                   >
@@ -222,11 +396,10 @@ const WorkshopRegistrationMain = () => {
                     <p>Rp. 100.000,00</p>
                   </button>
                   <button
-                    className={`px-[2.3rem] ${
-                      paymentSelected == 2
-                        ? " bg-[#78D14D] text-white"
-                        : "bg-[#F2F2F2] text-black"
-                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
+                    className={`px-[2.3rem] ${paymentSelected == 2
+                      ? " bg-[#78D14D] text-white"
+                      : "bg-[#F2F2F2] text-black"
+                      } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
                     onClick={() => setPayment(2)}
                   >
@@ -242,11 +415,10 @@ const WorkshopRegistrationMain = () => {
                     <p>Rp. 100.000,00</p>
                   </button>
                   <button
-                    className={`px-[2.3rem] ${
-                      paymentSelected == 3
-                        ? " bg-[#78D14D] text-white"
-                        : "bg-[#F2F2F2] text-black"
-                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
+                    className={`px-[2.3rem] ${paymentSelected == 3
+                      ? " bg-[#78D14D] text-white"
+                      : "bg-[#F2F2F2] text-black"
+                      } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
                     onClick={() => setPayment(3)}
                   >
@@ -254,19 +426,18 @@ const WorkshopRegistrationMain = () => {
                       className=" object-cover rounded-lg"
                       width={82}
                       height={26}
-                      src="/images/ovo.png"
-                      alt="cabai"
+                      src={`http://localhost:2000/uploads/paymentmethod/ovo.png`}
+                      alt="ovo"
                       quality={100}
                       unoptimized
                     ></Image>
                     <p>Rp. 100.000,00</p>
                   </button>
                   <button
-                    className={`px-[2.3rem] ${
-                      paymentSelected == 4
-                        ? " bg-[#78D14D] text-white"
-                        : "bg-[#F2F2F2] text-black"
-                    } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
+                    className={`px-[2.3rem] ${paymentSelected == 4
+                      ? " bg-[#78D14D] text-white"
+                      : "bg-[#F2F2F2] text-black"
+                      } w-[80%] h-[6.3rem] rounded-lg text-[1.5rem] font-semibold cursor-pointer flex flex-row justify-between items-center`}
                     type="button"
                     onClick={() => setPayment(4)}
                   >
@@ -284,7 +455,7 @@ const WorkshopRegistrationMain = () => {
                   <div className="w-full flex flex-col justify-start items-start gap-[1rem]">
                     <ActionButton
                       textColor="#ffffff"
-                      onClickHandler={nextIndex}
+                      onClickHandler={handleRegister}
                       width="16.25rem"
                       height="3.5rem"
                     >
@@ -316,23 +487,19 @@ const WorkshopRegistrationMain = () => {
                     </h1>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Nama Peserta</p>
-                      <p>: Mas Azril</p>
+                      <p>: {formData.firstName} {formData.lastName}</p>
                     </div>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Email</p>
-                      <p>: Azriel123@mail.com</p>
+                      <p>: {formData.email}</p>
                     </div>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Nomor Telepon</p>
-                      <p>: 08123456789</p>
-                    </div>
-                    <div className="flex flex-row justify-between items-center w-full">
-                      <p>Tanggal Lahir</p>
-                      <p>: 19 April 2025</p>
+                      <p>: {formData.phoneNumber}</p>
                     </div>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Jenis Kelamin</p>
-                      <p>: Laki-Laki</p>
+                      <p>: {formData.gender === 0 ? 'Laki-Laki' : 'Perempuan'}</p>
                     </div>
                   </div>
                   <div className="flex flex-col justify-start items-start gap-[0.3rem] w-[60%]">
@@ -341,15 +508,15 @@ const WorkshopRegistrationMain = () => {
                     </h1>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Metode Pembayaran</p>
-                      <p>: Gopay</p>
+                      <p>: {getPaymentMethodName(formData.paymentMethod)}</p>
                     </div>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Total Harga</p>
-                      <p>: Rp.100.000,00</p>
+                      <p>: Rp. {workshop.harga_workshop}</p>
                     </div>
                     <div className="flex flex-row justify-between items-center w-full">
                       <p>Status Pembayaran</p>
-                      <p>: Menunggu</p>
+                      <p>: Berhasil</p>
                     </div>
                   </div>
                   <div className="w-full flex flex-col justify-start items-start gap-[1rem]">
@@ -380,26 +547,26 @@ const WorkshopRegistrationMain = () => {
                 className=" object-cover w-full h-[16.8rem] rounded-lg"
                 width={545}
                 height={307}
-                src="/images/workshop-image.webp"
-                alt="cabai"
+                src={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                alt="gambar-workshop"
                 quality={100}
                 unoptimized
               ></Image>
               <h1 className="text-[1.5rem] font-semibold w-[70%]">
-                Teknik Tanam Padi Untuk Keberlanjutan Pangan Jawa Tengah
+                {workshop.judul_workshop}
               </h1>
               <div className="flex flex-col justify-start items-start gap-[0.9rem]">
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <Calendar size={26} color="#000000" />
-                  <p className="text-[0.75rem]">Jumat, 15 Februari 2025</p>
+                  <p className="text-[0.75rem]">{formatDate(workshop.tanggal_workshop)}</p>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <MapPin size={26} color="#000000" />
-                  <p className="text-[0.75rem]">Mojokerto, Jawa Timur</p>
+                  <p className="text-[0.75rem]">{workshop.alaamt_lengkap_workshop}, {workshop.kabupaten.nama_kabupaten}, {workshop.kabupaten.provinsi.nama_provinsi}</p>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <Timer size={26} color="#000000" />
-                  <p className="text-[0.75rem]">07.00 - 15.00 WIB</p>
+                  <p className="text-[0.75rem]">{formatTime(workshop.waktu_mulai)} - {formatTime(workshop.waktu_berakhir)}</p>
                 </div>
               </div>
             </div>

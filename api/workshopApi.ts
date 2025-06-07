@@ -1,17 +1,21 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   TCreateWorkshopRequest,
   TWorkshopResponse,
   TWorkshopDetailResponse,
   TWorkshopVerificationRequest,
   TVerifiedWorkshopResponse,
-} from '@/types/workshopTypes';
+  TRegisterWorkshopRequest,
+  TRegisterWorkshopResponse,
+  TPayWorkshopRequest,
+  TPayWorkshopResponse,
+} from "@/types/workshopTypes";
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:2000/api";
 
 export const getToken = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   return token;
 };
 
@@ -28,7 +32,7 @@ export const getAllWorkshops = async (): Promise<TWorkshopResponse> => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -40,7 +44,7 @@ export const getVerifiedWorkshops = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -48,27 +52,27 @@ export const createWorkshop = async (formData: FormData) => {
   const token = getToken();
 
   if (!token) {
-    throw new Error('Token tidak ditemukan. Silakan login ulang.');
+    throw new Error("Token tidak ditemukan. Silakan login ulang.");
   }
 
   try {
     const response = await axios.post(`${baseURL}/workshops/create`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`,
       },
     });
 
-    console.log('Create article response:', response.data);
+    console.log("Create article response:", response.data);
     return response.data;
   } catch (error: any) {
-    console.error('Error creating article:', error);
+    console.error("Error creating article:", error);
     if (error.response && error.response.data) {
-      console.error('Server error response:', error.response.data);
-      throw new Error(error.response.data.message || 'Gagal membuat artikel');
+      console.error("Server error response:", error.response.data);
+      throw new Error(error.response.data.message || "Gagal membuat artikel");
     }
 
-    throw new Error(error.message || 'Terjadi kesalahan saat membuat artikel');
+    throw new Error(error.message || "Terjadi kesalahan saat membuat artikel");
   }
 };
 
@@ -85,7 +89,7 @@ export const getOwnWorkshops = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -102,19 +106,19 @@ export const getWorkshopById = async (id: string) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
 export const createWorkshopFacilitator = async (
-  formData: FormData,
+  formData: FormData
 ): Promise<TWorkshopDetailResponse> => {
   const token = getToken();
   try {
     const response = await axios.post(`${baseURL}/workshops/create`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
@@ -122,7 +126,7 @@ export const createWorkshopFacilitator = async (
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -136,14 +140,14 @@ export const verifyWorkshop = async (id: string, status: string) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -160,7 +164,7 @@ export const deleteWorkshop = async (id: string) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -173,14 +177,14 @@ export const getOwnActiveParticipants = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -197,7 +201,7 @@ export const getOwnPopularWorkshops = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -214,7 +218,7 @@ export const getAllSales = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -231,6 +235,59 @@ export const getAllParticipants = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const registerWorkshop = async (
+  id: string,
+  data: Omit<TRegisterWorkshopRequest, "id">
+): Promise<TRegisterWorkshopResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.post(
+      `${baseURL}/workshops/${id}/register`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return {
+      success: false,
+      message: "Terjadi kesalahan saat mendaftar workshop",
+      data: null,
+    };
+  }
+};
+
+export const payWorkshopRegistration = async (
+  data: TPayWorkshopRequest
+): Promise<TPayWorkshopResponse> => {
+  const token = getToken();
+  try {
+    const response = await axios.patch(`${baseURL}/workshops/${id}/register`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return {
+      success: false,
+      message: "Terjadi kesalahan saat melakukan pembayaran",
+      data: null,
+    };
   }
 };

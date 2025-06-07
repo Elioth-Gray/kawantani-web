@@ -100,3 +100,45 @@ export type TWorkshopFormValues = {
   image: File | null;
   regency: string;
 };
+
+export type TRegisterWorkshopRequest = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  gender: number;
+  paymentMethod: number;
+};
+
+export type TRegisterWorkshopResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    id_pendaftaran: string;
+    nomor_tiket: string;
+    nama_depan_peserta: string;
+    nama_belakang_peserta: string;
+    email_peserta: string;
+    nomor_telepon_peserta: string;
+    jenis_kelamin_peserta: number;
+    tanggal_pendaftaran: Date;
+    status_pembayaran: boolean;
+    id_workshop: string;
+    id_metode_pembayaran: number;
+  } | null;
+};
+
+export type TPayWorkshopRequest = {
+  ticketNumber: string;
+};
+
+export type TPayWorkshopResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    id_pendaftaran: string;
+    nomor_tiket: string;
+    status_pembayaran: boolean;
+  } | null;
+};
