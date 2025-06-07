@@ -2,7 +2,12 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, CheckCircle, Trash } from '@phosphor-icons/react/dist/ssr';
+import {
+  ArrowLeft,
+  CheckCircle,
+  Trash,
+  XCircle,
+} from '@phosphor-icons/react/dist/ssr';
 import Image from 'next/image';
 import { deleteArticle, getArticleById, verifyArticle } from '@/api/articleApi';
 import {
@@ -10,6 +15,13 @@ import {
   getWorkshopById,
   verifyWorkshop,
 } from '@/api/workshopApi';
+
+// Enum untuk status verifikasi workshop
+enum StatusVerifikasiWorkshop {
+  MENUNGGU = 'MENUNGGU',
+  DIVERIFIKASI = 'DIVERIFIKASI',
+  DITOLAK = 'DITOLAK',
+}
 
 export type Provinsi = {
   id_provinsi: number;
@@ -35,7 +47,7 @@ export type Facilitator = {
   avatar: string;
   status_aktif: boolean;
   id_kabupaten: number;
-  kabupaten: Kabupaten; // tambahkan ini agar lengkap
+  kabupaten: Kabupaten;
 };
 
 export type Workshop = {
@@ -46,7 +58,7 @@ export type Workshop = {
   deskripsi_workshop: string;
   harga_workshop: string;
   kapasitas: number;
-  status_verifikasi: boolean;
+  status_verifikasi: StatusVerifikasiWorkshop;
   lat_lokasi: number;
   long_lokasi: number;
   gambar_workshop: string;
@@ -66,7 +78,7 @@ const AdminWorkshopDetailMain = () => {
   const id = params?.id || '';
 
   useEffect(() => {
-    const fetchArticle = async () => {
+    const fetchWorkshop = async () => {
       setInitialLoading(true);
       try {
         const response = await getWorkshopById(id as string);
@@ -75,7 +87,7 @@ const AdminWorkshopDetailMain = () => {
           setWorkshop(response.data);
         } else {
           console.error('Failed to load workshop:', response.message);
-          alert('Gagal memuat data artikel');
+          alert('Gagal memuat data workshop');
         }
       } catch (error) {
         console.error('Error loading workshop:', error);
@@ -85,18 +97,32 @@ const AdminWorkshopDetailMain = () => {
       }
     };
 
-    fetchArticle();
+    fetchWorkshop();
   }, [id]);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: StatusVerifikasiWorkshop) => {
     const baseClass = 'px-2 py-1 rounded-full text-xs font-semibold';
+
     switch (status) {
-      case 'PUBLISHED':
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
         return `${baseClass} bg-green-100 text-green-800`;
-      case 'DRAFT':
-        return `${baseClass} bg-yellow-100 text-yellow-800`;
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return `${baseClass} bg-red-100 text-red-800`;
+      case StatusVerifikasiWorkshop.MENUNGGU:
       default:
-        return `${baseClass} bg-gray-100 text-gray-800`;
+        return `${baseClass} bg-yellow-100 text-yellow-800`;
+    }
+  };
+
+  const getStatusLabel = (status: StatusVerifikasiWorkshop) => {
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return 'Diverifikasi';
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return 'Ditolak';
+      case StatusVerifikasiWorkshop.MENUNGGU:
+      default:
+        return 'Menunggu Verifikasi';
     }
   };
 
@@ -123,21 +149,64 @@ const AdminWorkshopDetailMain = () => {
   const onVerifyWorkshop = async (id_workshop: string) => {
     setLoading(true);
     const confirmed = window.confirm(
-      'Apakah kamu ingin memverifkasi workshop ini?',
+      'Apakah kamu ingin memverifikasi workshop ini?',
     );
-    if (!confirmed) return;
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await verifyWorkshop(id_workshop);
       if (result.data) {
         alert('Berhasil memverifikasi workshop.');
-        router.push('/admin/dashboard/workshops');
+        // Update local state to reflect the change
+        setWorkshop((prev) =>
+          prev
+            ? {
+                ...prev,
+                status_verifikasi: StatusVerifikasiWorkshop.DIVERIFIKASI,
+              }
+            : prev,
+        );
       } else {
         alert(result.message || 'Ada kesalahan');
       }
     } catch (error) {
       console.error('Error verify workshop:', error);
-      alert('Ada kesalahan saat veridfikasi workshop');
+      alert('Ada kesalahan saat verifikasi workshop');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRejectWorkshop = async (id_workshop: string) => {
+    setLoading(true);
+    const confirmed = window.confirm('Apakah kamu ingin menolak workshop ini?');
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await verifyWorkshop(id_workshop);
+      if (result.data) {
+        alert('Berhasil menolak workshop.');
+        // Update local state to reflect the change
+        setWorkshop((prev) =>
+          prev
+            ? {
+                ...prev,
+                status_verifikasi: StatusVerifikasiWorkshop.DITOLAK,
+              }
+            : prev,
+        );
+      } else {
+        alert(result.message || 'Ada kesalahan');
+      }
+    } catch (error) {
+      console.error('Error reject workshop:', error);
+      alert('Ada kesalahan saat menolak workshop');
     } finally {
       setLoading(false);
     }
@@ -148,7 +217,10 @@ const AdminWorkshopDetailMain = () => {
     const confirmed = window.confirm(
       'Apakah kamu ingin menghapus workshop ini?',
     );
-    if (!confirmed) return;
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await deleteWorkshop(id_workshop);
@@ -170,6 +242,26 @@ const AdminWorkshopDetailMain = () => {
     return `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed`;
   };
 
+  if (initialLoading) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='w-full h-full flex items-center justify-center'>
+          <p>Loading...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!workshop) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='w-full h-full flex items-center justify-center'>
+          <p>Workshop tidak ditemukan</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -187,12 +279,12 @@ const AdminWorkshopDetailMain = () => {
         </div>
 
         <div className='w-full h-76 grid grid-cols-2 gap-x-10'>
-          <div className='col-span-1 w-full h-full  rounded-xl overflow-hidden'>
+          <div className='col-span-1 w-full h-full rounded-xl overflow-hidden'>
             <img
               src={
                 workshop?.gambar_workshop
                   ? `http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`
-                  : undefined
+                  : '/default-workshop-image.jpg'
               }
               width={0}
               height={0}
@@ -241,32 +333,41 @@ const AdminWorkshopDetailMain = () => {
               </p>
               <p>
                 Status Verifikasi:{' '}
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    workshop?.status_verifikasi
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {workshop?.status_verifikasi
-                    ? 'Terverifikasi'
-                    : 'Belum Verifikasi'}
+                <span className={getStatusBadge(workshop.status_verifikasi)}>
+                  {getStatusLabel(workshop.status_verifikasi)}
                 </span>
               </p>
             </div>
             <div className='flex gap-4 mt-6'>
-              {!workshop?.status_verifikasi && (
-                <button
-                  onClick={() => {
-                    onDeleteWorkshop(workshop?.id_workshop || '');
-                  }}
-                  disabled={loading}
-                  className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
-                >
-                  <Trash size={20} weight='bold' />
-                  Hapus Workshop
-                </button>
+              {workshop.status_verifikasi ===
+                StatusVerifikasiWorkshop.MENUNGGU && (
+                <>
+                  <button
+                    onClick={() => onVerifyWorkshop(workshop.id_workshop)}
+                    disabled={loading}
+                    className='flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                  >
+                    <CheckCircle size={20} weight='bold' />
+                    Verifikasi Workshop
+                  </button>
+                  <button
+                    onClick={() => onRejectWorkshop(workshop.id_workshop)}
+                    disabled={loading}
+                    className='flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+                  >
+                    <XCircle size={20} weight='bold' />
+                    Tolak Workshop
+                  </button>
+                </>
               )}
+              <button
+                onClick={() => onDeleteWorkshop(workshop.id_workshop)}
+                disabled={loading}
+                className='flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+              >
+                <Trash size={20} weight='bold' />
+                Hapus Workshop
+              </button>
             </div>
           </div>
         </div>
@@ -336,7 +437,6 @@ const AdminWorkshopDetailMain = () => {
               </p>
             </div>
           </div>
-          <div className='w-full mb-[3.1rem] mt-[3.1rem]'></div>
         </div>
       </section>
     </main>

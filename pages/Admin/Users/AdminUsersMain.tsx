@@ -34,6 +34,7 @@ type UserData = {
   nama_belakang_pengguna: string;
   nama_depan_pengguna: string;
   nomor_telepon_pengguna: string;
+  status_verfikasi: boolean;
 };
 
 type SortConfig = {
@@ -43,6 +44,7 @@ type SortConfig = {
 
 const AdminUsersMain = () => {
   const [users, setUsers] = useState<UserData[]>([]);
+  const [activatedUsers, setActivatedUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -60,6 +62,7 @@ const AdminUsersMain = () => {
       setLoading(true);
       try {
         const response = await getAllUsers();
+        console.log(response.data);
         if (response.data) {
           const users = response.data;
           const segmentedUsers = users.map((user: any, index: number) => ({
@@ -67,6 +70,10 @@ const AdminUsersMain = () => {
             id: index + 1,
           }));
           setUsers(segmentedUsers);
+          const activatedUsers = segmentedUsers.filter(
+            (user: any) => user.status_verfikasi === true,
+          );
+          setActivatedUsers(activatedUsers);
         }
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -89,6 +96,10 @@ const AdminUsersMain = () => {
             id: index + 1,
           }));
           setUsers(segmentedUsers);
+          const activatedUsers = segmentedUsers.filter(
+            (user: any) => user.status_verfikasi === true,
+          );
+          setActivatedUsers(activatedUsers);
         }
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -255,6 +266,22 @@ const AdminUsersMain = () => {
             </button>
           </div>
         </div>
+
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Teraktivasi</h3>
+            <p className='text-2xl font-bold font-bold text-green-400'>
+              {activatedUsers.length}
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Belum Teraktivasi</h3>
+            <p className='text-2xl font-bold text-red-400'>
+              {users.length - activatedUsers.length}
+            </p>
+          </div>
+        </div>
+
         <div className='w-full flex flex-row jutify-between items-center gap-[1rem] mb-6'>
           <Input
             type='text'
@@ -306,6 +333,12 @@ const AdminUsersMain = () => {
                 >
                   Nomor Telepon {getSortIcon('nomor_telepon_pengguna')}
                 </TableHead>
+                <TableHead
+                  className='text-right cursor-pointer text-white'
+                  onClick={() => requestSort('status_verfikasi')}
+                >
+                  Status Aktivasi {getSortIcon('status_verfikasi')}
+                </TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -345,6 +378,19 @@ const AdminUsersMain = () => {
                     <TableCell>{row.email_pengguna}</TableCell>
                     <TableCell className='text-right'>
                       {row.nomor_telepon_pengguna}
+                    </TableCell>
+                    <TableCell className='text-right'>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          row.status_verfikasi
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {row.status_verfikasi
+                          ? 'Teraktivasi'
+                          : 'Belum Teraktivasi'}
+                      </span>
                     </TableCell>
                     <TableCell className='text-right flex flex-row justify-center items-center gap-5'>
                       <p

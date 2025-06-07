@@ -65,6 +65,7 @@ const EditUserMain = () => {
     gender: 0,
     file: null,
   });
+  const [user, setUser] = useState<[{}]>([{}]);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof formData, string>>
@@ -99,6 +100,7 @@ const EditUserMain = () => {
           console.error('Failed to load user:', response.message);
           alert('Gagal memuat data pengguna');
         }
+        setUser(user);
       } catch (error) {
         console.error('Error loading user:', error);
         alert('Terjadi kesalahan saat memuat data');
@@ -189,6 +191,37 @@ const EditUserMain = () => {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='flex items-center justify-center h-full'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
+            <p>Memuat data pengguna...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='flex items-center justify-center h-full'>
+          <div className='text-center'>
+            <p className='text-red-400 mb-4'>Pengguna tidak ditemukan</p>
+            <button
+              onClick={() => router.back()}
+              className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg'
+            >
+              Kembali
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>

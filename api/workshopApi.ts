@@ -124,12 +124,12 @@ export const createWorkshopFacilitator = async (
   }
 };
 
-export const verifyWorkshop = async (id: string) => {
+export const verifyWorkshop = async (id: string, status: string) => {
   const token = getToken();
   try {
     const response = await axios.put(
       `${baseURL}/workshops/${id}`,
-      {},
+      { status: status },
       {
         headers: {
           Authorization: `Bearer ${token}`,

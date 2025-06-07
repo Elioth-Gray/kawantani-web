@@ -427,19 +427,21 @@ const CreateWorkshopsMain = () => {
       form.append('image', formData.image);
     }
 
-    try {
-      const result = await createWorkshop(form);
-      if (result.success === false) {
-        alert(result.message);
-      } else {
-        alert('Workshop berhasil dibuat!');
-        router.push('/admin/dashboard/workshops');
-      }
-    } catch (err) {
-      alert('Terjadi kesalahan');
-    } finally {
-      setLoading(false);
-    }
+    console.log(form)
+
+    // try {
+    //   const result = await createWorkshop(form);
+    //   if (result.success === false) {
+    //     alert(result.message);
+    //   } else {
+    //     alert('Workshop berhasil dibuat!');
+    //     router.push('/admin/dashboard/workshops');
+    //   }
+    // } catch (err) {
+    //   alert('Terjadi kesalahan');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
