@@ -100,14 +100,12 @@ const DashboardArticleMain = () => {
   const showYourArticle = () => {
     setIsYourArticle(true);
     setStatusFilter('semua');
-    // Reset filters when switching views
     setType([]);
     setSearchQuery("");
   };
 
   const showNormalArticle = () => {
     setIsYourArticle(false);
-    // Reset filters when switching views
     setType([]);
     setSearchQuery("");
   };
@@ -145,7 +143,7 @@ const DashboardArticleMain = () => {
 
     // Category filter
     const matchesCategory = typeFilter.length === 0 ||
-      typeFilter.includes(article.kategori_id || article.id_kategori);
+      typeFilter.includes(article.id_kategori_artikel);
 
     return matchesStatus && matchesSearch && matchesCategory;
   });

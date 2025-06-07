@@ -35,7 +35,6 @@ const DashboardMain = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get user location and weather data using FREE Open-Meteo API
   useEffect(() => {
     const getLocationAndWeather = async () => {
       try {
