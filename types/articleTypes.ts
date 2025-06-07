@@ -11,6 +11,7 @@ export type TArticle = {
   id_kategori_artikel?: number;
   id_pengguna?: string;
   kategori?: {
+    id_kategori_artikel: number;
     nama_kategori_artikel: string;
   };
   pengguna?: {
