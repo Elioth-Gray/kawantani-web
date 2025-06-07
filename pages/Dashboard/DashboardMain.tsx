@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Drop } from "@phosphor-icons/react/dist/ssr";
 import { Check } from "@phosphor-icons/react/dist/ssr";
@@ -20,17 +20,137 @@ const DashboardMain = () => {
 
   const [taskDate, setTaskDate] = useState(null);
 
-  const selectDate = (day: any) => {
+  // Weather and location states
+  const [weather, setWeather] = useState({
+    temperature: 0,
+    humidity: 0,
+    location: "Loading...",
+    date: new Date().toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Get user location and weather data using FREE Open-Meteo API
+  useEffect(() => {
+    const getLocationAndWeather = async () => {
+      try {
+        // Get current date
+        const currentDate = new Date().toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+
+        // Get user's location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+
+              try {
+                // Get location name using free reverse geocoding
+                const locationResponse = await fetch(
+                  `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=id`
+                );
+                const locationData = await locationResponse.json();
+
+                // Get weather data using FREE Open-Meteo API (no API key needed!)
+                const weatherResponse = await fetch(
+                  `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m&timezone=auto&forecast_days=1`
+                );
+                const weatherData = await weatherResponse.json();
+
+                const locationName = locationData.city
+                  ? `${locationData.city}, ${locationData.principalSubdivision || locationData.countryName}`
+                  : `${locationData.locality || 'Unknown'}, ${locationData.countryName || 'Indonesia'}`;
+
+                // Get current humidity from hourly data (current hour)
+                const currentHour = new Date().getHours();
+                const currentHumidity = weatherData.hourly?.relativehumidity_2m?.[currentHour] || 70;
+
+                setWeather({
+                  temperature: Math.round(weatherData.current_weather.temperature),
+                  humidity: Math.round(currentHumidity),
+                  location: locationName,
+                  date: currentDate
+                });
+
+              } catch (apiError) {
+                console.error('Weather API error:', apiError);
+                // Fallback to default location (Surabaya)
+                await getDefaultWeather(currentDate);
+              }
+
+              setLoading(false);
+            },
+            async (error) => {
+              console.error('Geolocation error:', error);
+              // Fallback to default location (Surabaya)
+              await getDefaultWeather(currentDate);
+              setLoading(false);
+            }
+          );
+        } else {
+          // Geolocation not supported, use default
+          await getDefaultWeather(currentDate);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Error getting location and weather:', err);
+        setError('Failed to load weather data');
+        setLoading(false);
+      }
+    };
+
+    // Fallback function for default location (Surabaya) using FREE APIs
+    const getDefaultWeather = async (currentDate) => {
+      try {
+        // Surabaya coordinates: -7.2575, 112.7521
+        const weatherResponse = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=-7.2575&longitude=112.7521&current_weather=true&hourly=relativehumidity_2m&timezone=auto&forecast_days=1`
+        );
+        const weatherData = await weatherResponse.json();
+
+        // Get current humidity from hourly data
+        const currentHour = new Date().getHours();
+        const currentHumidity = weatherData.hourly?.relativehumidity_2m?.[currentHour] || 70;
+
+        setWeather({
+          temperature: Math.round(weatherData.current_weather.temperature),
+          humidity: Math.round(currentHumidity),
+          location: 'Surabaya, Jawa Timur',
+          date: currentDate
+        });
+      } catch (error) {
+        console.error('Default weather error:', error);
+        setWeather({
+          temperature: 30,
+          humidity: 70,
+          location: 'Surabaya, Jawa Timur',
+          date: currentDate
+        });
+      }
+    };
+
+    getLocationAndWeather();
+  }, []);
+
+  const selectDate = (day) => {
     setTaskDate(day);
   };
 
-  const toggleTaskCompletions = (index: number) => {
+  const toggleTaskCompletions = (index) => {
     const updatedTasks = [...completedTasks];
     updatedTasks[index] = !updatedTasks[index];
     setCompletedTasks(updatedTasks);
   };
 
-  const toggleMaintainCompletions = (index: number) => {
+  const toggleMaintainCompletions = (index) => {
     const updatedTasks = [...completedMaintain];
     updatedTasks[index] = !updatedTasks[index];
     setCompletedMaintain(updatedTasks);
@@ -47,10 +167,15 @@ const DashboardMain = () => {
           </h1>
           <div className="flex flex-row justify-between">
             <div className="flex flex-col justify-between items-start">
-              <h1 className="text-[1.5rem] font-semibold">11 Februari 2025</h1>
               <h1 className="text-[1.5rem] font-semibold">
-                Gubeng, Surabaya, Jawa Timur
+                {loading ? 'Loading...' : weather.date}
               </h1>
+              <h1 className="text-[1.5rem] font-semibold">
+                {loading ? 'Loading...' : weather.location}
+              </h1>
+              {error && (
+                <p className="text-red-500 text-sm mt-2">{error}</p>
+              )}
             </div>
             <div className="flex flex-row justify-end items-center gap-[4rem]">
               <div className="py-[3.3rem] px-[4rem] rounded-lg border border-black flex flex-col justify-center items-center w-[21.25rem]">
@@ -59,12 +184,14 @@ const DashboardMain = () => {
                     src="/images/weather.svg"
                     width={84}
                     height={68}
-                    alt="logo"
+                    alt="humidity icon"
                     className="cursor-pointer"
-                  ></Image>
+                  />
                   <div className="flex flex-col justify-between items-start">
                     <p className="text-[1rem] font-semibold">Kelembapan</p>
-                    <p className="text-[2.25rem] font-semibold">36°C</p>
+                    <p className="text-[2.25rem] font-semibold">
+                      {loading ? '--' : `${weather.humidity}%`}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -74,12 +201,14 @@ const DashboardMain = () => {
                     src="/images/heat.svg"
                     width={60}
                     height={87}
-                    alt="logo"
+                    alt="temperature icon"
                     className="cursor-pointer"
-                  ></Image>
+                  />
                   <div className="flex flex-col justify-between items-start">
                     <p className="text-[1rem] font-semibold">Suhu</p>
-                    <p className="text-[2.25rem] font-semibold">36°C</p>
+                    <p className="text-[2.25rem] font-semibold">
+                      {loading ? '--°C' : `${weather.temperature}°C`}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -103,11 +232,11 @@ const DashboardMain = () => {
                     height={79}
                     alt="logo"
                     className="cursor-pointer object-cover h-full rounded-full"
-                  ></Image>
+                  />
                 </div>
                 <div className="flex flex-col justify-start items-start">
                   <p className="text-[1.6rem] font-semibold">Lemon Malang</p>
-                  <p className="text-[0.8rem">36 Hari menuju panen</p>
+                  <p className="text-[0.8rem]">36 Hari menuju panen</p>
                 </div>
               </div>
               <div className="flex flex-col justify-start items-start gap-[0.75rem]">
@@ -120,11 +249,10 @@ const DashboardMain = () => {
                           selectDate(index);
                         }}
                         key={index}
-                        className={`p-[0.8rem] ${
-                          taskDate == index
+                        className={`p-[0.8rem] ${taskDate == index
                             ? "bg-[#50B34B] text-white"
                             : "bg-white text-black"
-                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                          } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                       >
                         {index + 1}
                       </button>
@@ -146,11 +274,10 @@ const DashboardMain = () => {
                     {completedTasks.map((isCompleted, index) => (
                       <button
                         onClick={() => toggleTaskCompletions(index)}
-                        className={`py-[0.8rem] px-[1rem] ${
-                          isCompleted
+                        className={`py-[0.8rem] px-[1rem] ${isCompleted
                             ? "bg-[#50B34B] text-white"
                             : "bg-none text-black"
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         key={index}
                       >
                         <div className="flex flex-row justify-start items-center gap-[0.8rem]">
@@ -161,9 +288,8 @@ const DashboardMain = () => {
                           )}
 
                           <p
-                            className={`font-medium text-[1rem] ${
-                              isCompleted ? "text-white" : "text-black"
-                            }`}
+                            className={`font-medium text-[1rem] ${isCompleted ? "text-white" : "text-black"
+                              }`}
                           >
                             Siram Tanaman
                           </p>
@@ -185,11 +311,10 @@ const DashboardMain = () => {
                     {completedMaintain.map((isCompleted, index) => (
                       <button
                         onClick={() => toggleMaintainCompletions(index)}
-                        className={`py-[0.8rem] px-[1rem] ${
-                          isCompleted
+                        className={`py-[0.8rem] px-[1rem] ${isCompleted
                             ? "bg-[#50B34B] text-white"
                             : "bg-none text-black"
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         key={index}
                       >
                         <div className="flex flex-row justify-start items-center gap-[0.8rem]">
@@ -200,9 +325,8 @@ const DashboardMain = () => {
                           )}
 
                           <p
-                            className={`font-medium text-[1rem] ${
-                              isCompleted ? "text-white" : "text-black"
-                            }`}
+                            className={`font-medium text-[1rem] ${isCompleted ? "text-white" : "text-black"
+                              }`}
                           >
                             Siram Tanaman
                           </p>
@@ -238,7 +362,7 @@ const DashboardMain = () => {
                       height={79}
                       alt="logo"
                       className="cursor-pointer object-cover h-full rounded-full"
-                    ></Image>
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start">
                     <p className="text-[0.8rem] font-semibold">Lemon Malang</p>
@@ -253,7 +377,7 @@ const DashboardMain = () => {
                       height={79}
                       alt="logo"
                       className="cursor-pointer object-cover h-full rounded-full"
-                    ></Image>
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start">
                     <p className="text-[0.8rem] font-semibold">Lemon Malang</p>
@@ -268,7 +392,7 @@ const DashboardMain = () => {
                       height={79}
                       alt="logo"
                       className="cursor-pointer object-cover h-full rounded-full"
-                    ></Image>
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start">
                     <p className="text-[0.8rem] font-semibold">Lemon Malang</p>
@@ -283,7 +407,7 @@ const DashboardMain = () => {
                       height={79}
                       alt="logo"
                       className="cursor-pointer object-cover h-full rounded-full"
-                    ></Image>
+                    />
                   </div>
                   <div className="flex flex-col justify-start items-start">
                     <p className="text-[0.8rem] font-semibold">Lemon Malang</p>
@@ -316,25 +440,25 @@ const DashboardMain = () => {
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
-            ></ArticleCard>
+            />
             <ArticleCard
               imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
-            ></ArticleCard>
+            />
             <ArticleCard
               imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
-            ></ArticleCard>
+            />
             <ArticleCard
               imageURL="/images/bayam.webp"
               title="Teknik Agar Bayam Tidak Rusak Saat Masa Tanam"
               date="14 Februari 2025"
               href="/articles/1/details"
-            ></ArticleCard>
+            />
           </div>
         </div>
         <div className="w-full flex flex-col justify-start items-start gap-[2.4rem] mt-[6.3rem]">
@@ -357,13 +481,13 @@ const DashboardMain = () => {
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
-            ></WorkshopCard>
+            />
             <WorkshopCard
               imageURL="/images/workshop-image.webp"
               title="Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah"
               date="Jumat, 15 Februari 2025"
               location="Balai Kota Solo, Jawa Tengah"
-            ></WorkshopCard>
+            />
           </div>
         </div>
       </section>
