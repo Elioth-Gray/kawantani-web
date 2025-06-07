@@ -269,10 +269,10 @@ const AdminFacilitatorsMain = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button
-            className='py-[0.7rem] px-[0.8rem] flex flex-row justify-center items-center bg-white text-black rounded-lg gap-[0.5rem] cursor-pointer w-76'
+            className='py-[0.7rem] px-[0.8rem] flex flex-row justify-center items-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 gap-[0.5rem] cursor-pointer w-76'
             onClick={onCreateNavigate}
           >
-            <PlusCircle size={20} color='#000000' />
+            <PlusCircle size={20} color='#ffff' />
             <p className='font-semibold'>Tambah Facilitator</p>
           </button>
         </div>

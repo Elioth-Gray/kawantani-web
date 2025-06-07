@@ -102,7 +102,7 @@ const workshopSchema = z.object({
   long: z.number().min(-180).max(180, 'Longitude tidak valid'),
   image: z
     .instanceof(File)
-    .refine((file) => file.size <= 5 * 1024 * 1024, 'Ukuran file maksimal 5MB')
+    .refine((file) => file.size <= 10 * 1024 * 1024, 'Ukuran file maksimal 5MB')
     .refine(
       (file) => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type),
       'Format file harus JPG, JPEG, atau PNG',
@@ -124,6 +124,7 @@ const CreateWorkshopsMain = () => {
   const [currentLocationName, setCurrentLocationName] = useState<string>('');
   const mapRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  const mapInitialized = useRef<boolean>(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -135,7 +136,7 @@ const CreateWorkshopsMain = () => {
     regencyId: 0,
     address: '',
     price: 0,
-    capacity: 1,
+    capacity: 0,
     lat: -6.2088,
     long: 106.8456,
     image: null as File | null,
@@ -205,71 +206,88 @@ const CreateWorkshopsMain = () => {
     }
   };
 
+  // Initialize map effect
   useEffect(() => {
-    if (mapRef.current && !map) {
-      const leafletMap = L.map(mapRef.current).setView(
-        [formData.lat, formData.long],
-        13,
-      );
+    // Only initialize if map container exists and hasn't been initialized yet
+    if (mapRef.current && !mapInitialized.current) {
+      try {
+        const leafletMap = L.map(mapRef.current).setView(
+          [formData.lat, formData.long],
+          13,
+        );
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(leafletMap);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+        }).addTo(leafletMap);
 
-      // Add marker with custom icon
-      const marker = L.marker([formData.lat, formData.long], {
-        draggable: true,
-      }).addTo(leafletMap);
+        // Add marker with custom icon
+        const marker = L.marker([formData.lat, formData.long], {
+          draggable: true,
+        }).addTo(leafletMap);
 
-      // Add popup to marker
-      marker.bindPopup('Lokasi Workshop').openPopup();
+        // Add popup to marker
+        marker.bindPopup('Lokasi Workshop').openPopup();
 
-      // Update coordinates when marker is dragged
-      marker.on('dragend', async (e: L.LeafletEvent) => {
-        const position = (e.target as L.Marker).getLatLng();
-        const lat = parseFloat(position.lat.toFixed(6));
-        const lon = parseFloat(position.lng.toFixed(6));
+        // Update coordinates when marker is dragged
+        marker.on('dragend', async (e: L.LeafletEvent) => {
+          const position = (e.target as L.Marker).getLatLng();
+          const lat = parseFloat(position.lat.toFixed(6));
+          const lon = parseFloat(position.lng.toFixed(6));
 
-        setFormData((prev) => ({
-          ...prev,
-          lat,
-          long: lon,
-        }));
+          setFormData((prev) => ({
+            ...prev,
+            lat,
+            long: lon,
+          }));
 
-        const locationName = await reverseGeocode(lat, lon);
-        setCurrentLocationName(locationName);
-      });
+          const locationName = await reverseGeocode(lat, lon);
+          setCurrentLocationName(locationName);
+        });
 
-      // Update coordinates when map is clicked
-      leafletMap.on('click', async (e: L.LeafletMouseEvent) => {
-        const { lat, lng } = e.latlng;
-        const roundedLat = parseFloat(lat.toFixed(6));
-        const roundedLng = parseFloat(lng.toFixed(6));
+        // Update coordinates when map is clicked
+        leafletMap.on('click', async (e: L.LeafletMouseEvent) => {
+          const { lat, lng } = e.latlng;
+          const roundedLat = parseFloat(lat.toFixed(6));
+          const roundedLng = parseFloat(lng.toFixed(6));
 
-        marker.setLatLng([lat, lng]);
-        setFormData((prev) => ({
-          ...prev,
-          lat: roundedLat,
-          long: roundedLng,
-        }));
+          marker.setLatLng([lat, lng]);
+          setFormData((prev) => ({
+            ...prev,
+            lat: roundedLat,
+            long: roundedLng,
+          }));
 
-        const locationName = await reverseGeocode(roundedLat, roundedLng);
-        setCurrentLocationName(locationName);
-      });
+          const locationName = await reverseGeocode(roundedLat, roundedLng);
+          setCurrentLocationName(locationName);
+        });
 
-      setMap(leafletMap);
-      markerRef.current = marker;
+        setMap(leafletMap);
+        markerRef.current = marker;
+        mapInitialized.current = true;
 
-      // Set initial location name
-      reverseGeocode(formData.lat, formData.long).then(setCurrentLocationName);
+        // Set initial location name
+        reverseGeocode(formData.lat, formData.long).then(
+          setCurrentLocationName,
+        );
+      } catch (error) {
+        console.error('Error initializing map:', error);
+      }
     }
 
+    // Cleanup function
     return () => {
-      if (map) {
-        map.remove();
+      if (map && mapInitialized.current) {
+        try {
+          map.remove();
+          setMap(null);
+          markerRef.current = null;
+          mapInitialized.current = false;
+        } catch (error) {
+          console.error('Error cleaning up map:', error);
+        }
       }
     };
-  }, []);
+  }, []); // Empty dependency array - only run once
 
   useEffect(() => {
     if (selectedRegencyName && selectedProvinceName) {
@@ -410,10 +428,14 @@ const CreateWorkshopsMain = () => {
 
     const form = new FormData();
 
+    const isoDate = formData.date
+      ? new Date(formData.date).toISOString()
+      : null;
+
     // Convert gender to string if backend expects string
     form.append('title', formData.title);
     form.append('description', formData.description);
-    form.append('date', formData.date);
+    form.append('date', isoDate || '');
     form.append('address', formData.address);
     form.append('price', formData.price.toString());
     form.append('capacity', formData.capacity.toString());
@@ -422,26 +444,26 @@ const CreateWorkshopsMain = () => {
     form.append('startTime', formData.startTime);
     form.append('endTime', formData.endTime);
     form.append('fullAddress', formData.address);
-    form.append('regencyId', formData.regencyId?.toString() || '');
+    form.append('regency', formData.regencyId?.toString() || '');
     if (formData.image) {
       form.append('image', formData.image);
     }
 
-    console.log(form)
+    console.log(form);
 
-    // try {
-    //   const result = await createWorkshop(form);
-    //   if (result.success === false) {
-    //     alert(result.message);
-    //   } else {
-    //     alert('Workshop berhasil dibuat!');
-    //     router.push('/admin/dashboard/workshops');
-    //   }
-    // } catch (err) {
-    //   alert('Terjadi kesalahan');
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      const result = await createWorkshop(form);
+      if (result.success === false) {
+        alert(result.message);
+      } else {
+        alert('Workshop berhasil dibuat!');
+        router.push('/admin/dashboard/workshops');
+      }
+    } catch (err) {
+      alert('Terjadi kesalahan');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -463,12 +485,14 @@ const CreateWorkshopsMain = () => {
         <form className='w-full' onSubmit={handleSubmit}>
           <div className='flex flex-col justify-center items-center w-full mb-10'>
             {bannerPreview ? (
-              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
-                <img
-                  src={bannerPreview}
-                  alt='Banner Workshop'
-                  className='w-full max-w-md h-48 rounded-lg object-cover border-2 border-white'
-                />
+              <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
+                <div className='w-2/3 max-w-md h-48 rounded-lg object-cover border-2 border-white overflow-hidden'>
+                  <img
+                    src={bannerPreview}
+                    alt='Banner Workshop'
+                    className='w-full h-full object-cover'
+                  />
+                </div>
                 <p>
                   Banner Workshop <span className='text-red-500'>*</span>
                 </p>
@@ -656,11 +680,13 @@ const CreateWorkshopsMain = () => {
 
             <div className='flex flex-row gap-[3.5rem] flex-wrap'>
               <div className='flex flex-col gap-[0.6rem]'>
-                <Label className='text-[1.25rem]'>Harga Tiket</Label>
+                <Label className='text-[1.25rem]'>
+                  Harga Tiket (Dalam Rupiah)
+                </Label>
                 <Input
                   type='number'
                   name='price'
-                  value={formData.price}
+                  value={formData.price === 0 ? '' : formData.price}
                   onChange={handleChange}
                   placeholder='Harga Workshop'
                   className='w-[19rem] h-[2.5rem]'
@@ -674,10 +700,11 @@ const CreateWorkshopsMain = () => {
                 <Input
                   type='number'
                   name='capacity'
-                  value={formData.capacity}
+                  value={formData.capacity === 0 ? '' : formData.capacity}
                   onChange={handleChange}
                   placeholder='Kapasitas Peserta'
                   className='w-[19rem] h-[2.5rem]'
+                  min='1'
                 />
                 {errors.capacity && (
                   <p className='text-red-500 text-sm'>{errors.capacity}</p>

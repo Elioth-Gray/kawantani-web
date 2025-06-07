@@ -26,8 +26,15 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, PlusCircle } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import { getOwnWorkshops } from '@/api/workshopApi';
+
+enum StatusVerifikasiWorkshop {
+  MENUNGGU = 'MENUNGGU',
+  DIVERIFIKASI = 'DIVERIFIKASI',
+  DITOLAK = 'DITOLAK',
+}
 
 // Interface untuk data workshop
 type WorkshopResponse = {
@@ -38,7 +45,7 @@ type WorkshopResponse = {
   deskripsi_workshop: string;
   harga_workshop: string;
   kapasitas: number;
-  status_verifikasi: boolean;
+  status_verifikasi: StatusVerifikasiWorkshop;
   lat_lokasi: number;
   long_lokasi: number;
   gambar_workshop: string;
@@ -74,87 +81,9 @@ const WorkshopTableMain = () => {
     const fetchWorkshopsData = async () => {
       setLoading(true);
       try {
-        // Simulate API call - replace with your actual API call
-        const mockResponse = {
-          message: 'Berhasil mendapatkan data workshop!',
-          data: [
-            {
-              id_workshop: 'pt-rokok-javier-001',
-              judul_workshop: 'Teknik Tanam Padi',
-              tanggal_workshop: '2025-04-23T00:00:00.000Z',
-              alaamt_lengkap_workshop: 'Jl Mulyorejo 1',
-              deskripsi_workshop: 'Workshop ini mengajarkan cara menanam padi',
-              harga_workshop: '100000',
-              kapasitas: 100,
-              status_verifikasi: true,
-              lat_lokasi: -65,
-              long_lokasi: 645,
-              gambar_workshop: '1748456342756-733250820.jpg',
-              status_aktif: false,
-              waktu_mulai: '08:00',
-              waktu_berakhir: '16:00',
-              id_facilitator: 'cmb85kdpu0001tqpo4nnd62ob',
-              id_kabupaten: 1101,
-            },
-            {
-              id_workshop: 'pt-rokok-javier-002',
-              judul_workshop: 'Teknik Tanam Padi',
-              tanggal_workshop: '2025-04-23T00:00:00.000Z',
-              alaamt_lengkap_workshop: 'Jl Mulyorejo 1',
-              deskripsi_workshop: 'Workshop ini mengajarkan cara menanam padi',
-              harga_workshop: '100000',
-              kapasitas: 100,
-              status_verifikasi: true,
-              lat_lokasi: -65,
-              long_lokasi: 645,
-              gambar_workshop: '1748456483929-982293021.jpg',
-              status_aktif: true,
-              waktu_mulai: '08:00',
-              waktu_berakhir: '16:00',
-              id_facilitator: 'cmb85kdpu0001tqpo4nnd62ob',
-              id_kabupaten: 1101,
-            },
-            {
-              id_workshop: 'pt-rokok-javier-003',
-              judul_workshop: 'Teknik Insert Padi',
-              tanggal_workshop: '2025-04-23T00:00:00.000Z',
-              alaamt_lengkap_workshop: 'Jl Mulyorejo 1',
-              deskripsi_workshop: 'Workshop ini mengajarkan cara menanam padi',
-              harga_workshop: '100000',
-              kapasitas: 100,
-              status_verifikasi: true,
-              lat_lokasi: -65,
-              long_lokasi: 645,
-              gambar_workshop: '1748456899201-463848688.jpg',
-              status_aktif: true,
-              waktu_mulai: '08:00',
-              waktu_berakhir: '16:00',
-              id_facilitator: 'cmb85kdpu0001tqpo4nnd62ob',
-              id_kabupaten: 1101,
-            },
-            {
-              id_workshop: 'pt-rokok-javier-004',
-              judul_workshop: 'Teknik Insert Padi',
-              tanggal_workshop: '2025-04-23T00:00:00.000Z',
-              alaamt_lengkap_workshop: 'Jl Mulyorejo 1',
-              deskripsi_workshop: 'Workshop ini mengajarkan cara menanam padi',
-              harga_workshop: '100000',
-              kapasitas: 100,
-              status_verifikasi: true,
-              lat_lokasi: -65,
-              long_lokasi: 645,
-              gambar_workshop: '1748762153133-410931192.jpg',
-              status_aktif: true,
-              waktu_mulai: '08:00',
-              waktu_berakhir: '16:00',
-              id_facilitator: 'cmb85kdpu0001tqpo4nnd62ob',
-              id_kabupaten: 1101,
-            },
-          ],
-        };
-
-        if (mockResponse.data) {
-          setWorkshops(mockResponse.data);
+        const response = await getOwnWorkshops();
+        if (response.data) {
+          setWorkshops(response.data);
         }
       } catch (error) {
         console.error('Error fetching workshops data:', error);
@@ -205,13 +134,18 @@ const WorkshopTableMain = () => {
       });
     }
 
-    // Filter berdasarkan status verifikasi
+    // Filter berdasarkan status verifikasi - PERBAIKAN UTAMA DI SINI
     if (verificationFilter && verificationFilter !== 'all') {
       filtered = filtered.filter((workshop) => {
         if (verificationFilter === 'verified') {
-          return workshop.status_verifikasi === true;
+          return (
+            workshop.status_verifikasi === StatusVerifikasiWorkshop.DIVERIFIKASI
+          );
         } else if (verificationFilter === 'unverified') {
-          return workshop.status_verifikasi === false;
+          return (
+            workshop.status_verifikasi === StatusVerifikasiWorkshop.MENUNGGU ||
+            workshop.status_verifikasi === StatusVerifikasiWorkshop.DITOLAK
+          );
         }
         return true;
       });
@@ -326,16 +260,16 @@ const WorkshopTableMain = () => {
     return time.substring(0, 5); // Remove seconds if present
   };
 
-  // Calculate stats
+  // Calculate stats - PERBAIKAN DI SINI JUGA
   const stats = useMemo(() => {
     const totalWorkshops = filteredData.length;
     const activeCount = filteredData.filter((w) => w.status_aktif).length;
     const inactiveCount = filteredData.filter((w) => !w.status_aktif).length;
     const verifiedCount = filteredData.filter(
-      (w) => w.status_verifikasi,
+      (w) => w.status_verifikasi === StatusVerifikasiWorkshop.DIVERIFIKASI,
     ).length;
     const unverifiedCount = filteredData.filter(
-      (w) => !w.status_verifikasi,
+      (w) => w.status_verifikasi !== StatusVerifikasiWorkshop.DIVERIFIKASI,
     ).length;
 
     return {
@@ -360,6 +294,34 @@ const WorkshopTableMain = () => {
     // Add delete logic here
   };
 
+  // Fungsi untuk mendapatkan label status verifikasi
+  const getStatusVerifikasiLabel = (status: StatusVerifikasiWorkshop) => {
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return 'Terverifikasi';
+      case StatusVerifikasiWorkshop.MENUNGGU:
+        return 'Menunggu';
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return 'Ditolak';
+      default:
+        return 'Tidak Diketahui';
+    }
+  };
+
+  // Fungsi untuk mendapatkan class CSS status verifikasi
+  const getStatusVerifikasiClass = (status: StatusVerifikasiWorkshop) => {
+    switch (status) {
+      case StatusVerifikasiWorkshop.DIVERIFIKASI:
+        return 'bg-green-100 text-green-800';
+      case StatusVerifikasiWorkshop.MENUNGGU:
+        return 'bg-yellow-100 text-yellow-800';
+      case StatusVerifikasiWorkshop.DITOLAK:
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -372,13 +334,13 @@ const WorkshopTableMain = () => {
           </div>
           <div className='flex flex-row justify-end items-center gap-[0.4rem]'>
             <button
-              className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-blue-600 text-white rounded-lg gap-[0.5rem] hover:bg-blue-700'
+              className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-blue-600 text-white rounded-lg gap-[0.5rem] hover:bg-blue-700 cursor-pointer'
               onClick={() => {
                 onCreateWorkshop();
               }}
             >
-              <span className='text-lg'>+</span>
-              <p className='font-semibold'>Tambah Workshop</p>
+              <PlusCircle size={20} color='#ffff' />
+              <p className='font-semibold'>Buat Workshop</p>
             </button>
             <button className='py-[0.5rem] px-[0.8rem] flex flex-row justify-center items-center bg-white text-black rounded-lg gap-[0.5rem]'>
               <DownloadSimple size={24} color='#000000' />
@@ -390,17 +352,41 @@ const WorkshopTableMain = () => {
         {/* Stats Cards */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
           <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
-            <h3 className='text-sm text-zinc-400'>Total Workshop</h3>
-            <p className='text-2xl font-bold'>{stats.total}</p>
-          </div>
-          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
-            <h3 className='text-sm text-zinc-400'>Terverifikasi</h3>
-            <p className='text-2xl font-bold text-blue-400'>{stats.verified}</p>
-          </div>
-          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
-            <h3 className='text-sm text-zinc-400'>Belum Verifikasi</h3>
+            <h3 className='text-sm text-zinc-400'>Menunggu Verifikasi</h3>
             <p className='text-2xl font-bold text-yellow-400'>
-              {stats.unverified}
+              {
+                workshops.filter(
+                  (workshop) =>
+                    workshop.status_verifikasi ===
+                    StatusVerifikasiWorkshop.MENUNGGU,
+                ).length
+              }
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Diverifikasi</h3>
+            <p className='text-2xl font-bold text-green-400'>
+              {
+                workshops.filter(
+                  (workshop) =>
+                    workshop.status_verifikasi ===
+                    StatusVerifikasiWorkshop.DIVERIFIKASI,
+                ).length
+              }
+            </p>
+          </div>
+          <div className='bg-zinc-900 p-4 rounded-lg border border-zinc-800'>
+            <h3 className='text-sm text-zinc-400'>Ditolak</h3>
+            <p className='text-2xl font-bold text-red-400'>
+              {
+                workshops.filter(
+                  (
+                    workshop, // PERBAIKAN: menggunakan 'workshop' bukan 'article'
+                  ) =>
+                    workshop.status_verifikasi ===
+                    StatusVerifikasiWorkshop.DITOLAK,
+                ).length
+              }
             </p>
           </div>
         </div>
@@ -509,13 +495,13 @@ const WorkshopTableMain = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className='text-center py-8'>
+                  <TableCell colSpan={8} className='text-center py-8'>
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className='text-center py-8'>
+                  <TableCell colSpan={8} className='text-center py-8'>
                     {searchTerm || statusFilter || verificationFilter
                       ? 'Tidak ada workshop yang sesuai dengan filter'
                       : 'Belum ada workshop yang dibuat'}
@@ -561,13 +547,11 @@ const WorkshopTableMain = () => {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          row.status_verifikasi
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusVerifikasiClass(
+                          row.status_verifikasi,
+                        )}`}
                       >
-                        {row.status_verifikasi ? 'Terverifikasi' : 'Pending'}
+                        {getStatusVerifikasiLabel(row.status_verifikasi)}
                       </span>
                     </TableCell>
                     <TableCell className='text-center'>
