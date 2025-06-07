@@ -10,17 +10,93 @@ import {
 import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ActionButton from "@/components/buttons/ActionButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import { useRouter } from "next/navigation";
+import { getWorkshopById } from "@/api/workshopApi";
 
 const WorkshopRegistrationSuccessMain = () => {
   const router = useRouter();
+  const [workshop, setWorkshop] = useState<any>(null);
+  const [ticketData, setTicketData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchWorkshop = async () => {
+      try {
+        const response = await getWorkshopById(params.id as string);
+        if (response.data) {
+          setWorkshop(response.data);
+        } else {
+          setError(response.message || "Gagal memuat detail workshop");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat memuat data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshop();
+  }, [params.id]);
+
+  useEffect(() => {
+    // Get the registration data from localStorage
+    const storedTicketData = localStorage.getItem('workshopTicket');
+    if (storedTicketData) {
+      setTicketData(JSON.parse(storedTicketData));
+    }
+  }, []);
 
   const navigate = () => {
+    // Clear the stored data when navigating away
+    localStorage.removeItem('workshopTicket');
     router.push("/dashboard");
   };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    };
+    return date.toLocaleDateString('id-ID', options);
+  };
+
+  const formatTime = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'WIB' : 'WIB';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  const getPaymentMethodName = (methodId: number) => {
+    switch (methodId) {
+      case 1: return 'Gopay';
+      case 2: return 'DANA';
+      case 3: return 'OVO';
+      case 4: return 'QRIS';
+      default: return 'Unknown';
+    }
+  };
+
+  const getGenderName = (genderId: number) => {
+    return genderId === 1 ? 'Laki-Laki' : 'Perempuan';
+  };
+
+  // Show loading or fallback if no data
+  if (!ticketData) {
+    return (
+      <main className="px-[8.1rem] py-[5.3rem]">
+        <div className="w-full flex justify-center items-center h-[50vh]">
+          <p>Memuat data tiket...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
@@ -40,24 +116,24 @@ const WorkshopRegistrationSuccessMain = () => {
                 Informasi Peserta:
               </h1>
               <div className="flex flex-row justify-between items-center w-full">
+                <p>Nomor Tiket</p>
+                <p>: {ticketData.ticketNumber}</p>
+              </div>
+              <div className="flex flex-row justify-between items-center w-full">
                 <p>Nama Peserta</p>
-                <p>: Mas Azril</p>
+                <p>: {ticketData.firstName} {ticketData.lastName}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Email</p>
-                <p>: Azriel123@mail.com</p>
+                <p>: {ticketData.email}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Nomor Telepon</p>
-                <p>: 08123456789</p>
-              </div>
-              <div className="flex flex-row justify-between items-center w-full">
-                <p>Tanggal Lahir</p>
-                <p>: 19 April 2025</p>
+                <p>: {ticketData.phoneNumber}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Jenis Kelamin</p>
-                <p>: Laki-Laki</p>
+                <p>: {getGenderName(ticketData.gender)}</p>
               </div>
             </div>
             <div className="flex flex-col justify-start items-start gap-[0.3rem] w-[60%]">
@@ -66,15 +142,15 @@ const WorkshopRegistrationSuccessMain = () => {
               </h1>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Metode Pembayaran</p>
-                <p>: Gopay</p>
+                <p>: {getPaymentMethodName(ticketData.paymentMethod)}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Total Harga</p>
-                <p>: Rp.100.000,00</p>
+                <p>: Rp. {ticketData.workshopPrice}</p>
               </div>
               <div className="flex flex-row justify-between items-center w-full">
                 <p>Status Pembayaran</p>
-                <p>: Berhasil</p>
+                <p>: {ticketData.paymentStatus}</p>
               </div>
             </div>
             <div className="w-full flex flex-col justify-start items-start gap-[1rem]">
@@ -94,26 +170,26 @@ const WorkshopRegistrationSuccessMain = () => {
                 className=" object-cover w-full h-[16.8rem] rounded-lg"
                 width={545}
                 height={307}
-                src="/images/workshop-image.webp"
-                alt="cabai"
+                src={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                alt="gambar-workshop"
                 quality={100}
                 unoptimized
               ></Image>
               <h1 className="text-[1.5rem] font-semibold w-[70%]">
-                Teknik Genjot Padi Untuk Keberlanjutan Pangan Jawa Tengah
+                {workshop.judul_workshop}
               </h1>
               <div className="flex flex-col justify-start items-start gap-[0.9rem]">
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <Calendar size={26} color="#000000" />
-                  <p className="text-[0.75rem]">Jumat, 15 Februari 2025</p>
+                  <p className="text-[0.75rem]">{formatDate(workshop.tanggal_workshop)}</p>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <MapPin size={26} color="#000000" />
-                  <p className="text-[0.75rem]">Mojokerto, Jawa Timur</p>
+                  <p className="text-[0.75rem]">{workshop.alaamt_lengkap_workshop}, {workshop.kabupaten.nama_kabupaten}, {workshop.kabupaten.provinsi.nama_provinsi}</p>
                 </div>
                 <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                   <Timer size={26} color="#000000" />
-                  <p className="text-[0.75rem]">07.00 - 15.00 WIB</p>
+                  <p className="text-[0.75rem]">{formatTime(workshop.waktu_mulai)} - {formatTime(workshop.waktu_berakhir)}</p>
                 </div>
               </div>
             </div>
