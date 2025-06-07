@@ -86,7 +86,7 @@ const DashboardWorkshopMain = () => {
                 href="/workshops"
                 className="py-[0.9rem]  rounded-lg  text-[#78D14D] cursor-pointer text-[1rem] hover:text-black transition-all ease-in-out duration-200"
               >
-                ikuti Workshop
+                Ikuti Workshop
               </Link>
             </div>
           </div>
