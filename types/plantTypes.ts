@@ -21,7 +21,7 @@ export type TCategory = {
 export type TPlantInstruction = {
   id_instruksi: string;
   urutan: number;
-  deskripsi: string;
+  intruksi: string;
   gambar_instruksi?: string;
   id_tanaman: string;
 };
@@ -35,12 +35,12 @@ export type TPlantDay = {
 };
 
 export type TPlantTask = {
-  id_tugas: string;
+  id_tugas_penanaman: string;
   nama_tugas: string;
-  jenis_tugas: string;
-  estimasi_waktu: number;
+  deskripsi_tugas?: string;
+  jenis_tugas?: string;
   id_hari_penanaman: string;
-};
+}
 
 export type TUserPlant = {
   id_tanaman_pengguna: string;

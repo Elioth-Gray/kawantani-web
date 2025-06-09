@@ -13,7 +13,6 @@ import {
 const baseURL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:2000/api";
 
-// Plant Categories
 export const getAllCategories = async (): Promise<{
   success: boolean;
   message: string;
@@ -192,17 +191,17 @@ export const getUserPlantDetail = async (
 
 export const getUserDailyTasks = async (
   userPlantId: string,
-  date?: Date
+  date?: string
 ): Promise<{
   message: string;
   data: TUserPlantDay[];
 }> => {
   const token = getToken();
   try {
-    const response = await axios.get(
-      `${baseURL}/user-plants/${userPlantId}/tasks`,
+    const response = await axios.post(
+      `${baseURL}/user-plants/${userPlantId}/daily-tasks`,
+      { date },
       {
-        params: { date },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -228,9 +227,12 @@ export const updateTaskProgress = async (
 }> => {
   const token = getToken();
   try {
-    const response = await axios.put(
+    const response = await axios.patch(
       `${baseURL}/user-plants/${data.userPlantId}/tasks/${data.taskId}`,
-      { doneStatus: data.doneStatus },
+      { 
+        doneStatus: data.doneStatus,
+        user: null
+      },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -255,7 +257,7 @@ export const getTodayTasks = async (): Promise<{
 }> => {
   const token = getToken();
   try {
-    const response = await axios.get(`${baseURL}/user-plants/tasks/today`, {
+    const response = await axios.get(`${baseURL}/today-tasks`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -280,9 +282,11 @@ export const finishPlant = async (
 }> => {
   const token = getToken();
   try {
-    const response = await axios.put(
+    const response = await axios.patch(
       `${baseURL}/user-plants/${id}/finish`,
-      {},
+      { 
+        user: null
+      },
       {
         headers: {
           Authorization: `Bearer ${token}`,

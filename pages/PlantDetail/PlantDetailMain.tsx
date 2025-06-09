@@ -9,49 +9,119 @@ import {
   ArrowLeft,
 } from "@phosphor-icons/react/dist/ssr";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useParams } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getPlantById } from "@/api/plantApi";
+import { TPlant, TPlantDay, TPlantTask } from "@/types/plantTypes";
 
 const PlantDetailMain = () => {
-  const [completedTasks, setCompletedTasks] = useState(
-    new Array(3).fill(false)
-  );
+  const [plant, setPlant] = useState<TPlant | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number>(0);
+  const [completedTasks, setCompletedTasks] = useState<boolean[]>([]);
+  const [completedMaintain, setCompletedMaintain] = useState<boolean[]>([]);
 
-  const [completedMaintain, setCompletedMaintain] = useState(
-    new Array(3).fill(false)
-  );
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
+  const plantId = params?.id as string;
 
-  const [taskDate, setTaskDate] = useState(null);
+  // Fetch plant data on component mount
+  useEffect(() => {
+    const fetchPlantData = async () => {
+      if (!plantId) return;
 
-  const selectDate = (day: any) => {
-    setTaskDate(day);
+      try {
+        setLoading(true);
+        const response = await getPlantById(plantId);
+        console.log('respon1: ', response);
+
+        if (response) {
+          setPlant(response.data.provinces);
+          console.log('respon2: ', response.data.provinces);
+
+          // Initialize completed tasks arrays based on actual data
+          const dayTasks = response.data.provinces.hari_penanaman?.[0]?.tugas_penanaman || [];
+          setCompletedTasks(new Array(dayTasks.length).fill(false));
+          setCompletedMaintain(new Array(dayTasks.length).fill(false));
+        } else {
+          setError(response.message);
+        }
+      } catch (err) {
+        setError("Failed to fetch plant data");
+        console.error("Error fetching plant:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlantData();
+  }, [plantId]);
+
+  const selectDay = (dayIndex: number) => {
+    setSelectedDay(dayIndex);
+
+    // Reset completed tasks when switching days
+    const selectedDayData = plant?.hari_penanaman?.[dayIndex];
+    const dayTasks = selectedDayData?.tugas_penanaman || [];
+    setCompletedTasks(new Array(dayTasks.length).fill(false));
+    setCompletedMaintain(new Array(dayTasks.length).fill(false));
   };
 
-  const toggleTaskCompletions = (index: number) => {
+  const toggleTaskCompletion = (index: number) => {
     const updatedTasks = [...completedTasks];
     updatedTasks[index] = !updatedTasks[index];
     setCompletedTasks(updatedTasks);
   };
 
-  const toggleMaintainCompletions = (index: number) => {
+  const toggleMaintainCompletion = (index: number) => {
     const updatedTasks = [...completedMaintain];
     updatedTasks[index] = !updatedTasks[index];
     setCompletedMaintain(updatedTasks);
   };
-  const router = useRouter();
-  const pathname = usePathname();
 
   const regist = () => {
     router.push(`${pathname}/registration`);
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <main className="px-[8.1rem] py-[5.3rem]">
+        <div className="flex justify-center items-center h-64">
+          <p className="text-lg">Loading plant data...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Error state
+  if (error || !plant) {
+    return (
+      <main className="px-[8.1rem] py-[5.3rem]">
+        <div className="flex justify-center items-center h-64">
+          <p className="text-lg text-red-600">Error: {error || "Plant not found"}</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Get current selected day data
+  const currentDayData = plant.hari_penanaman?.[selectedDay];
+  const currentTasks = currentDayData?.tugas_penanaman || [];
+
+  // Split tasks into daily tasks and maintenance checks (you may need to adjust this logic based on your task types)
+  const dailyTasks = currentTasks.filter(task => task.jenis_tugas === 'harian' || !task.jenis_tugas);
+  const maintenanceTasks = currentTasks.filter(task => task.jenis_tugas === 'pemeliharaan');
+
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
       <section className="w-full">
         <div
-          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointers"
+          className="w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointer"
           onClick={() => {
             router.back();
           }}
@@ -65,36 +135,36 @@ const PlantDetailMain = () => {
           <p className="cursor-pointer">Kembali</p>
         </div>
       </section>
-      {/* CCard Section */}
+
+      {/* Card Section */}
       <section>
         <div className="w-full h-full grid grid-cols-2 gap-x-[2.8rem]">
           <div className="w-full h-[19.8rem] object-cover overflow-hidden rounded-lg col-span-1">
             <Image
-              className=" object-cover w-full h-full"
+              className="object-cover w-full h-full"
               width={545}
               height={307}
-              src="/images/cabai.webp"
-              alt="cabai"
+              src={`http://localhost:2000/uploads/plants/${plant.gambar_tanaman}`}
+              alt={plant.nama_tanaman}
               quality={100}
               unoptimized
-            ></Image>
+            />
           </div>
           <div className="flex flex-col justify-between items-start">
-            <h1 className="text-[2rem] font-semibold w-[70%]">Cabai Jawa</h1>
+            <h1 className="text-[2rem] font-semibold w-[70%]">{plant.nama_tanaman}</h1>
             <div className="flex flex-col justify-start items-start gap-[0.9rem]">
               <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                 <Clock size={26} color="#000000" />
-                <p className="text-[0.75rem]">6 Bulan Hingga Panen</p>
+                <p className="text-[0.75rem]">{plant.durasi_penanaman} Hari Hingga Panen</p>
               </div>
               <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                 <ChartLineUp size={26} color="#000000" />
-                <p className="text-[0.75rem]">Permintaan Pasar: Tinggi</p>
+                <p className="text-[0.75rem]">Tingkat Kesulitan: {plant.tingkat_kesulitan}</p>
               </div>
               <div className="flex flex-row justify-start items-center gap-[0.75rem]">
                 <Toolbox size={26} color="#000000" />
                 <p className="text-[0.75rem] w-[60%]">
-                  Alat dan Bahan: Cangkul, Sekop, Pupuk, Penyiram tanaman, Alat
-                  ukur tanaman
+                  Kebutuhan Sinar: {plant.kebutuhan_sinar_matahari} | Air: {plant.kebutuhan_air}
                 </p>
               </div>
             </div>
@@ -109,20 +179,13 @@ const PlantDetailMain = () => {
           </div>
         </div>
       </section>
+
       {/* Description Section */}
       <section className="grid grid-cols-2 justify-between items-start gap-3 mt-[2.8rem]">
-        <div className="flex flex-col justify-start items-start gap-[1.3rem] col-span-1  w-full h-full  ">
+        <div className="flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full">
           <h1 className="text-[2rem] font-bold">Deskripsi</h1>
           <p className="text-[1.1rem]">
-            Tanaman cabai (Capsicum spp.) adalah tanaman berbunga yang termasuk
-            dalam keluarga Solanaceae. Tanaman ini memiliki batang tegak dengan
-            daun berbentuk oval dan berwarna hijau. Cabai tumbuh dalam bentuk
-            buah yang bervariasi, mulai dari yang kecil hingga besar, dan dapat
-            berwarna merah, hijau, kuning, atau oranye saat matang. Tanaman
-            cabai dikenal dengan rasa pedas yang disebabkan oleh senyawa
-            capsaicin. Biasanya, cabai digunakan sebagai bahan masakan, bumbu,
-            atau bahkan obat tradisional. Tanaman ini tumbuh dengan baik di
-            daerah tropis dan subtropis.
+            {plant.deskripsi_tanaman || "Deskripsi tanaman tidak tersedia."}
           </p>
         </div>
         <div className="flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full">
@@ -130,24 +193,19 @@ const PlantDetailMain = () => {
           <div className="w-full flex flex-col justify-start items-start gap-[2rem]">
             <div className="flex flex-col justify-start items-start gap-[0.75rem]">
               <p className="text-[1.25rem] font-semibold">Hari</p>
-              <div className="flex flex-row justify-start items-center gap-[0.9rem]">
-                {[...Array(10)].map((_, index) => {
-                  return (
-                    <button
-                      onClick={() => {
-                        selectDate(index);
-                      }}
-                      key={index}
-                      className={`p-[0.8rem] ${
-                        taskDate == index
-                          ? "bg-[#50B34B] text-white"
-                          : "bg-white text-black"
+              <div className="flex flex-row justify-start items-center gap-[0.9rem] flex-wrap">
+                {plant.hari_penanaman?.slice(0, 10).map((day, index) => (
+                  <button
+                    onClick={() => selectDay(index)}
+                    key={day.id_hari_penanaman}
+                    className={`p-[0.8rem] ${selectedDay === index
+                      ? "bg-[#50B34B] text-white"
+                      : "bg-white text-black"
                       } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
-                    >
-                      {index + 1}
-                    </button>
-                  );
-                })}
+                  >
+                    {day.hari_ke}
+                  </button>
+                ))}
 
                 <Link
                   href=""
@@ -157,97 +215,89 @@ const PlantDetailMain = () => {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-2 w-full gap-x-[2.25rem]">
-              <div className="col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]">
-                <p className="text-[1.25rem] font-semibold">Tugas Harian</p>
-                <div className="flex flex-col justify-start items-start w-full gap-[1.2rem]">
-                  <button
-                    className={`py-[0.8rem] px-[1rem] bg-none text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                  >
-                    <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                      <Drop size={21} color="#000000" weight="fill" />
-                      <p className="font-medium text-[1rem]  text-black">
-                        Siram Tanaman
-                      </p>
+
+            {currentDayData && (
+              <div className="w-full">
+                <h3 className="text-[1.1rem] font-semibold mb-2">
+                  Fase: {currentDayData.nama_fase}
+                </h3>
+                <div className="grid grid-cols-2 w-full gap-x-[2.25rem]">
+                  <div className="col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]">
+                    <p className="text-[1.25rem] font-semibold">Tugas Harian</p>
+                    <div className="flex flex-col justify-start items-start w-full gap-[1.2rem]">
+                      {dailyTasks.length > 0 ? (
+                        dailyTasks.map((task, index) => (
+                          <button
+                            key={task.id_tugas_penanaman}
+                            onClick={() => toggleTaskCompletion(index)}
+                            className={`py-[0.8rem] px-[1rem] ${completedTasks[index] ? "bg-green-100" : "bg-none"
+                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          >
+                            <div className="flex flex-row justify-start items-center gap-[0.8rem]">
+                              <Drop size={21} color="#000000" weight="fill" />
+                              <p className="font-medium text-[1rem] text-black">
+                                {task.nama_tugas}
+                              </p>
+                            </div>
+                            {completedTasks[index] && (
+                              <span className="text-green-600">✓</span>
+                            )}
+                          </button>
+                        ))
+                      ) : (
+                        <p className="text-gray-500">Tidak ada tugas harian</p>
+                      )}
                     </div>
-                  </button>
-                  <button
-                    className={`py-[0.8rem] px-[1rem] bg-none text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                  >
-                    <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                      <Drop size={21} color="#000000" weight="fill" />
-                      <p className="font-medium text-[1rem]  text-black">
-                        Siram Tanaman
-                      </p>
+                  </div>
+                  <div className="col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]">
+                    <p className="text-[1.25rem] font-semibold">Pengecekan Harian</p>
+                    <div className="flex flex-col justify-start items-start w-full gap-[1.2rem]">
+                      {maintenanceTasks.length > 0 ? (
+                        maintenanceTasks.map((task, index) => (
+                          <button
+                            key={task.id_tugas_penanaman}
+                            onClick={() => toggleMaintainCompletion(index)}
+                            className={`py-[0.8rem] px-[1rem] ${completedMaintain[index] ? "bg-green-100" : "bg-none"
+                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          >
+                            <div className="flex flex-row justify-start items-center gap-[0.8rem]">
+                              <Drop size={21} color="#000000" weight="fill" />
+                              <p className="font-medium text-[1rem] text-black">
+                                {task.nama_tugas}
+                              </p>
+                            </div>
+                            {completedMaintain[index] && (
+                              <span className="text-green-600">✓</span>
+                            )}
+                          </button>
+                        ))
+                      ) : (
+                        <p className="text-gray-500">Tidak ada pengecekan harian</p>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 </div>
               </div>
-              <div className="col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]">
-                <p className="text-[1.25rem] font-semibold">
-                  Pengecekan Harian
-                </p>
-                <div className="flex flex-col justify-start items-start w-full gap-[1.2rem]">
-                  <button
-                    className={`py-[0.8rem] px-[1rem] bg-none text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                  >
-                    <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                      <Drop size={21} color="#000000" weight="fill" />
-                      <p className="font-medium text-[1rem]  text-black">
-                        Siram Tanaman
-                      </p>
-                    </div>
-                  </button>
-                  <button
-                    className={`py-[0.8rem] px-[1rem] bg-none text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                  >
-                    <div className="flex flex-row justify-start items-center gap-[0.8rem]">
-                      <Drop size={21} color="#000000" weight="fill" />
-                      <p className="font-medium text-[1rem]  text-black">
-                        Siram Tanaman
-                      </p>
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Instructions Section */}
       <section className="flex flex-col justify-start items-start gap-3 mt-[1.3rem]">
         <h1 className="text-[2rem] font-bold">Instruksi</h1>
         <ol className="flex flex-col justify-start items-start gap-[0.5rem]">
-          <li className="text-[1.1rem]">
-            1. Cabai tumbuh optimal di daerah beriklim tropis dengan suhu
-            24–28°C dan tidak tahan terhadap genangan air atau suhu dingin.
-          </li>
-          <li className="text-[1.1rem]">
-            2. Tanaman cabai memerlukan cahaya matahari langsung minimal 6 jam
-            per hari dan sebaiknya ditanam di tempat terbuka yang tidak terlalu
-            teduh.
-          </li>
-          <li className="text-[1.1rem]">
-            3. Jenis tanah yang cocok adalah tanah gembur, subur, kaya bahan
-            organik, memiliki pH 5,5–6,8, dan drainase yang baik.
-          </li>
-          <li className="text-[1.1rem]">
-            4. Penyiraman harus dilakukan secara teratur untuk menjaga
-            kelembapan tanah, namun tidak berlebihan agar akar tidak busuk.
-          </li>
-          <li className="text-[1.1rem]">
-            5. Pemupukan awal dapat menggunakan pupuk organik, lalu dilanjutkan
-            dengan pupuk NPK setiap 2–3 minggu sekali untuk menunjang
-            pertumbuhan dan pembuahan.
-          </li>
-          <li className="text-[1.1rem]">
-            6. Tanaman harus dijaga dari hama seperti kutu daun, ulat, dan
-            thrips dengan cara alami atau pestisida nabati.
-          </li>
-          <li className="text-[1.1rem]">
-            7. Waktu tanam yang ideal adalah awal musim hujan atau saat cuaca
-            stabil, dan di dataran rendah bisa ditanam sepanjang tahun dengan
-            pengairan cukup
-          </li>
+          {plant.instruksi_tanaman && plant.instruksi_tanaman.length > 0 ? (
+            plant.instruksi_tanaman
+              .sort((a, b) => a.urutan - b.urutan)
+              .map((instruction) => (
+                <li key={instruction.id_instruksi} className="text-[1.1rem]">
+                  {instruction.urutan}. {instruction.instruksi}
+                </li>
+              ))
+          ) : (
+            <li className="text-[1.1rem]">Instruksi tidak tersedia.</li>
+          )}
         </ol>
       </section>
     </main>
