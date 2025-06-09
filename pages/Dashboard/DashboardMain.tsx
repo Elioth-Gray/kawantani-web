@@ -12,6 +12,10 @@ import Link from "next/link";
 import ArticleCard from "@/components/cards/ArticleCard";
 import WorkshopCard from "@/components/cards/WorkshopCard";
 import { getVerifiedWorkshops } from "@/api/workshopApi";
+import { getAllPlants } from '@/api/plantApi';
+import {
+  TPlant,
+} from "@/types/plantTypes";
 
 const DashboardMain = () => {
   const [completedTasks, setCompletedTasks] = useState(
@@ -37,6 +41,7 @@ const DashboardMain = () => {
   });
 
   const [articles, setArticles] = useState<TArticle[]>([]);
+    const [plants, setPlants] = useState<TPlant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const pathname = usePathname();
