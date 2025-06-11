@@ -229,9 +229,9 @@ export const updateTaskProgress = async (
   try {
     const response = await axios.patch(
       `${baseURL}/user-plants/${data.userPlantId}/tasks/${data.taskId}`,
-      { 
+      {
         doneStatus: data.doneStatus,
-        user: null
+        user: null,
       },
       {
         headers: {
@@ -284,8 +284,8 @@ export const finishPlant = async (
   try {
     const response = await axios.patch(
       `${baseURL}/user-plants/${id}/finish`,
-      { 
-        user: null
+      {
+        user: null,
       },
       {
         headers: {
