@@ -113,9 +113,10 @@ const PlantDetailMain = () => {
   const currentDayData = plant.hari_penanaman?.[selectedDay];
   const currentTasks = currentDayData?.tugas_penanaman || [];
 
-  // Split tasks into daily tasks and maintenance checks (you may need to adjust this logic based on your task types)
   const dailyTasks = currentTasks.filter(task => task.jenis_tugas === 'harian' || !task.jenis_tugas);
+  console.log(dailyTasks);
   const maintenanceTasks = currentTasks.filter(task => task.jenis_tugas === 'pemeliharaan');
+  console.log(maintenanceTasks);
 
   return (
     <main className="px-[8.1rem] py-[5.3rem]">
@@ -194,7 +195,7 @@ const PlantDetailMain = () => {
             <div className="flex flex-col justify-start items-start gap-[0.75rem]">
               <p className="text-[1.25rem] font-semibold">Hari</p>
               <div className="flex flex-row justify-start items-center gap-[0.9rem] flex-wrap">
-                {plant.hari_penanaman?.slice(0, 10).map((day, index) => (
+                {plant.hari_penanaman?.map((day, index) => (
                   <button
                     onClick={() => selectDay(index)}
                     key={day.id_hari_penanaman}

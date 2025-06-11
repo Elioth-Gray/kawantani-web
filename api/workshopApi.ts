@@ -48,6 +48,23 @@ export const getVerifiedWorkshops = async () => {
   }
 };
 
+export const getRegisteredWorkshops = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/workshops/registered`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
 export const createWorkshop = async (formData: FormData) => {
   const token = getToken();
 
@@ -273,12 +290,16 @@ export const payWorkshopRegistration = async (
 ): Promise<TPayWorkshopResponse> => {
   const token = getToken();
   try {
-    const response = await axios.patch(`${baseURL}/workshops/${id}/register`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.patch(
+      `${baseURL}/workshops/${id}/register`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

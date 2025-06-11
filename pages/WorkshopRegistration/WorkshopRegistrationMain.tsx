@@ -18,6 +18,8 @@ import { useRouter, usePathname, useParams } from "next/navigation";
 import { getWorkshopById, registerWorkshop } from "@/api/workshopApi";
 
 const WorkshopRegistrationMain = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [genderSelected, setGenderSelected] = useState<number>();
   const [paymentSelected, setPaymentSelected] = useState<number>();
@@ -157,10 +159,6 @@ const WorkshopRegistrationMain = () => {
       default: return 'Unknown';
     }
   };
-
-  const router = useRouter();
-
-  const pathname = usePathname();
 
   const navigate = (e: any) => {
     e.preventDefault();
@@ -388,12 +386,12 @@ const WorkshopRegistrationMain = () => {
                       className=" object-cover rounded-lg"
                       width={142}
                       height={54}
-                      src="/images/gopay.png"
-                      alt="cabai"
+                      src={`http://localhost:2000/uploads/paymentmethod/gopay.png`}
+                      alt="payment-method"
                       quality={100}
                       unoptimized
                     ></Image>
-                    <p>Rp. 100.000,00</p>
+                    <p>Rp. {workshop.harga_workshop}</p>
                   </button>
                   <button
                     className={`px-[2.3rem] ${paymentSelected == 2
@@ -407,12 +405,12 @@ const WorkshopRegistrationMain = () => {
                       className=" object-cover rounded-lg"
                       width={122.74}
                       height={35}
-                      src="/images/dana.png"
-                      alt="cabai"
+                      src={`http://localhost:2000/uploads/paymentmethod/dana.png`}
+                      alt="payment-method"
                       quality={100}
                       unoptimized
                     ></Image>
-                    <p>Rp. 100.000,00</p>
+                    <p>Rp. {workshop.harga_workshop}</p>
                   </button>
                   <button
                     className={`px-[2.3rem] ${paymentSelected == 3
@@ -431,7 +429,7 @@ const WorkshopRegistrationMain = () => {
                       quality={100}
                       unoptimized
                     ></Image>
-                    <p>Rp. 100.000,00</p>
+                    <p>Rp. {workshop.harga_workshop}</p>
                   </button>
                   <button
                     className={`px-[2.3rem] ${paymentSelected == 4
@@ -445,12 +443,12 @@ const WorkshopRegistrationMain = () => {
                       className=" object-cover rounded-lg"
                       width={109.77}
                       height={41}
-                      src="/images/qris.png"
-                      alt="cabai"
+                      src={`http://localhost:2000/uploads/paymentmethod/qris.png`}
+                      alt="payment-method"
                       quality={100}
                       unoptimized
                     ></Image>
-                    <p>Rp. 100.000,00</p>
+                    <p>Rp. {workshop.harga_workshop}</p>
                   </button>
                   <div className="w-full flex flex-col justify-start items-start gap-[1rem]">
                     <ActionButton
