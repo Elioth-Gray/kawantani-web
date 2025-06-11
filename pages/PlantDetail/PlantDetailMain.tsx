@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   X,
   Calendar,
-  CheckCircle,
 } from '@phosphor-icons/react/dist/ssr';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import { useRouter, usePathname, useParams } from 'next/navigation';
@@ -31,7 +30,6 @@ const PlantDetailMain = () => {
   const [showStartPlantingModal, setShowStartPlantingModal] = useState(false);
   const [customPlantName, setCustomPlantName] = useState('');
   const [isCreatingPlant, setIsCreatingPlant] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -46,10 +44,13 @@ const PlantDetailMain = () => {
       try {
         setLoading(true);
         const response = await getPlantById(plantId);
+        console.log('respon1: ', response);
 
         if (response) {
           setPlant(response.data.provinces);
           console.log('respon2: ', response.data.provinces);
+
+          // Initialize completed tasks arrays based on actual data
           const dayTasks =
             response.data.provinces.hari_penanaman?.[0]?.tugas_penanaman || [];
           setCompletedTasks(new Array(dayTasks.length).fill(false));
@@ -71,6 +72,7 @@ const PlantDetailMain = () => {
   const selectDay = (dayIndex: number) => {
     setSelectedDay(dayIndex);
 
+    // Reset completed tasks when switching days
     const selectedDayData = plant?.hari_penanaman?.[dayIndex];
     const dayTasks = selectedDayData?.tugas_penanaman || [];
     setCompletedTasks(new Array(dayTasks.length).fill(false));
@@ -105,7 +107,6 @@ const PlantDetailMain = () => {
   const handleStartPlanting = () => {
     setShowStartPlantingModal(true);
     setCustomPlantName(plant?.nama_tanaman || '');
-    setShowSuccessMessage(false);
   };
 
   const handleCreateUserPlant = async () => {
@@ -125,13 +126,10 @@ const PlantDetailMain = () => {
       const response = await createUserPlant(createData);
 
       if (response.success) {
-        setShowSuccessMessage(true);
-
-        // Wait for 2 seconds to show success message, then redirect
-        setTimeout(() => {
-          setShowStartPlantingModal(false);
-          router.push('/dashboard/plants');
-        }, 2000);
+        alert('Berhasil memulai menanam!');
+        setShowStartPlantingModal(false);
+        // Redirect to user plant detail or dashboard
+        router.push('/dashboard'); // Adjust this path as needed
       } else {
         alert(response.message || 'Gagal memulai menanam');
       }
@@ -271,8 +269,8 @@ const PlantDetailMain = () => {
                     onClick={() => selectDay(index)}
                     key={day.id_hari_penanaman}
                     className={`p-[0.8rem] ${selectedDay === index
-                      ? 'bg-[#50B34B] text-white'
-                      : 'bg-white text-black'
+                        ? 'bg-[#50B34B] text-white'
+                        : 'bg-white text-black'
                       } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                   >
                     {day.hari_ke}
@@ -332,8 +330,8 @@ const PlantDetailMain = () => {
                             key={task.id_tugas_penanaman}
                             onClick={() => toggleMaintainCompletion(index)}
                             className={`py-[0.8rem] px-[1rem] ${completedMaintain[index]
-                              ? 'bg-green-100'
-                              : 'bg-none'
+                                ? 'bg-green-100'
+                                : 'bg-none'
                               } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
@@ -486,69 +484,50 @@ const PlantDetailMain = () => {
       {showStartPlantingModal && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
           <div className='bg-white rounded-lg p-6 max-w-md w-full mx-4'>
-            {!showSuccessMessage ? (
-              <>
-                <div className='flex justify-between items-center mb-6'>
-                  <h2 className='text-[1.5rem] font-bold'>Mulai Menanam</h2>
-                  <button
-                    onClick={() => setShowStartPlantingModal(false)}
-                    className='p-2 hover:bg-gray-100 rounded-full'
-                    disabled={isCreatingPlant}
-                  >
-                    <X size={24} color='#000000' />
-                  </button>
-                </div>
+            <div className='flex justify-between items-center mb-6'>
+              <h2 className='text-[1.5rem] font-bold'>Mulai Menanam</h2>
+              <button
+                onClick={() => setShowStartPlantingModal(false)}
+                className='p-2 hover:bg-gray-100 rounded-full'
+                disabled={isCreatingPlant}
+              >
+                <X size={24} color='#000000' />
+              </button>
+            </div>
 
-                <div className='mb-6'>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Nama Custom Tanaman
-                  </label>
-                  <input
-                    type='text'
-                    value={customPlantName}
-                    onChange={(e) => setCustomPlantName(e.target.value)}
-                    placeholder='Masukkan nama untuk tanaman Anda'
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#50B34B] focus:border-transparent'
-                    disabled={isCreatingPlant}
-                  />
-                  <p className='text-xs text-gray-500 mt-1'>
-                    Contoh: "Bayam Gweh", "Tomat Halaman Belakang"
-                  </p>
-                </div>
+            <div className='mb-6'>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Nama Custom Tanaman
+              </label>
+              <input
+                type='text'
+                value={customPlantName}
+                onChange={(e) => setCustomPlantName(e.target.value)}
+                placeholder='Masukkan nama untuk tanaman Anda'
+                className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#50B34B] focus:border-transparent'
+                disabled={isCreatingPlant}
+              />
+              <p className='text-xs text-gray-500 mt-1'>
+                Contoh: "Bayam Gweh", "Tomat Halaman Belakang"
+              </p>
+            </div>
 
-                <div className='flex gap-3'>
-                  <button
-                    onClick={() => setShowStartPlantingModal(false)}
-                    className='flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors'
-                    disabled={isCreatingPlant}
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={handleCreateUserPlant}
-                    disabled={isCreatingPlant || !customPlantName.trim()}
-                    className='flex-1 px-4 py-2 bg-[#50B34B] text-white rounded-lg hover:bg-[#45a340] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'
-                  >
-                    {isCreatingPlant ? 'Memulai...' : 'Mulai Menanam'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className='text-center py-8'>
-                <div className='flex justify-center mb-4'>
-                  <CheckCircle size={64} color='#50B34B' weight='fill' />
-                </div>
-                <h2 className='text-[1.5rem] font-bold text-[#50B34B] mb-2'>
-                  Berhasil!
-                </h2>
-                <p className='text-gray-600 mb-4'>
-                  Tanaman berhasil ditambahkan
-                </p>
-                <p className='text-sm text-gray-500'>
-                  Mengalihkan ke dashboard...
-                </p>
-              </div>
-            )}
+            <div className='flex gap-3'>
+              <button
+                onClick={() => setShowStartPlantingModal(false)}
+                className='flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors'
+                disabled={isCreatingPlant}
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleCreateUserPlant}
+                disabled={isCreatingPlant || !customPlantName.trim()}
+                className='flex-1 px-4 py-2 bg-[#50B34B] text-white rounded-lg hover:bg-[#45a340] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'
+              >
+                {isCreatingPlant ? 'Memulai...' : 'Mulai Menanam'}
+              </button>
+            </div>
           </div>
         </div>
       )}
