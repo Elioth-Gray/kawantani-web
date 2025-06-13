@@ -20,15 +20,12 @@ const DashboardPlantsMain = () => {
 
   const router = useRouter();
 
-  // Fetch categories and user plants on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Fetch categories for filter
         const categoriesResponse = await getAllCategories();
-        if (categoriesResponse.success) {
+        if (categoriesResponse) {
           setCategories(categoriesResponse.data.categories);
         }
 
@@ -51,7 +48,6 @@ const DashboardPlantsMain = () => {
   const filteredPlants = useMemo(() => {
     let filtered = userPlants;
 
-    // Filter by completion status
     if (isCompletedPlants) {
       filtered = filtered.filter(plant => plant.status_penanaman === "SELESAI");
     } else {

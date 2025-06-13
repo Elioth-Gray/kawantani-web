@@ -233,7 +233,7 @@ const PlantDetailMain = () => {
               <div className='flex flex-row justify-start items-center gap-[0.75rem]'>
                 <Toolbox size={26} color='#000000' />
                 <p className='text-[0.75rem] w-[60%]'>
-                  Kebutuhan Sinar: {plant.kebutuhan_sinar_matahari} | Air:{' '}
+                  Kebutuhan Sinar: {plant.kebutuhan_sinar_matahari} & Air:{' '}
                   {plant.kebutuhan_air}
                 </p>
               </div>
@@ -269,8 +269,8 @@ const PlantDetailMain = () => {
                     onClick={() => selectDay(index)}
                     key={day.id_hari_penanaman}
                     className={`p-[0.8rem] ${selectedDay === index
-                        ? 'bg-[#50B34B] text-white'
-                        : 'bg-white text-black'
+                      ? 'bg-[#50B34B] text-white'
+                      : 'bg-white text-black'
                       } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                   >
                     {day.hari_ke}
@@ -330,8 +330,8 @@ const PlantDetailMain = () => {
                             key={task.id_tugas_penanaman}
                             onClick={() => toggleMaintainCompletion(index)}
                             className={`py-[0.8rem] px-[1rem] ${completedMaintain[index]
-                                ? 'bg-green-100'
-                                : 'bg-none'
+                              ? 'bg-green-100'
+                              : 'bg-none'
                               } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
