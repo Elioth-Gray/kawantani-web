@@ -112,3 +112,21 @@ export const loginFacilitator = async (formData: TLogin) => {
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const validateToken = async () => {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return { valid: false };
+
+  try {
+    const res = await axios.get(`${baseURL}/api/auth/validate`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return {
+      valid: true,
+      user: res.data.user,
+    };
+  } catch (err) {
+    return { valid: false };
+  }
+};
