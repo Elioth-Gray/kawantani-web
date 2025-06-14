@@ -21,7 +21,7 @@ const ArticleCard = ({
   return (
     <div className='col-span-1 h-fit bg-[#FCF7F1] py-[1rem] px-[1.25rem] rounded-xl overflow-hidden'>
       <div className='w-full flex flex-col justify-start items-start gap-[0.5rem]'>
-        <div className='w-full h-32 relative overflow-hidden rounded-xl object-cover'>
+        <div className='w-full h-40 relative overflow-hidden rounded-xl object-cover'>
           <Image
             src={imageURL}
             alt={title}
