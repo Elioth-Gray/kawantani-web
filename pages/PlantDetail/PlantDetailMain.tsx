@@ -16,7 +16,12 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getPlantById, createUserPlant } from '@/api/plantApi';
-import { TPlant, TPlantDay, TPlantTask, TCreateUserPlant } from '@/types/plantTypes';
+import {
+  TPlant,
+  TPlantDay,
+  TPlantTask,
+  TCreateUserPlant,
+} from '@/types/plantTypes';
 
 const PlantDetailMain = () => {
   const [plant, setPlant] = useState<TPlant | null>(null);
@@ -48,15 +53,13 @@ const PlantDetailMain = () => {
 
         if (response) {
           setPlant(response.data.provinces);
-          console.log('respon2: ', response.data.provinces);
-
-          // Initialize completed tasks arrays based on actual data
+          console.log('respon2: ', response?.data.provinces);
           const dayTasks =
             response.data.provinces.hari_penanaman?.[0]?.tugas_penanaman || [];
           setCompletedTasks(new Array(dayTasks.length).fill(false));
           setCompletedMaintain(new Array(dayTasks.length).fill(false));
         } else {
-          setError(response.message);
+          setError('Failed to fetch plant data');
         }
       } catch (err) {
         setError('Failed to fetch plant data');
@@ -120,7 +123,7 @@ const PlantDetailMain = () => {
     try {
       const createData: TCreateUserPlant = {
         plantId: plantId,
-        customName: customPlantName.trim()
+        customName: customPlantName.trim(),
       };
 
       const response = await createUserPlant(createData);
@@ -242,7 +245,10 @@ const PlantDetailMain = () => {
               <PrimaryButton textColor='#ffffff' onClickHandler={regist}>
                 Beli Alat dan Bahan
               </PrimaryButton>
-              <PrimaryButton textColor='#ffffff' onClickHandler={handleStartPlanting}>
+              <PrimaryButton
+                textColor='#ffffff'
+                onClickHandler={handleStartPlanting}
+              >
                 Mulai Menanam
               </PrimaryButton>
             </div>
@@ -268,10 +274,11 @@ const PlantDetailMain = () => {
                   <button
                     onClick={() => selectDay(index)}
                     key={day.id_hari_penanaman}
-                    className={`p-[0.8rem] ${selectedDay === index
-                      ? 'bg-[#50B34B] text-white'
-                      : 'bg-white text-black'
-                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                    className={`p-[0.8rem] ${
+                      selectedDay === index
+                        ? 'bg-[#50B34B] text-white'
+                        : 'bg-white text-black'
+                    } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                   >
                     {day.hari_ke}
                   </button>
@@ -300,8 +307,9 @@ const PlantDetailMain = () => {
                           <button
                             key={task.id_tugas_penanaman}
                             onClick={() => toggleTaskCompletion(index)}
-                            className={`py-[0.8rem] px-[1rem] ${completedTasks[index] ? 'bg-green-100' : 'bg-none'
-                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            className={`py-[0.8rem] px-[1rem] ${
+                              completedTasks[index] ? 'bg-green-100' : 'bg-none'
+                            } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                               <Drop size={21} color='#000000' weight='fill' />
@@ -329,10 +337,11 @@ const PlantDetailMain = () => {
                           <button
                             key={task.id_tugas_penanaman}
                             onClick={() => toggleMaintainCompletion(index)}
-                            className={`py-[0.8rem] px-[1rem] ${completedMaintain[index]
-                              ? 'bg-green-100'
-                              : 'bg-none'
-                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            className={`py-[0.8rem] px-[1rem] ${
+                              completedMaintain[index]
+                                ? 'bg-green-100'
+                                : 'bg-none'
+                            } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                               <Drop size={21} color='#000000' weight='fill' />
@@ -368,7 +377,7 @@ const PlantDetailMain = () => {
               .sort((a, b) => a.urutan - b.urutan)
               .map((instruction) => (
                 <li key={instruction.id_instruksi} className='text-[1.1rem]'>
-                  {instruction.urutan}. {instruction.instruksi}
+                  {instruction.urutan}. {instruction.intruksi}
                 </li>
               ))
           ) : (
@@ -400,7 +409,8 @@ const PlantDetailMain = () => {
               {/* Calendar Grid */}
               {allDays.map((day, index) => {
                 const isSelected = selectedDay === index;
-                const hasTasksToday = day.tugas_penanaman && day.tugas_penanaman.length > 0;
+                const hasTasksToday =
+                  day.tugas_penanaman && day.tugas_penanaman.length > 0;
 
                 return (
                   <div
@@ -408,9 +418,10 @@ const PlantDetailMain = () => {
                     onClick={() => handleSelectDayFromCalendar(index)}
                     className={`
                       p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md
-                      ${isSelected
-                        ? 'bg-[#50B34B] text-white border-[#50B34B]'
-                        : hasTasksToday
+                      ${
+                        isSelected
+                          ? 'bg-[#50B34B] text-white border-[#50B34B]'
+                          : hasTasksToday
                           ? 'bg-green-50 border-green-200 hover:bg-green-100'
                           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                       }
@@ -420,9 +431,7 @@ const PlantDetailMain = () => {
                       <div className='font-bold text-lg mb-1'>
                         Hari {day.hari_ke}
                       </div>
-                      <div className='text-sm mb-2'>
-                        {day.nama_fase}
-                      </div>
+                      <div className='text-sm mb-2'>{day.nama_fase}</div>
                       {hasTasksToday && (
                         <div className='text-xs'>
                           {day.tugas_penanaman.length} tugas
@@ -438,39 +447,54 @@ const PlantDetailMain = () => {
             {currentDayData && (
               <div className='border-t pt-4'>
                 <h3 className='text-[1.2rem] font-bold mb-3'>
-                  Detail Hari {currentDayData.hari_ke} - {currentDayData.nama_fase}
+                  Detail Hari {currentDayData.hari_ke} -{' '}
+                  {currentDayData.nama_fase}
                 </h3>
 
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                   <div>
-                    <h4 className='font-semibold mb-2 text-[#50B34B]'>Tugas Harian</h4>
+                    <h4 className='font-semibold mb-2 text-[#50B34B]'>
+                      Tugas Harian
+                    </h4>
                     {dailyTasks.length > 0 ? (
                       <ul className='space-y-2'>
                         {dailyTasks.map((task) => (
-                          <li key={task.id_tugas_penanaman} className='flex items-center gap-2'>
+                          <li
+                            key={task.id_tugas_penanaman}
+                            className='flex items-center gap-2'
+                          >
                             <Drop size={16} color='#50B34B' weight='fill' />
                             <span className='text-sm'>{task.nama_tugas}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className='text-gray-500 text-sm'>Tidak ada tugas harian</p>
+                      <p className='text-gray-500 text-sm'>
+                        Tidak ada tugas harian
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <h4 className='font-semibold mb-2 text-[#50B34B]'>Pengecekan Harian</h4>
+                    <h4 className='font-semibold mb-2 text-[#50B34B]'>
+                      Pengecekan Harian
+                    </h4>
                     {maintenanceTasks.length > 0 ? (
                       <ul className='space-y-2'>
                         {maintenanceTasks.map((task) => (
-                          <li key={task.id_tugas_penanaman} className='flex items-center gap-2'>
+                          <li
+                            key={task.id_tugas_penanaman}
+                            className='flex items-center gap-2'
+                          >
                             <Drop size={16} color='#50B34B' weight='fill' />
                             <span className='text-sm'>{task.nama_tugas}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className='text-gray-500 text-sm'>Tidak ada pengecekan harian</p>
+                      <p className='text-gray-500 text-sm'>
+                        Tidak ada pengecekan harian
+                      </p>
                     )}
                   </div>
                 </div>
