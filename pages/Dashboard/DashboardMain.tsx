@@ -12,8 +12,8 @@ import Link from 'next/link';
 import ArticleCard from '@/components/cards/ArticleCard';
 import WorkshopCard from '@/components/cards/WorkshopCard';
 import { getVerifiedWorkshops } from '@/api/workshopApi';
-import { getAllPlants } from '@/api/plantApi';
 import { TPlant } from '@/types/plantTypes';
+import { useAuthMiddleware } from '@/hooks/useAuthMiddleware';
 
 const DashboardMain = () => {
   const [completedTasks, setCompletedTasks] = useState(
