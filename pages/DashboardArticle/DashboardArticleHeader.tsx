@@ -3,8 +3,39 @@
 import React from "react";
 import DashboardNavbar from "@/components/navbar/DashboardNavbar";
 import MainLabel from "@/components/label/MainLabel";
+import { jwtDecode } from 'jwt-decode';
+import { useState, useEffect } from 'react';
+import { getToken } from '@/api/authApi';
+
+type DecodedToken = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  iat: number;
+  exp: number;
+};
+
 
 const DashboardArticleHeader = () => {
+  const [userData, setUserData] = useState({
+    id: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    iat: 0,
+    exp: 0,
+  });
+
+  useEffect(() => {
+    const storedToken = getToken();
+    if (storedToken) {
+      const decoded = jwtDecode<DecodedToken>(storedToken);
+      setUserData(decoded);
+      console.log(userData);
+    }
+  }, []);
+
   return (
     <>
       <DashboardNavbar></DashboardNavbar>{" "}
@@ -16,7 +47,7 @@ const DashboardArticleHeader = () => {
                 <div className="w-full">
                   <h1 className="font-bold text-[3rem]">
                     Baca Artikel <br />
-                    <span className="text-[#50B34B]">Pilemon Barimbing</span>
+                    <span className="text-[#50B34B]">{userData.firstName + ' ' + userData.lastName}</span>
                   </h1>
                   <p className="text-[1rem] mt-1">
                     Setiap langkah kecil di dunia pertanian dapat membawa
