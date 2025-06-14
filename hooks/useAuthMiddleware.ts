@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { validateToken } from '@/api/authApi';
@@ -17,13 +19,20 @@ export const useAuthMiddleware = (allowedRoles: string[]) => {
       const result = await validateToken();
 
       if (!result.valid) {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
         window.location.replace('/auth/login');
         return;
       }
 
       if (!allowedRoles.includes(result.user.role)) {
-        window.location.replace('/unauthorized');
+        if (
+          allowedRoles.includes('admin') ||
+          allowedRoles.includes('facilitator')
+        ) {
+          window.location.replace('/auth/super');
+        } else {
+          window.location.replace('/auth/login');
+        }
         return;
       }
 

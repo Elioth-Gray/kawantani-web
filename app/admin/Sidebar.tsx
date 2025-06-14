@@ -13,8 +13,15 @@ import Link from 'next/link';
 import React from 'react';
 import AdminAvatar from '@/components/avatar/AdminAvatar';
 import { usePathname } from 'next/navigation';
+import { useAuthMiddleware } from '@/hooks/useAuthMiddleware';
 
 export default function Sidebar() {
+  const isChecking = useAuthMiddleware(['admin']);
+
+  if (isChecking) {
+    return <div className='w-full h-screen bg-black'></div>;
+  }
+
   const pathname = usePathname();
 
   const navItemClass = (path: string) => {

@@ -12,8 +12,15 @@ import Link from 'next/link';
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import FacilitatorAvatar from '@/components/avatar/FacilitatorAvatar';
+import { useAuthMiddleware } from '@/hooks/useAuthMiddleware';
 
 export default function Sidebar() {
+  const isChecking = useAuthMiddleware(['facilitator']);
+
+  if (isChecking) {
+    return <div className='w-full h-screen bg-black'></div>;
+  }
+
   const pathname = usePathname();
 
   const navItemClass = (path: string) => {
