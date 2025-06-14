@@ -36,25 +36,32 @@ const AdminAvatar = () => {
   };
 
   return (
-    <div className='w-full bg-[#1F1F22] rounded-xl p-4 shadow-md text-white'>
-      <div className='flex items-center gap-4'>
-        <div className='w-10 h-10 rounded-full border-2 border-blue-500 overflow-hidden bg-gray-200'>
-          <Image
-            src={`http://localhost:2000/uploads/admin/${user.avatar}`}
-            alt='Admin Avatar'
-            width={48}
-            height={48}
-            className='object-cover w-full h-full'
-            unoptimized
-          />
-        </div>
-        <div className='flex flex-col'>
-          <span className='text-sm font-semibold leading-tight'>
-            {user.firstName} {user.lastName}
-          </span>
-          <span className='text-xs text-gray-400 leading-tight'>
-            {user.email}
-          </span>
+    <div className='w-full flex flex-col justify-start items-end'>
+      <div
+        className='w-full bg-[#1F1F22] rounded-xl p-4 shadow-md text-white cursor-pointer hover:bg-[#2C2C2F] transition-colors duration-200'
+        onClick={() => {
+          router.push('/admin/dashboard/profile');
+        }}
+      >
+        <div className='flex items-center gap-4'>
+          <div className='w-10 h-10 rounded-full border-2 border-blue-500 overflow-hidden bg-gray-200'>
+            <Image
+              src={`http://localhost:2000/uploads/admin/${user.avatar}`}
+              alt='Admin Avatar'
+              width={48}
+              height={48}
+              className='object-cover w-full h-full'
+              unoptimized
+            />
+          </div>
+          <div className='flex flex-col'>
+            <span className='text-sm font-semibold leading-tight'>
+              {user.firstName} {user.lastName}
+            </span>
+            <span className='text-xs text-gray-400 leading-tight'>
+              {user.email}
+            </span>
+          </div>
         </div>
       </div>
       <button
