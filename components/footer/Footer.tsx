@@ -1,3 +1,5 @@
+'use client';
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,8 +10,42 @@ import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
 import { InstagramLogo } from "@phosphor-icons/react/dist/ssr";
 import { Envelope } from "@phosphor-icons/react/dist/ssr";
 import { Phone, Copyright } from "@phosphor-icons/react/dist/ssr";
+import { useState, useEffect } from 'react';
+import { getAllArticles } from '@/api/articleApi';
+import { TArticle } from '@/types/articleTypes';
 
 const Footer = () => {
+  const [latestArticles, setLatestArticles] = useState<TArticle[]>([]);
+  const [isLoading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchLatestArticles = async () => {
+      try {
+        const response = await getAllArticles();
+        if (response.data) {
+          // Sort articles by date (newest first) and take the first 3
+          const sortedArticles = [...response.data].sort((a, b) =>
+            new Date(b.tanggal_artikel).getTime() - new Date(a.tanggal_artikel).getTime()
+          );
+          setLatestArticles(sortedArticles.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching latest articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLatestArticles();
+  }, []);
+
+  const formatTitle = (title: string) => {
+    if (title.length > 30) {
+      return `${title.substring(0, 30)}...`;
+    }
+    return title;
+  };
+
   return (
     <footer>
       <section className="footer-image w-full h-[31.8rem] text-white">
@@ -88,50 +124,34 @@ const Footer = () => {
             </div>
             <div className="flex flex-col justify-start items-start gap-[0.8rem]">
               <h1 className="text-[1.25rem] font-semibold">Artikel Terbaru</h1>
-              <div className="flex flex-col justify-start items-start gap-[1.25rem] ">
-                <div className="flex flex-row justify-start items-start gap-[0.625rem]">
-                  <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
-                    <Image
-                      src="/images/article-image-2.webp"
-                      width={30}
-                      height={30}
-                      alt="article"
-                    ></Image>
-                  </div>
-                  <p>
-                    Teknik Agar Bayam Tidak <br />
-                    Rusak Saat Masa Tanam
-                  </p>
+              {isLoading ? (
+                <p className="text-sm">Memuat artikel...</p>
+              ) : latestArticles.length === 0 ? (
+                <p className="text-sm">Tidak ada artikel</p>
+              ) : (
+                <div className="flex flex-col justify-start items-start gap-[1.25rem]">
+                  {latestArticles.map((article) => (
+                    <Link
+                      key={article.id_artikel}
+                      href={`/articles/${article.id_artikel}/details`}
+                      className="hover:text-[#50B34B]"
+                    >
+                      <div className="flex flex-row justify-start items-start gap-[0.625rem]">
+                        <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
+                          <Image
+                            src={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                            width={30}
+                            height={30}
+                            alt="article"
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <p>{formatTitle(article.judul_artikel)}</p>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-                <div className="flex flex-row justify-start items-start gap-[0.625rem]">
-                  <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
-                    <Image
-                      src="/images/article-image-2.webp"
-                      width={30}
-                      height={30}
-                      alt="article"
-                    ></Image>
-                  </div>
-                  <p>
-                    Teknik Agar Bayam Tidak <br />
-                    Rusak Saat Masa Tanam
-                  </p>
-                </div>
-                <div className="flex flex-row justify-start items-start gap-[0.625rem]">
-                  <div className="w-[1.8rem] h-[1.8rem] overflow-clip rounded-md">
-                    <Image
-                      src="/images/article-image-2.webp"
-                      width={30}
-                      height={30}
-                      alt="article"
-                    ></Image>
-                  </div>
-                  <p>
-                    Teknik Agar Bayam Tidak <br />
-                    Rusak Saat Masa Tanam
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
             <div className="flex flex-col justify-start items-start gap-[0.8rem]">
               <h1 className="text-[1.25rem] font-semibold">Hubungi Kami</h1>

@@ -14,6 +14,8 @@ import WorkshopCard from '@/components/cards/WorkshopCard';
 import { getVerifiedWorkshops } from '@/api/workshopApi';
 import { TPlant } from '@/types/plantTypes';
 import { useAuthMiddleware } from '@/hooks/useAuthMiddleware';
+import { getUserPlants } from '@/api/plantApi';
+import { TUserPlant } from '@/types/plantTypes';
 
 const DashboardMain = () => {
   const [completedTasks, setCompletedTasks] = useState(
@@ -24,7 +26,7 @@ const DashboardMain = () => {
     new Array(3).fill(false),
   );
 
-  const [taskDate, setTaskDate] = useState(null);
+  const [taskDate, setTaskDate] = useState<number | null>(null);
 
   // Weather and location states
   const [weather, setWeather] = useState({
@@ -45,7 +47,9 @@ const DashboardMain = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [userPlants, setUserPlants] = useState<TUserPlant[]>([]);
 
+  // Fetch articles
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -63,6 +67,44 @@ const DashboardMain = () => {
     fetchArticles();
   }, []);
 
+  // Fetch user plants
+  useEffect(() => {
+    const fetchUserPlants = async () => {
+      try {
+        const response = await getUserPlants();
+        if (response.data) {
+          // Ambil hanya 4 tanaman pertama untuk ditampilkan di dashboard
+          setUserPlants(response.data.slice(0, 4));
+        }
+      } catch (error) {
+        console.error('Error fetching user plants:', error);
+      }
+    };
+
+    fetchUserPlants();
+  }, []);
+
+  // Fetch workshops
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        const response = await getVerifiedWorkshops();
+        if (response.data) {
+          setWorkshops(response.data);
+        } else {
+          setError(response.message || 'Gagal memuat data workshop');
+        }
+      } catch (err) {
+        setError('Terjadi kesalahan saat memuat data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshops();
+  }, []);
+
+  // Fetch weather data
   useEffect(() => {
     const getLocationAndWeather = async () => {
       try {
@@ -93,13 +135,11 @@ const DashboardMain = () => {
                 const weatherData = await weatherResponse.json();
 
                 const locationName = locationData.city
-                  ? `${locationData.city}, ${
-                      locationData.principalSubdivision ||
-                      locationData.countryName
-                    }`
-                  : `${locationData.locality || 'Unknown'}, ${
-                      locationData.countryName || 'Indonesia'
-                    }`;
+                  ? `${locationData.city}, ${locationData.principalSubdivision ||
+                  locationData.countryName
+                  }`
+                  : `${locationData.locality || 'Unknown'}, ${locationData.countryName || 'Indonesia'
+                  }`;
 
                 // Get current humidity from hourly data (current hour)
                 const currentHour = new Date().getHours();
@@ -142,7 +182,7 @@ const DashboardMain = () => {
     };
 
     // Fallback function for default location (Surabaya) using FREE APIs
-    const getDefaultWeather = async (currentDate: any) => {
+    const getDefaultWeather = async (currentDate: string) => {
       try {
         // Surabaya coordinates: -7.2575, 112.7521
         const weatherResponse = await fetch(
@@ -175,7 +215,8 @@ const DashboardMain = () => {
     getLocationAndWeather();
   }, []);
 
-  const selectDate = (day: any) => {
+  // Helper functions
+  const selectDate = (day: number) => {
     setTaskDate(day);
   };
 
@@ -195,33 +236,40 @@ const DashboardMain = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchWorkshops = async () => {
-      try {
-        const response = await getVerifiedWorkshops();
-        if (response.data) {
-          setWorkshops(response.data);
-        } else {
-          setError(response.message || 'Gagal memuat data workshop');
-        }
-      } catch (err) {
-        setError('Terjadi kesalahan saat memuat data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const navigateToPlantDetail = (plantId: string) => {
+    router.push(`/dashboard/plants/${plantId}/details`);
+  };
 
-    fetchWorkshops();
-  }, []);
+  const calculateDaysToHarvest = (userPlant: TUserPlant) => {
+    if (!userPlant.tanaman?.durasi_penanaman) return 0;
+
+    const totalDays = userPlant.tanaman.durasi_penanaman;
+    const progressDays = Math.floor((userPlant.progress_persen / 100) * totalDays);
+    const remainingDays = totalDays - progressDays;
+
+    return Math.max(0, remainingDays);
+  };
 
   const navigate = (id: string) => {
     router.push(`${pathname}/${id}/details`);
   };
 
+  const toggleTaskCompletions = (index: number) => {
+    const updatedTasks = [...completedTasks];
+    updatedTasks[index] = !updatedTasks[index];
+    setCompletedTasks(updatedTasks);
+  };
+
+  const toggleMaintainCompletions = (index: number) => {
+    const updatedTasks = [...completedMaintain];
+    updatedTasks[index] = !updatedTasks[index];
+    setCompletedMaintain(updatedTasks);
+  };
+
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <p>Memuat data workshop...</p>
+        <p>Memuat data...</p>
       </div>
     );
   }
@@ -233,18 +281,6 @@ const DashboardMain = () => {
       </div>
     );
   }
-
-  const toggleTaskCompletions = (index: any) => {
-    const updatedTasks = [...completedTasks];
-    updatedTasks[index] = !updatedTasks[index];
-    setCompletedTasks(updatedTasks);
-  };
-
-  const toggleMaintainCompletions = (index: any) => {
-    const updatedTasks = [...completedMaintain];
-    updatedTasks[index] = !updatedTasks[index];
-    setCompletedMaintain(updatedTasks);
-  };
 
   return (
     <>
@@ -312,128 +348,146 @@ const DashboardMain = () => {
           <div className='grid grid-cols-9 gap-x-[3.3rem]'>
             {/* Tracking Section */}
             <div className='col-span-6 w-full py-[2rem] border border-black rounded-lg px-[3rem] flex flex-col justify-start items-start gap-[2rem]'>
-              <div className='flex flex-row justify-center items-center gap-[1rem] h-fit'>
-                <div className='w-[4.9rem] h-[4.9rem]'>
-                  <Image
-                    src='/images/lemon.webp'
-                    width={79}
-                    height={79}
-                    alt='logo'
-                    className='cursor-pointer object-cover h-full rounded-full'
-                  />
-                </div>
-                <div className='flex flex-col justify-start items-start'>
-                  <p className='text-[1.6rem] font-semibold'>Lemon Malang</p>
-                  <p className='text-[0.8rem]'>36 Hari menuju panen</p>
-                </div>
-              </div>
-              <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
-                <p className='text-[1.25rem] font-semibold'>Hari</p>
-                <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
-                  {[...Array(12)].map((_, index) => {
-                    return (
-                      <button
-                        onClick={() => {
-                          selectDate(index);
-                        }}
-                        key={index}
-                        className={`p-[0.8rem] ${
-                          taskDate == index
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-white text-black'
-                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
-                      >
-                        {index + 1}
-                      </button>
-                    );
-                  })}
+              {userPlants.length > 0 ? (
+                <>
+                  <div className='flex flex-row justify-center items-center gap-[1rem] h-fit'>
+                    <div className='w-[4.9rem] h-[4.9rem]'>
+                      <Image
+                        src={
+                          userPlants[0].tanaman?.gambar_tanaman
+                            ? `http://localhost:2000/uploads/plants/${userPlants[0].tanaman.gambar_tanaman}`
+                            : '/images/lemon.webp'
+                        }
+                        width={79}
+                        height={79}
+                        alt={userPlants[0].nama_custom}
+                        className='cursor-pointer object-cover h-full rounded-full'
+                      />
+                    </div>
+                    <div className='flex flex-col justify-start items-start'>
+                      <p className='text-[1.6rem] font-semibold'>{userPlants[0].nama_custom}</p>
+                      <p className='text-[0.8rem]'>
+                        {userPlants[0].status_penanaman === 'SELESAI'
+                          ? 'Tanaman sudah siap panen!'
+                          : `${calculateDaysToHarvest(userPlants[0])} Hari menuju panen`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
+                    <p className='text-[1.25rem] font-semibold'>Hari</p>
+                    <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
+                      {[...Array(12)].map((_, index) => {
+                        return (
+                          <button
+                            onClick={() => {
+                              selectDate(index);
+                            }}
+                            key={index}
+                            className={`p-[0.8rem] ${taskDate === index
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-white text-black'
+                              } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                          >
+                            {index + 1}
+                          </button>
+                        );
+                      })}
 
+                      <Link
+                        href='/dashboard/plants'
+                        className='text-[1rem] text-[#50B34B] font-semibold'
+                      >
+                        Lihat Semuanya
+                      </Link>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
+                    <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
+                      <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
+                      <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
+                        {completedTasks.map((isCompleted, index) => (
+                          <button
+                            onClick={() => toggleTaskCompletions(index)}
+                            className={`py-[0.8rem] px-[1rem] ${isCompleted
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-none text-black'
+                              } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            key={index}
+                          >
+                            <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
+                              {isCompleted ? (
+                                <Drop size={21} color='#FFFFFF' weight='fill' />
+                              ) : (
+                                <Drop size={21} color='#000000' weight='fill' />
+                              )}
+
+                              <p
+                                className={`font-medium text-[1rem] ${isCompleted ? 'text-white' : 'text-black'
+                                  }`}
+                              >
+                                Siram Tanaman
+                              </p>
+                            </div>
+                            {isCompleted ? (
+                              <Check size={21} color='#FFFFFF' weight='fill' />
+                            ) : (
+                              <Square size={21} color='#000000' />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
+                      <p className='text-[1.25rem] font-semibold'>
+                        Pengecekan Harian
+                      </p>
+                      <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
+                        {completedMaintain.map((isCompleted, index) => (
+                          <button
+                            onClick={() => toggleMaintainCompletions(index)}
+                            className={`py-[0.8rem] px-[1rem] ${isCompleted
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-none text-black'
+                              } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            key={index}
+                          >
+                            <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
+                              {isCompleted ? (
+                                <Drop size={21} color='#FFFFFF' weight='fill' />
+                              ) : (
+                                <Drop size={21} color='#000000' weight='fill' />
+                              )}
+
+                              <p
+                                className={`font-medium text-[1rem] ${isCompleted ? 'text-white' : 'text-black'
+                                  }`}
+                              >
+                                Cek Kondisi Tanaman
+                              </p>
+                            </div>
+                            {isCompleted ? (
+                              <Check size={21} color='#FFFFFF' weight='fill' />
+                            ) : (
+                              <Square size={21} color='#000000' />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className='flex flex-col justify-center items-center py-8'>
+                  <p className='text-gray-500 text-lg mb-4'>Belum ada tanaman yang ditanam</p>
                   <Link
-                    href=''
-                    className='text-[1rem] text-[#50B34B] font-semibold'
+                    href='/plants'
+                    className='text-[#50B34B] font-semibold hover:underline'
                   >
-                    Lihat Semuanya
+                    Mulai Tanam Sekarang
                   </Link>
                 </div>
-              </div>
-              <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
-                <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
-                  <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
-                  <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
-                    {completedTasks.map((isCompleted, index) => (
-                      <button
-                        onClick={() => toggleTaskCompletions(index)}
-                        className={`py-[0.8rem] px-[1rem] ${
-                          isCompleted
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                        key={index}
-                      >
-                        <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                          {isCompleted ? (
-                            <Drop size={21} color='#FFFFFF' weight='fill' />
-                          ) : (
-                            <Drop size={21} color='#000000' weight='fill' />
-                          )}
-
-                          <p
-                            className={`font-medium text-[1rem] ${
-                              isCompleted ? 'text-white' : 'text-black'
-                            }`}
-                          >
-                            Siram Tanaman
-                          </p>
-                        </div>
-                        {isCompleted ? (
-                          <Check size={21} color='#FFFFFF' weight='fill' />
-                        ) : (
-                          <Square size={21} color='#000000' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
-                  <p className='text-[1.25rem] font-semibold'>
-                    Pengecekan Harian
-                  </p>
-                  <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
-                    {completedMaintain.map((isCompleted, index) => (
-                      <button
-                        onClick={() => toggleMaintainCompletions(index)}
-                        className={`py-[0.8rem] px-[1rem] ${
-                          isCompleted
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                        key={index}
-                      >
-                        <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                          {isCompleted ? (
-                            <Drop size={21} color='#FFFFFF' weight='fill' />
-                          ) : (
-                            <Drop size={21} color='#000000' weight='fill' />
-                          )}
-
-                          <p
-                            className={`font-medium text-[1rem] ${
-                              isCompleted ? 'text-white' : 'text-black'
-                            }`}
-                          >
-                            Siram Tanaman
-                          </p>
-                        </div>
-                        {isCompleted ? (
-                          <Check size={21} color='#FFFFFF' weight='fill' />
-                        ) : (
-                          <Square size={21} color='#000000' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
             {/* More Plants Section */}
             <div className='col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start  text-white gap-[2.1rem]'>
@@ -447,66 +501,54 @@ const DashboardMain = () => {
                 </Link>
               </div>
               <div className='flex flex-col justify-start items-start gap-[2rem] w-full px-[1rem]'>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
+                {userPlants.length > 0 ? (
+                  userPlants.map((plant) => (
+                    <div
+                      key={plant.id_tanaman_pengguna}
+                      className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'
+                      onClick={() => navigateToPlantDetail(plant.id_tanaman_pengguna)}
+                    >
+                      <div className='w-[3.1rem] h-[3.1rem]'>
+                        <Image
+                          src={
+                            plant.tanaman?.gambar_tanaman
+                              ? `http://localhost:2000/uploads/plants/${plant.tanaman.gambar_tanaman}`
+                              : '/images/lemon.webp'
+                          }
+                          width={79}
+                          height={79}
+                          alt={plant.nama_custom}
+                          className='cursor-pointer object-cover h-full rounded-full'
+                        />
+                      </div>
+                      <div className='flex flex-col justify-start items-start'>
+                        <p className='text-[0.8rem] font-semibold'>{plant.nama_custom}</p>
+                        <p className='text-[0.75rem]'>
+                          {plant.status_penanaman === 'SELESAI'
+                            ? 'Siap panen!'
+                            : `${calculateDaysToHarvest(plant)} Hari menuju panen`
+                          }
+                        </p>
+                        <div className='w-full bg-gray-600 rounded-full h-1 mt-1'>
+                          <div
+                            className='bg-[#50B34B] h-1 rounded-full transition-all duration-300'
+                            style={{ width: `${Math.min(plant.progress_persen, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className='flex flex-col justify-center items-center py-4 px-[1.8rem] text-center'>
+                    <p className='text-gray-300 text-sm mb-2'>Belum ada tanaman</p>
+                    <Link
+                      href='/plants'
+                      className='text-[#50B34B] text-sm hover:underline'
+                    >
+                      Tambah Tanaman
+                    </Link>
                   </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
-                  </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
-                  </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
-                  </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

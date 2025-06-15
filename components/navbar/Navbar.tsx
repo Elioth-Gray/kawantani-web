@@ -45,6 +45,8 @@ const Navbar = () => {
       const decoded = jwtDecode<DecodedToken>(storedToken);
       setUserData(decoded);
       console.log(userData);
+    } else {
+      setIsLogin(false)
     }
   }, []);
 

@@ -49,7 +49,9 @@ const UserPlantDetailMain = () => {
         const tasksResponse = await getUserDailyTasks(plantId);
         console.log(tasksResponse)
         if (tasksResponse.data) {
-          setDailyTasks(tasksResponse.data);
+          // Sort daily tasks by day order (hari_ke) to ensure proper sequence
+          const sortedTasks = tasksResponse.data.sort((a, b) => a.hari_ke - b.hari_ke);
+          setDailyTasks(sortedTasks);
         }
       } catch (err) {
         setError('Failed to fetch plant data');
@@ -69,10 +71,10 @@ const UserPlantDetailMain = () => {
     return dailyTasks[selectedDay] || dailyTasks[0];
   };
 
-  // Handler untuk tugas harian
-  const handleMainTaskToggle = async (taskId: number, currentStatus: boolean) => {
+  // Universal handler untuk semua jenis tugas
+  const handleTaskToggle = async (taskId: number, currentStatus: boolean, taskType: string) => {
     try {
-      console.log('Toggling main task:', taskId, 'from', currentStatus, 'to', !currentStatus);
+      console.log(`Toggling ${taskType} task:`, taskId, 'from', currentStatus, 'to', !currentStatus);
 
       const response = await updateTaskProgress({
         userPlantId: plantId,
@@ -96,56 +98,16 @@ const UserPlantDetailMain = () => {
           })),
         );
 
-        // Refresh plant data to update progress
-        const plantResponse = await getUserPlantDetail(plantId);
-        if (plantResponse.data) {
-          setUserPlant(plantResponse.data);
+        // Refresh plant data to update progress untuk tugas utama
+        if (taskType === 'main') {
+          const plantResponse = await getUserPlantDetail(plantId);
+          if (plantResponse.data) {
+            setUserPlant(plantResponse.data);
+          }
         }
       }
     } catch (error) {
-      console.error('Error updating main task:', error);
-      // Bisa tambahkan notifikasi error di sini
-    }
-  };
-
-  // Handler untuk pengecekan harian
-  const handleCheckTaskToggle = async (taskId: number, currentStatus: boolean) => {
-    try {
-      console.log('Toggling check task:', taskId, 'from', currentStatus, 'to', !currentStatus);
-
-      const response = await updateTaskProgress({
-        userPlantId: plantId,
-        taskId: taskId,
-        doneStatus: !currentStatus,
-      });
-
-      if (response.data) {
-        setDailyTasks((prevDays) =>
-          prevDays.map((day) => ({
-            ...day,
-            tugas_penanaman: day.tugas_penanaman.map((task) =>
-              task.id_tugas_penanaman_pengguna === taskId
-                ? {
-                  ...task,
-                  status_selesai: !currentStatus,
-                  tanggal_selesai: !currentStatus ? new Date() : null,
-                }
-                : task,
-            ),
-          })),
-        );
-
-        // Note: Untuk pengecekan harian, mungkin tidak perlu update progress plant
-        // Tapi jika diperlukan, uncomment baris berikut:
-        /*
-        const plantResponse = await getUserPlantDetail(plantId);
-        if (plantResponse.data) {
-          setUserPlant(plantResponse.data);
-        }
-        */
-      }
-    } catch (error) {
-      console.error('Error updating check task:', error);
+      console.error(`Error updating ${taskType} task:`, error);
       // Bisa tambahkan notifikasi error di sini
     }
   };
@@ -168,6 +130,11 @@ const UserPlantDetailMain = () => {
 
   const regist = () => {
     router.push(`${pathname}/registration`);
+  };
+
+  // Helper function to format progress percentage
+  const formatProgress = (progress: number) => {
+    return Number(progress).toFixed(2);
   };
 
   // Loading state
@@ -262,7 +229,7 @@ const UserPlantDetailMain = () => {
             </div>
             <div className='flex flex-col justify-start items-start gap-[0.5rem]'>
               <p className='text-[1.5rem] font-semibold'>
-                Progress: {userPlant.progress_persen}%
+                Progress: {formatProgress(userPlant.progress_persen)}%
               </p>
               <div className='flex gap-2'>
                 <PrimaryButton textColor='#ffffff' onClickHandler={regist}>
@@ -323,9 +290,10 @@ const UserPlantDetailMain = () => {
                       <button
                         key={task.id_tugas_penanaman_pengguna}
                         onClick={() =>
-                          handleMainTaskToggle(
+                          handleTaskToggle(
                             task.id_tugas_penanaman_pengguna,
                             task.status_selesai,
+                            'main'
                           )
                         }
                         className={`py-[0.8rem] px-[1rem] ${task.status_selesai
@@ -372,9 +340,10 @@ const UserPlantDetailMain = () => {
                       <button
                         key={task.id_tugas_penanaman_pengguna}
                         onClick={() =>
-                          handleCheckTaskToggle(
+                          handleTaskToggle(
                             task.id_tugas_penanaman_pengguna,
                             task.status_selesai,
+                            'check'
                           )
                         }
                         className={`py-[0.8rem] px-[1rem] ${task.status_selesai
