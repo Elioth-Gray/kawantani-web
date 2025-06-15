@@ -35,6 +35,7 @@ const UserPlantDetailMain = () => {
   const pathname = usePathname();
   const params = useParams();
   const plantId = params?.id as string;
+  console.log('ha', plantId);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -297,6 +298,7 @@ const UserPlantDetailMain = () => {
                     className={`p-[0.8rem] ${selectedDay === index
                       ? 'bg-[#50B34B] text-white'
                       : 'bg-white text-black'
+              
                       } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                   >
                     {day.hari_ke}
@@ -331,6 +333,7 @@ const UserPlantDetailMain = () => {
                         className={`py-[0.8rem] px-[1rem] ${task.status_selesai
                           ? 'bg-[#50B34B] text-white'
                           : 'bg-none text-black'
+        
                           } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                       >
                         <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
