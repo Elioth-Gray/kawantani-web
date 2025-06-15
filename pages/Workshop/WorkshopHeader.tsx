@@ -3,6 +3,7 @@ import Navbar from "@/components/navbar/Navbar";
 import SecondaryLabel from "@/components/label/SecondaryLabel";
 
 const WorkshopHeader = () => {
+
   return (
     <header>
       <section className="workshop-header w-full flex flex-col justify-start items-start overflow-hidden h-screen">

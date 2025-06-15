@@ -4,7 +4,6 @@ import React from 'react';
 import WorkshopHeader from './WorkshopHeader';
 import Footer from '@/components/footer/Footer';
 import WorkshopMain from './WorkshopMain';
-
 const WorkshopPage = () => {
   return (
     <>

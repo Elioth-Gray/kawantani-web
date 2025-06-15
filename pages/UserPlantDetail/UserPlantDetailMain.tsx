@@ -35,20 +35,18 @@ const UserPlantDetailMain = () => {
   const pathname = usePathname();
   const params = useParams();
   const plantId = params?.id as string;
+  console.log('ha', plantId);
 
-  // Fetch user plant detail and daily tasks
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Fetch plant detail
         const plantResponse = await getUserPlantDetail(plantId);
         if (plantResponse.data) {
           setUserPlant(plantResponse.data);
         }
 
-        // Fetch daily tasks
         const tasksResponse = await getUserDailyTasks(plantId);
         if (tasksResponse.data) {
           setDailyTasks(tasksResponse.data);
@@ -80,17 +78,16 @@ const UserPlantDetailMain = () => {
       });
 
       if (response.data) {
-        // Update local state
         setDailyTasks((prevDays) =>
           prevDays.map((day) => ({
             ...day,
             tugas_penanaman: day.tugas_penanaman.map((task) =>
               task.id_tugas_penanaman_pengguna === taskId
                 ? {
-                    ...task,
-                    status_selesai: !currentStatus,
-                    tanggal_selesai: !currentStatus ? new Date() : null,
-                  }
+                  ...task,
+                  status_selesai: !currentStatus,
+                  tanggal_selesai: !currentStatus ? new Date() : null,
+                }
                 : task,
             ),
           })),
@@ -250,11 +247,10 @@ const UserPlantDetailMain = () => {
                   <button
                     onClick={() => selectDate(index)}
                     key={index}
-                    className={`p-[0.8rem] ${
-                      selectedDay === index
+                    className={`p-[0.8rem] ${selectedDay === index
                         ? 'bg-[#50B34B] text-white'
                         : 'bg-white text-black'
-                    } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                   >
                     {day.hari_ke}
                   </button>
@@ -285,11 +281,10 @@ const UserPlantDetailMain = () => {
                             task.status_selesai,
                           )
                         }
-                        className={`py-[0.8rem] px-[1rem] ${
-                          task.status_selesai
+                        className={`py-[0.8rem] px-[1rem] ${task.status_selesai
                             ? 'bg-[#50B34B] text-white'
                             : 'bg-none text-black'
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                       >
                         <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                           <Drop
@@ -298,9 +293,8 @@ const UserPlantDetailMain = () => {
                             weight='fill'
                           />
                           <p
-                            className={`font-medium text-[1rem] ${
-                              task.status_selesai ? 'text-white' : 'text-black'
-                            }`}
+                            className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'
+                              }`}
                           >
                             {task.nama_tugas}
                           </p>
@@ -336,11 +330,10 @@ const UserPlantDetailMain = () => {
                             task.status_selesai,
                           )
                         }
-                        className={`py-[0.8rem] px-[1rem] ${
-                          task.status_selesai
+                        className={`py-[0.8rem] px-[1rem] ${task.status_selesai
                             ? 'bg-[#50B34B] text-white'
                             : 'bg-none text-black'
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                       >
                         <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                           <Drop
@@ -349,9 +342,8 @@ const UserPlantDetailMain = () => {
                             weight='fill'
                           />
                           <p
-                            className={`font-medium text-[1rem] ${
-                              task.status_selesai ? 'text-white' : 'text-black'
-                            }`}
+                            className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'
+                              }`}
                           >
                             {task.nama_tugas}
                           </p>
