@@ -372,12 +372,12 @@ const PlantDetailMain = () => {
       <section className='flex flex-col justify-start items-start gap-3 mt-[1.3rem]'>
         <h1 className='text-[2rem] font-bold'>Instruksi</h1>
         <ol className='flex flex-col justify-start items-start gap-[0.5rem]'>
-          {plant.instruksi_tanaman && plant.instruksi_tanaman.length > 0 ? (
+          {plant.instruksi_tanaman ? (
             plant.instruksi_tanaman
               .sort((a, b) => a.urutan - b.urutan)
               .map((instruction) => (
                 <li key={instruction.id_instruksi} className='text-[1.1rem]'>
-                  {instruction.urutan}. {instruction.intruksi}
+                  {instruction.urutan}. {instruction.instruksi}
                 </li>
               ))
           ) : (
