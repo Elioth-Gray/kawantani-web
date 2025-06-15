@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   X,
   Calendar,
+  CheckCircle,
 } from '@phosphor-icons/react/dist/ssr';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import { useRouter, usePathname, useParams } from 'next/navigation';
@@ -35,6 +36,9 @@ const PlantDetailMain = () => {
   const [showStartPlantingModal, setShowStartPlantingModal] = useState(false);
   const [customPlantName, setCustomPlantName] = useState('');
   const [isCreatingPlant, setIsCreatingPlant] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  // State baru untuk track range yang ditampilkan
+  const [displayStartIndex, setDisplayStartIndex] = useState(0);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -104,6 +108,19 @@ const PlantDetailMain = () => {
 
   const handleSelectDayFromCalendar = (dayIndex: number) => {
     selectDay(dayIndex);
+
+    // Update display range jika selected day di luar range yang sedang ditampilkan
+    const allDays = plant?.hari_penanaman || [];
+    const currentEndIndex = displayStartIndex + 5; // 6 items (0-5)
+
+    if (dayIndex < displayStartIndex || dayIndex > currentEndIndex) {
+      // Kalau selected day di luar range, update display range
+      // Usahakan selected day berada di tengah range baru
+      const newStartIndex = Math.max(0, dayIndex - 3);
+      const maxStartIndex = Math.max(0, allDays.length - 6);
+      setDisplayStartIndex(Math.min(newStartIndex, maxStartIndex));
+    }
+
     setShowCalendarModal(false);
   };
 
@@ -128,11 +145,14 @@ const PlantDetailMain = () => {
 
       const response = await createUserPlant(createData);
 
-      if (response.success) {
-        alert('Berhasil memulai menanam!');
+      if (response) {
         setShowStartPlantingModal(false);
-        // Redirect to user plant detail or dashboard
-        router.push('/dashboard'); // Adjust this path as needed
+        setShowSuccessMessage(true);
+
+        // Auto redirect after 2 seconds
+        setTimeout(() => {
+          router.push('/dashboard/plants');
+        }, 2000);
       } else {
         alert(response.message || 'Gagal memulai menanam');
       }
@@ -141,6 +161,18 @@ const PlantDetailMain = () => {
       alert('Terjadi kesalahan saat memulai menanam');
     } finally {
       setIsCreatingPlant(false);
+    }
+  };
+
+  // Function untuk geser display range
+  const shiftDisplayRange = (direction: 'prev' | 'next') => {
+    const allDays = plant?.hari_penanaman || [];
+    const maxStartIndex = Math.max(0, allDays.length - 6);
+
+    if (direction === 'prev') {
+      setDisplayStartIndex(Math.max(0, displayStartIndex - 1));
+    } else {
+      setDisplayStartIndex(Math.min(maxStartIndex, displayStartIndex + 1));
     }
   };
 
@@ -179,9 +211,9 @@ const PlantDetailMain = () => {
   );
   console.log(maintenanceTasks);
 
-  // Get only first 5 days for initial display
-  const displayedDays = plant.hari_penanaman?.slice(0, 5) || [];
   const allDays = plant.hari_penanaman || [];
+  // Ubah logika displayedDays - sekarang slice berdasarkan displayStartIndex, bukan selectedDay
+  const displayedDays = allDays.slice(displayStartIndex, displayStartIndex + 6);
 
   return (
     <main className='px-[8.1rem] py-[5.3rem] relative'>
@@ -270,19 +302,41 @@ const PlantDetailMain = () => {
             <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
               <p className='text-[1.25rem] font-semibold'>Hari</p>
               <div className='flex flex-row justify-start items-center gap-[0.9rem] flex-wrap'>
-                {displayedDays.map((day, index) => (
+                {/* Tombol Previous - hanya tampil kalau bisa geser ke kiri */}
+                {displayStartIndex > 0 && (
                   <button
-                    onClick={() => selectDay(index)}
-                    key={day.id_hari_penanaman}
-                    className={`p-[0.8rem] ${
-                      selectedDay === index
+                    onClick={() => shiftDisplayRange('prev')}
+                    className='p-[0.8rem] bg-gray-100 text-gray-600 border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold hover:bg-gray-200'
+                  >
+                    ‹
+                  </button>
+                )}
+
+                {displayedDays.map((day, displayIndex) => {
+                  const actualIndex = displayStartIndex + displayIndex;
+                  return (
+                    <button
+                      onClick={() => selectDay(actualIndex)}
+                      key={day.id_hari_penanaman}
+                      className={`p-[0.8rem] ${selectedDay === actualIndex
                         ? 'bg-[#50B34B] text-white'
                         : 'bg-white text-black'
-                    } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                    >
+                      {day.hari_ke}
+                    </button>
+                  );
+                })}
+
+                {/* Tombol Next - hanya tampil kalau bisa geser ke kanan */}
+                {displayStartIndex + 6 < allDays.length && (
+                  <button
+                    onClick={() => shiftDisplayRange('next')}
+                    className='p-[0.8rem] bg-gray-100 text-gray-600 border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold hover:bg-gray-200'
                   >
-                    {day.hari_ke}
+                    ›
                   </button>
-                ))}
+                )}
 
                 <button
                   onClick={handleShowAllDays}
@@ -307,9 +361,8 @@ const PlantDetailMain = () => {
                           <button
                             key={task.id_tugas_penanaman}
                             onClick={() => toggleTaskCompletion(index)}
-                            className={`py-[0.8rem] px-[1rem] ${
-                              completedTasks[index] ? 'bg-green-100' : 'bg-none'
-                            } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            className={`py-[0.8rem] px-[1rem] ${completedTasks[index] ? 'bg-green-100' : 'bg-none'
+                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                               <Drop size={21} color='#000000' weight='fill' />
@@ -337,11 +390,10 @@ const PlantDetailMain = () => {
                           <button
                             key={task.id_tugas_penanaman}
                             onClick={() => toggleMaintainCompletion(index)}
-                            className={`py-[0.8rem] px-[1rem] ${
-                              completedMaintain[index]
-                                ? 'bg-green-100'
-                                : 'bg-none'
-                            } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            className={`py-[0.8rem] px-[1rem] ${completedMaintain[index]
+                              ? 'bg-green-100'
+                              : 'bg-none'
+                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                               <Drop size={21} color='#000000' weight='fill' />
@@ -418,10 +470,9 @@ const PlantDetailMain = () => {
                     onClick={() => handleSelectDayFromCalendar(index)}
                     className={`
                       p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md
-                      ${
-                        isSelected
-                          ? 'bg-[#50B34B] text-white border-[#50B34B]'
-                          : hasTasksToday
+                      ${isSelected
+                        ? 'bg-[#50B34B] text-white border-[#50B34B]'
+                        : hasTasksToday
                           ? 'bg-green-50 border-green-200 hover:bg-green-100'
                           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                       }
@@ -431,12 +482,12 @@ const PlantDetailMain = () => {
                       <div className='font-bold text-lg mb-1'>
                         Hari {day.hari_ke}
                       </div>
-                      <div className='text-sm mb-2'>{day.nama_fase}</div>
-                      {hasTasksToday && (
+                      <div className='text-xs mb-2'>{day.nama_fase}</div>
+                      {/* {hasTasksToday && (
                         <div className='text-xs'>
                           {day.tugas_penanaman.length} tugas
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 );
@@ -552,6 +603,26 @@ const PlantDetailMain = () => {
                 {isCreatingPlant ? 'Memulai...' : 'Mulai Menanam'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+          <div className='bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center'>
+            <div className='mb-4'>
+              <CheckCircle size={64} color='#50B34B' weight='fill' className='mx-auto' />
+            </div>
+            <h2 className='text-[1.5rem] font-bold text-[#50B34B] mb-2'>
+              Berhasil Memulai Menanam!
+            </h2>
+            <p className='text-gray-600 mb-4'>
+              Tanaman "{customPlantName}" telah berhasil ditambahkan ke daftar tanaman Anda.
+            </p>
+            <p className='text-sm text-gray-500'>
+              Anda akan diarahkan ke halaman tanaman dalam beberapa detik...
+            </p>
           </div>
         </div>
       )}

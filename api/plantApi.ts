@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { getToken } from './authApi';
+import axios from "axios";
+import { getToken } from "./authApi";
 import {
   TCategory,
   TPlant,
@@ -8,10 +8,10 @@ import {
   TUserPlantTask,
   TCreateUserPlant,
   TUpdateTaskProgress,
-} from '@/types/plantTypes';
+} from "@/types/plantTypes";
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:2000/api";
 
 export const getAllCategories = async (): Promise<{
   success: boolean;
@@ -32,14 +32,14 @@ export const getAllCategories = async (): Promise<{
     }
     return {
       success: false,
-      message: 'Error fetching plant categories',
+      message: "Error fetching plant categories",
       data: { categories: [] },
     };
   }
 };
 
 export const getCategoryById = async (
-  id: number,
+  id: number
 ): Promise<{
   success: boolean;
   message: string;
@@ -59,7 +59,7 @@ export const getCategoryById = async (
     }
     return {
       success: false,
-      message: 'Error fetching plant category',
+      message: "Error fetching plant category",
       data: { provinces: {} as TCategory },
     };
   }
@@ -80,14 +80,14 @@ export const getAllPlants = async (): Promise<{
     }
     return {
       success: false,
-      message: 'Error fetching plants',
+      message: "Error fetching plants",
       data: { categories: [] },
     };
   }
 };
 
 export const getPlantById = async (
-  id: string,
+  id: string
 ): Promise<{
   success: boolean;
   message: string;
@@ -107,7 +107,7 @@ export const getPlantById = async (
     }
     return {
       success: false,
-      message: 'Error fetching plant',
+      message: "Error fetching plant",
       data: { provinces: {} as TPlant },
     };
   }
@@ -115,7 +115,7 @@ export const getPlantById = async (
 
 // User Plants
 export const createUserPlant = async (
-  data: TCreateUserPlant,
+  data: TCreateUserPlant
 ): Promise<{
   success: boolean;
   message: string;
@@ -135,7 +135,7 @@ export const createUserPlant = async (
     }
     return {
       success: false,
-      message: 'Error creating user plant',
+      message: "Error creating user plant",
       data: {} as TUserPlant,
     };
   }
@@ -158,14 +158,14 @@ export const getUserPlants = async (): Promise<{
       return error.response.data;
     }
     return {
-      message: 'Error fetching user plants',
+      message: "Error fetching user plants",
       data: [],
     };
   }
 };
 
 export const getUserPlantDetail = async (
-  id: string,
+  id: string
 ): Promise<{
   message: string;
   data: TUserPlant;
@@ -183,7 +183,7 @@ export const getUserPlantDetail = async (
       return error.response.data;
     }
     return {
-      message: 'Error fetching user plant detail',
+      message: "Error fetching user plant detail",
       data: {} as TUserPlant,
     };
   }
@@ -191,21 +191,21 @@ export const getUserPlantDetail = async (
 
 export const getUserDailyTasks = async (
   userPlantId: string,
-  date?: string,
+  date?: string
 ): Promise<{
   message: string;
   data: TUserPlantDay[];
 }> => {
   const token = getToken();
   try {
-    const response = await axios.post(
+    const response = await axios.get(
       `${baseURL}/user-plants/${userPlantId}/daily-tasks`,
-      { date },
       {
+        params: { date },
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {
@@ -213,14 +213,14 @@ export const getUserDailyTasks = async (
       return error.response.data;
     }
     return {
-      message: 'Error fetching daily tasks',
+      message: "Error fetching daily tasks",
       data: [],
     };
   }
 };
 
 export const updateTaskProgress = async (
-  data: TUpdateTaskProgress,
+  data: TUpdateTaskProgress
 ): Promise<{
   message: string;
   data: TUserPlantTask;
@@ -237,7 +237,7 @@ export const updateTaskProgress = async (
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {
@@ -245,7 +245,7 @@ export const updateTaskProgress = async (
       return error.response.data;
     }
     return {
-      message: 'Error updating task progress',
+      message: "Error updating task progress",
       data: {} as TUserPlantTask,
     };
   }
@@ -268,14 +268,14 @@ export const getTodayTasks = async (): Promise<{
       return error.response.data;
     }
     return {
-      message: 'Error fetching today tasks',
+      message: "Error fetching today tasks",
       data: [],
     };
   }
 };
 
 export const finishPlant = async (
-  id: string,
+  id: string
 ): Promise<{
   message: string;
   data: TUserPlant;
@@ -291,7 +291,7 @@ export const finishPlant = async (
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {
@@ -299,7 +299,7 @@ export const finishPlant = async (
       return error.response.data;
     }
     return {
-      message: 'Error finishing plant',
+      message: "Error finishing plant",
       data: {} as TUserPlant,
     };
   }
