@@ -1,14 +1,14 @@
-import axios from 'axios';
+import axios from "axios";
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:2000/api";
 
 export const putToken = (token: string) => {
-  localStorage.setItem('accessToken', token);
+  localStorage.setItem("accessToken", token);
 };
 
 export const getToken = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   return token;
 };
 
@@ -25,7 +25,58 @@ export const getAllProvinces = async () => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const getProvincesById = async (id: number) => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/provinces/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const getAllKabupaten = async () => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/regencies`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
+  }
+};
+
+export const getKabupatenById = async (id: number) => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/regencies/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };
 
@@ -42,6 +93,6 @@ export const getProvinceRegency = async (id: number) => {
     if (error.response && error.response.data) {
       return error.response.data;
     }
-    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+    return { success: false, message: "Terjadi Kesalahan!", data: null };
   }
 };

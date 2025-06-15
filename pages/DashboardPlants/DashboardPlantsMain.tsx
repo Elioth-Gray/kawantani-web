@@ -95,6 +95,13 @@ const DashboardPlantsMain = () => {
     setIsCompletedPlants(false);
   };
 
+
+  function limitWords(teks: any): string {
+    const kata = teks.split(' ');
+    return kata.length > 10 ? kata.slice(0, 10).join(' ') + '...' : teks;
+  }
+
+
   if (loading) {
     return (
       <main className="w-full h-screen flex items-center justify-center bg-[#FCF7F1]">
@@ -200,7 +207,10 @@ const DashboardPlantsMain = () => {
                   key={plant.id_tanaman_pengguna}
                   imageURL={`http://localhost:2000/uploads/plants/${plant.tanaman?.gambar_tanaman}`}
                   title={plant.nama_custom}
-                  description={plant.tanaman?.deskripsi_tanaman || "Tidak ada deskripsi"}
+                  description={
+                    limitWords(plant.tanaman?.deskripsi_tanaman) ||
+                    'Tidak ada deskripsi tersedia'
+                  }
                   onClickHandler={() => navigateToPlantDetail(plant.id_tanaman_pengguna)}
                   progress={plant.progress_persen}
                   status={plant.status_penanaman}

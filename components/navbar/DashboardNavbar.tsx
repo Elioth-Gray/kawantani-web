@@ -31,6 +31,7 @@ const DashboardNavbar = () => {
     iat: 0,
     exp: 0,
   });
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const router = useRouter();
 
@@ -49,8 +50,16 @@ const DashboardNavbar = () => {
     router.push('/auth/login');
   };
 
+  const navigateToProfile = () => {
+    router.push('/dashboard/profiles');
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
-    <nav className='flex flex-row justify-between items-center text-black w-full bg-[#FCF7F1] py-[2.1rem] px-[9rem]'>
+    <nav className='flex flex-row justify-between items-center text-black w-full bg-[#FCF7F1] py-[2.1rem] px-[9rem] relative'>
       <div className='flex flex-row justify-start items-center gap-[4rem]'>
         <Image
           src='/images/logo2.webp'
@@ -77,24 +86,51 @@ const DashboardNavbar = () => {
           </li>
         </ul>
       </div>
-      <div className='flex flex-row justify-end items-center gap-[1.25rem]'>
+      <div className='flex flex-row justify-end items-center gap-[1.25rem] relative'>
         <div className='w-full flex flex-col justify-start items-between'>
-          <p>{userData.firstName + ' ' + userData.lastName}</p>
+          <p className='font-bold'>{userData.firstName + ' ' + userData.lastName}</p>
         </div>
-        <div className='flex flex-row justify-center items-center gap-[0.3rem] cursor-pointer'>
-          <div className='rounded-full border border-[#50B34B] p-[0.1rem] flex flex-col justify-center items-center'>
-            <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center'>
-              <User size={15} color='#fffffff' />
+        <div className='relative'>
+          <div
+            className='flex flex-row justify-center items-center gap-[0.3rem] cursor-pointer'
+            onClick={toggleDropdown}
+          >
+            <div className='rounded-full border border-[#50B34B] p-[0.1rem] flex flex-col justify-center items-center'>
+              <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center'>
+                <User size={15} color='#fffffff' />
+              </div>
             </div>
+            <CaretDown
+              size={18}
+              color='#fffff'
+              className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
+                }`}
+            />
           </div>
-          <CaretDown size={18} color='#fffff'></CaretDown>
+
+          {isDropdownOpen && (
+            <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50'>
+              <button
+                onClick={() => {
+                  navigateToProfile();
+                  setIsDropdownOpen(false);
+                }}
+                className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#50B34B] hover:text-white transition-colors'
+              >
+                Profile
+              </button>
+              <button
+                onClick={() => {
+                  onLogout();
+                  setIsDropdownOpen(false);
+                }}
+                className='block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500 hover:text-white transition-colors'
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
-        <button
-          className='text-red-500 cursor-pointer font-semibold hover:text-red-600 transition'
-          onClick={onLogout}
-        >
-          Logout
-        </button>
       </div>
     </nav>
   );
