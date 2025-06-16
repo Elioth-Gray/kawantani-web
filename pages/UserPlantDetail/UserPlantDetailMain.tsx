@@ -92,6 +92,7 @@ const UserPlantDetailMain = () => {
   const pathname = usePathname();
   const params = useParams();
   const plantId = params?.id as string;
+  console.log('ha', plantId);
 
   // Toast helper functions
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -391,35 +392,84 @@ const UserPlantDetailMain = () => {
               </div>
             </div>
           </div>
-        </section>
+      {/* Tasks Section */}
+      <section className='grid grid-cols-2 justify-between items-start gap-6 mt-[2.8rem]'>
+        <div className='flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full'>
+          <h1 className='text-[2rem] font-bold'>Tugas Penanaman</h1>
+          <div className='w-full flex flex-col justify-start items-start gap-[2rem]'>
+            <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
+              <p className='text-[1.25rem] font-semibold'>Hari</p>
+              <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
+                {dailyTasks.slice(0, 10).map((day, index) => (
+                  <button
+                    onClick={() => selectDate(index)}
+                    key={index}
+                    className={`p-[0.8rem] ${selectedDay === index
+                      ? 'bg-[#50B34B] text-white'
+                      : 'bg-white text-black'
+              
+                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                  >
+                    {day.hari_ke}
+                  </button>
+                ))}
+                {dailyTasks.length > 10 && (
+                  <Link
+                    href=''
+                    className='text-[1rem] text-[#50B34B] font-semibold'
+                  >
+                    Lihat Semuanya
+                  </Link>
+                )}
+              </div>
+            </div>
 
-        {/* Tasks Section */}
-        <section className='grid grid-cols-2 justify-between items-start gap-6 mt-[2.8rem]'>
-          <div className='flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full'>
-            <h1 className='text-[2rem] font-bold'>Tugas Penanaman</h1>
-            <div className='w-full flex flex-col justify-start items-start gap-[2rem]'>
-              <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
-                <p className='text-[1.25rem] font-semibold'>Hari</p>
-                <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
-                  {dailyTasks.slice(0, 10).map((day, index) => (
-                    <button
-                      onClick={() => selectDate(index)}
-                      key={index}
-                      className={`p-[0.8rem] ${selectedDay === index
-                        ? 'bg-[#50B34B] text-white'
-                        : 'bg-white text-black'
-                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
-                    >
-                      {day.hari_ke}
-                    </button>
-                  ))}
-                  {dailyTasks.length > 10 && (
-                    <Link
-                      href=''
-                      className='text-[1rem] text-[#50B34B] font-semibold'
-                    >
-                      Lihat Semuanya
-                    </Link>
+            <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
+              {/* Main Tasks */}
+              <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
+                <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
+                <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
+                  {mainTasks.length > 0 ? (
+                    mainTasks.map((task) => (
+                      <button
+                        key={task.id_tugas_penanaman_pengguna}
+                        onClick={() =>
+                          handleMainTaskToggle(
+                            task.id_tugas_penanaman_pengguna,
+                            task.status_selesai,
+                          )
+                        }
+                        className={`py-[0.8rem] px-[1rem] ${task.status_selesai
+                          ? 'bg-[#50B34B] text-white'
+                          : 'bg-none text-black'
+        
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                      >
+                        <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
+                          <Drop
+                            size={21}
+                            color={task.status_selesai ? '#FFFFFF' : '#000000'}
+                            weight='fill'
+                          />
+                          <p
+                            className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'
+                              }`}
+                          >
+                            {task.nama_tugas}
+                          </p>
+                        </div>
+                        {task.status_selesai ? (
+                          <Check size={21} color='#FFFFFF' weight='fill' />
+                        ) : (
+                          <Square size={21} color='#000000' />
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <p className='text-gray-500'>
+                      Tidak ada tugas untuk hari ini
+                    </p>
+
                   )}
                 </div>
               </div>

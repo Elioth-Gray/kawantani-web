@@ -130,3 +130,37 @@ export const validateToken = async () => {
     return { valid: false };
   }
 };
+
+export const getAdminProfile = async () => {
+  const token = localStorage.getItem('accessToken');
+
+  try {
+    const res = await axios.get(`${baseURL}/admin/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return res.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
+export const getFacilitatorProfile = async () => {
+  const token = localStorage.getItem('accessToken');
+
+  try {
+    const res = await axios.get(`${baseURL}/facilitator/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return res.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};

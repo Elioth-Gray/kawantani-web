@@ -15,7 +15,6 @@ type DecodedToken = {
   exp: number;
 };
 
-
 const DashboardHeader = () => {
   const [userData, setUserData] = useState({
     id: '',
@@ -34,6 +33,7 @@ const DashboardHeader = () => {
       console.log(userData);
     }
   }, []);
+
   return (
     <>
       <DashboardNavbar></DashboardNavbar>{" "}
