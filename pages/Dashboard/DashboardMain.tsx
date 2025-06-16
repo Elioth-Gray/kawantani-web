@@ -5,27 +5,15 @@ import { useRouter, usePathname } from 'next/navigation';
 import { getAllArticles } from '@/api/articleApi';
 import { TArticle } from '@/types/articleTypes';
 import Image from 'next/image';
-import { Drop } from '@phosphor-icons/react/dist/ssr';
-import { Check } from '@phosphor-icons/react/dist/ssr';
-import { Square } from '@phosphor-icons/react/dist/ssr';
+import { Drop, Check, Square } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import ArticleCard from '@/components/cards/ArticleCard';
 import WorkshopCard from '@/components/cards/WorkshopCard';
 import { getVerifiedWorkshops } from '@/api/workshopApi';
-import { TPlant } from '@/types/plantTypes';
-import { useAuthMiddleware } from '@/hooks/useAuthMiddleware';
+import { getUserPlants, getUserDailyTasks, updateTaskProgress } from '@/api/plantApi';
+import { TUserPlant, TUserPlantDay} from '@/types/plantTypes';
 
 const DashboardMain = () => {
-  const [completedTasks, setCompletedTasks] = useState(
-    new Array(3).fill(false),
-  );
-
-  const [completedMaintain, setCompletedMaintain] = useState(
-    new Array(3).fill(false),
-  );
-
-  const [taskDate, setTaskDate] = useState(null);
-
   // Weather and location states
   const [weather, setWeather] = useState({
     temperature: 0,
@@ -39,13 +27,17 @@ const DashboardMain = () => {
   });
 
   const [articles, setArticles] = useState<TArticle[]>([]);
-  const [plants, setPlants] = useState<TPlant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const pathname = usePathname();
   const router = useRouter();
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [userPlants, setUserPlants] = useState<TUserPlant[]>([]);
+  const [selectedPlant, setSelectedPlant] = useState<TUserPlant | null>(null);
+  const [dailyTasks, setDailyTasks] = useState<TUserPlantDay[]>([]);
+  const [selectedDay, setSelectedDay] = useState(0);
 
+  // Fetch articles
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -63,6 +55,62 @@ const DashboardMain = () => {
     fetchArticles();
   }, []);
 
+  // Fetch user plants
+  useEffect(() => {
+    const fetchUserPlants = async () => {
+      try {
+        const response = await getUserPlants();
+        if (response.data) {
+          setUserPlants(response.data.slice(0, 4));
+          // Automatically select the first plant if available
+          if (response.data.length > 0) {
+            setSelectedPlant(response.data[0]);
+            fetchDailyTasks(response.data[0].id_tanaman_pengguna);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user plants:', error);
+      }
+    };
+
+    fetchUserPlants();
+  }, []);
+
+  // Fetch daily tasks for selected plant
+  const fetchDailyTasks = async (plantId: string) => {
+    try {
+      const tasksResponse = await getUserDailyTasks(plantId);
+      if (tasksResponse.data) {
+        const sortedTasks = tasksResponse.data.sort((a, b) => a.hari_ke - b.hari_ke);
+        setDailyTasks(sortedTasks);
+        setSelectedDay(0);
+      }
+    } catch (err) {
+      console.error('Error fetching daily tasks:', err);
+    }
+  };
+
+  // Fetch workshops
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        const response = await getVerifiedWorkshops();
+        if (response.data) {
+          setWorkshops(response.data);
+        } else {
+          setError(response.message || 'Gagal memuat data workshop');
+        }
+      } catch (err) {
+        setError('Terjadi kesalahan saat memuat data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshops();
+  }, []);
+
+  // Fetch weather data
   useEffect(() => {
     const getLocationAndWeather = async () => {
       try {
@@ -80,28 +128,23 @@ const DashboardMain = () => {
               const { latitude, longitude } = position.coords;
 
               try {
-                // Get location name using free reverse geocoding
                 const locationResponse = await fetch(
                   `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=id`,
                 );
                 const locationData = await locationResponse.json();
 
-                // Get weather data using FREE Open-Meteo API (no API key needed!)
                 const weatherResponse = await fetch(
                   `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m&timezone=auto&forecast_days=1`,
                 );
                 const weatherData = await weatherResponse.json();
 
                 const locationName = locationData.city
-                  ? `${locationData.city}, ${
-                      locationData.principalSubdivision ||
-                      locationData.countryName
-                    }`
-                  : `${locationData.locality || 'Unknown'}, ${
-                      locationData.countryName || 'Indonesia'
-                    }`;
+                  ? `${locationData.city}, ${locationData.principalSubdivision ||
+                  locationData.countryName
+                  }`
+                  : `${locationData.locality || 'Unknown'}, ${locationData.countryName || 'Indonesia'
+                  }`;
 
-                // Get current humidity from hourly data (current hour)
                 const currentHour = new Date().getHours();
                 const currentHumidity =
                   weatherData.hourly?.relativehumidity_2m?.[currentHour] || 70;
@@ -116,7 +159,6 @@ const DashboardMain = () => {
                 });
               } catch (apiError) {
                 console.error('Weather API error:', apiError);
-                // Fallback to default location (Surabaya)
                 await getDefaultWeather(currentDate);
               }
 
@@ -124,13 +166,11 @@ const DashboardMain = () => {
             },
             async (error) => {
               console.error('Geolocation error:', error);
-              // Fallback to default location (Surabaya)
               await getDefaultWeather(currentDate);
               setLoading(false);
             },
           );
         } else {
-          // Geolocation not supported, use default
           await getDefaultWeather(currentDate);
           setLoading(false);
         }
@@ -142,15 +182,13 @@ const DashboardMain = () => {
     };
 
     // Fallback function for default location (Surabaya) using FREE APIs
-    const getDefaultWeather = async (currentDate: any) => {
+    const getDefaultWeather = async (currentDate: string) => {
       try {
-        // Surabaya coordinates: -7.2575, 112.7521
         const weatherResponse = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=-7.2575&longitude=112.7521&current_weather=true&hourly=relativehumidity_2m&timezone=auto&forecast_days=1`,
         );
         const weatherData = await weatherResponse.json();
 
-        // Get current humidity from hourly data
         const currentHour = new Date().getHours();
         const currentHumidity =
           weatherData.hourly?.relativehumidity_2m?.[currentHour] || 70;
@@ -175,8 +213,8 @@ const DashboardMain = () => {
     getLocationAndWeather();
   }, []);
 
-  const selectDate = (day: any) => {
-    setTaskDate(day);
+  const selectDate = (day: number) => {
+    setSelectedDay(day);
   };
 
   const formatDate = (dateString: string) => {
@@ -195,33 +233,75 @@ const DashboardMain = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchWorkshops = async () => {
-      try {
-        const response = await getVerifiedWorkshops();
-        if (response.data) {
-          setWorkshops(response.data);
-        } else {
-          setError(response.message || 'Gagal memuat data workshop');
-        }
-      } catch (err) {
-        setError('Terjadi kesalahan saat memuat data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const calculateDaysToHarvest = (userPlant: TUserPlant) => {
+    if (!userPlant.tanaman?.durasi_penanaman) return 0;
 
-    fetchWorkshops();
-  }, []);
+    const totalDays = userPlant.tanaman.durasi_penanaman;
+    const progressDays = Math.floor((userPlant.progress_persen / 100) * totalDays);
+    const remainingDays = totalDays - progressDays;
+
+    return Math.max(0, remainingDays);
+  };
 
   const navigate = (id: string) => {
     router.push(`${pathname}/${id}/details`);
   };
 
+  const toggleTaskCompletion = async (taskId: number, currentStatus: boolean) => {
+    try {
+      if (!selectedPlant) return;
+
+      const response = await updateTaskProgress({
+        userPlantId: selectedPlant.id_tanaman_pengguna,
+        taskId: taskId,
+        doneStatus: !currentStatus,
+      });
+
+      if (response.data) {
+        // Update the tasks in state
+        setDailyTasks(prevDays =>
+          prevDays.map(day => ({
+            ...day,
+            tugas_penanaman: day.tugas_penanaman.map(task =>
+              task.id_tugas_penanaman_pengguna === taskId
+                ? {
+                  ...task,
+                  status_selesai: !currentStatus,
+                  tanggal_selesai: !currentStatus ? new Date() : null,
+                }
+                : task
+            )
+          }))
+        );
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const handlePlantSelect = (plant: TUserPlant) => {
+    setSelectedPlant(plant);
+    fetchDailyTasks(plant.id_tanaman_pengguna);
+  };
+
+  const getCurrentDayTasks = () => {
+    if (dailyTasks.length === 0) return [];
+    return dailyTasks[selectedDay]?.tugas_penanaman || [];
+  };
+
+  // Separate tasks by type
+  const getTasksByType = (type: string) => {
+    return getCurrentDayTasks().filter(task =>
+      type === 'main'
+        ? task.jenis_tugas !== 'PENGECEKAN_HARIAN'
+        : task.jenis_tugas === 'PENGECEKAN_HARIAN'
+    );
+  };
+
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <p>Memuat data workshop...</p>
+        <p>Memuat data...</p>
       </div>
     );
   }
@@ -233,18 +313,6 @@ const DashboardMain = () => {
       </div>
     );
   }
-
-  const toggleTaskCompletions = (index: any) => {
-    const updatedTasks = [...completedTasks];
-    updatedTasks[index] = !updatedTasks[index];
-    setCompletedTasks(updatedTasks);
-  };
-
-  const toggleMaintainCompletions = (index: any) => {
-    const updatedTasks = [...completedMaintain];
-    updatedTasks[index] = !updatedTasks[index];
-    setCompletedMaintain(updatedTasks);
-  };
 
   return (
     <>
@@ -312,131 +380,140 @@ const DashboardMain = () => {
           <div className='grid grid-cols-9 gap-x-[3.3rem]'>
             {/* Tracking Section */}
             <div className='col-span-6 w-full py-[2rem] border border-black rounded-lg px-[3rem] flex flex-col justify-start items-start gap-[2rem]'>
-              <div className='flex flex-row justify-center items-center gap-[1rem] h-fit'>
-                <div className='w-[4.9rem] h-[4.9rem]'>
-                  <Image
-                    src='/images/lemon.webp'
-                    width={79}
-                    height={79}
-                    alt='logo'
-                    className='cursor-pointer object-cover h-full rounded-full'
-                  />
-                </div>
-                <div className='flex flex-col justify-start items-start'>
-                  <p className='text-[1.6rem] font-semibold'>Lemon Malang</p>
-                  <p className='text-[0.8rem]'>36 Hari menuju panen</p>
-                </div>
-              </div>
-              <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
-                <p className='text-[1.25rem] font-semibold'>Hari</p>
-                <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
-                  {[...Array(12)].map((_, index) => {
-                    return (
-                      <button
-                        onClick={() => {
-                          selectDate(index);
-                        }}
-                        key={index}
-                        className={`p-[0.8rem] ${
-                          taskDate == index
+              {selectedPlant ? (
+                <>
+                  <div className='flex flex-row justify-center items-center gap-[1rem] h-fit'>
+                    <div className='w-[4.9rem] h-[4.9rem]'>
+                      <Image
+                        src={
+                          selectedPlant.tanaman?.gambar_tanaman
+                            ? `http://localhost:2000/uploads/plants/${selectedPlant.tanaman.gambar_tanaman}`
+                            : '/images/lemon.webp'
+                        }
+                        width={79}
+                        height={79}
+                        alt={selectedPlant.nama_custom}
+                        className='cursor-pointer object-cover h-full rounded-full'
+                      />
+                    </div>
+                    <div className='flex flex-col justify-start items-start'>
+                      <p className='text-[1.6rem] font-semibold'>{selectedPlant.nama_custom}</p>
+                      <p className='text-[0.8rem]'>
+                        {selectedPlant.status_penanaman === 'SELESAI'
+                          ? 'Tanaman sudah siap panen!'
+                          : `${calculateDaysToHarvest(selectedPlant)} Hari menuju panen`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
+                    <p className='text-[1.25rem] font-semibold'>Hari</p>
+                    <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
+                      {dailyTasks.slice(0, 12).map((day, index) => (
+                        <button
+                          onClick={() => selectDate(index)}
+                          key={index}
+                          className={`p-[0.8rem] ${selectedDay === index
                             ? 'bg-[#50B34B] text-white'
                             : 'bg-white text-black'
-                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                            } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                        >
+                          {day.hari_ke}
+                        </button>
+                      ))}
+                      <Link
+                        href='/dashboard/plants'
+                        className='text-[1rem] text-[#50B34B] font-semibold'
                       >
-                        {index + 1}
-                      </button>
-                    );
-                  })}
+                        Lihat Semuanya
+                      </Link>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
+                    {/* Main Tasks */}
+                    <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
+                      <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
+                      <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
+                        {getTasksByType('main').length > 0 ? (
+                          getTasksByType('main').map((task) => (
+                            <button
+                              onClick={() => toggleTaskCompletion(task.id_tugas_penanaman_pengguna, task.status_selesai)}
+                              className={`py-[0.8rem] px-[1rem] ${task.status_selesai
+                                ? 'bg-[#50B34B] text-white'
+                                : 'bg-none text-black'
+                                } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                              key={task.id_tugas_penanaman_pengguna}
+                            >
+                              <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
+                                <Drop size={21} color={task.status_selesai ? '#FFFFFF' : '#000000'} weight='fill' />
+                                <p className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'}`}>
+                                  {task.nama_tugas}
+                                </p>
+                              </div>
+                              {task.status_selesai ? (
+                                <Check size={21} color='#FFFFFF' weight='fill' />
+                              ) : (
+                                <Square size={21} color='#000000' />
+                              )}
+                            </button>
+                          ))
+                        ) : (
+                          <p className='text-gray-500'>Tidak ada tugas untuk hari ini</p>
+                        )}
+                      </div>
+                    </div>
 
+                    {/* Check Tasks */}
+                    <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
+                      <p className='text-[1.25rem] font-semibold'>
+                        Pengecekan Harian
+                      </p>
+                      <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
+                        {getTasksByType('check').length > 0 ? (
+                          getTasksByType('check').map((task) => (
+                            <button
+                              onClick={() => toggleTaskCompletion(task.id_tugas_penanaman_pengguna, task.status_selesai)}
+                              className={`py-[0.8rem] px-[1rem] ${task.status_selesai
+                                ? 'bg-[#50B34B] text-white'
+                                : 'bg-none text-black'
+                                } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                              key={task.id_tugas_penanaman_pengguna}
+                            >
+                              <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
+                                <Drop size={21} color={task.status_selesai ? '#FFFFFF' : '#000000'} weight='fill' />
+                                <p className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'}`}>
+                                  {task.nama_tugas}
+                                </p>
+                              </div>
+                              {task.status_selesai ? (
+                                <Check size={21} color='#FFFFFF' weight='fill' />
+                              ) : (
+                                <Square size={21} color='#000000' />
+                              )}
+                            </button>
+                          ))
+                        ) : (
+                          <p className='text-gray-500'>Tidak ada pengecekan untuk hari ini</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className='flex flex-col justify-center items-center py-8'>
+                  <p className='text-gray-500 text-lg mb-4'>Belum ada tanaman yang ditanam</p>
                   <Link
-                    href=''
-                    className='text-[1rem] text-[#50B34B] font-semibold'
+                    href='/plants'
+                    className='text-[#50B34B] font-semibold hover:underline'
                   >
-                    Lihat Semuanya
+                    Mulai Tanam Sekarang
                   </Link>
                 </div>
-              </div>
-              <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
-                <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
-                  <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
-                  <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
-                    {completedTasks.map((isCompleted, index) => (
-                      <button
-                        onClick={() => toggleTaskCompletions(index)}
-                        className={`py-[0.8rem] px-[1rem] ${
-                          isCompleted
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                        key={index}
-                      >
-                        <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                          {isCompleted ? (
-                            <Drop size={21} color='#FFFFFF' weight='fill' />
-                          ) : (
-                            <Drop size={21} color='#000000' weight='fill' />
-                          )}
-
-                          <p
-                            className={`font-medium text-[1rem] ${
-                              isCompleted ? 'text-white' : 'text-black'
-                            }`}
-                          >
-                            Siram Tanaman
-                          </p>
-                        </div>
-                        {isCompleted ? (
-                          <Check size={21} color='#FFFFFF' weight='fill' />
-                        ) : (
-                          <Square size={21} color='#000000' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
-                  <p className='text-[1.25rem] font-semibold'>
-                    Pengecekan Harian
-                  </p>
-                  <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
-                    {completedMaintain.map((isCompleted, index) => (
-                      <button
-                        onClick={() => toggleMaintainCompletions(index)}
-                        className={`py-[0.8rem] px-[1rem] ${
-                          isCompleted
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                        } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                        key={index}
-                      >
-                        <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                          {isCompleted ? (
-                            <Drop size={21} color='#FFFFFF' weight='fill' />
-                          ) : (
-                            <Drop size={21} color='#000000' weight='fill' />
-                          )}
-
-                          <p
-                            className={`font-medium text-[1rem] ${
-                              isCompleted ? 'text-white' : 'text-black'
-                            }`}
-                          >
-                            Siram Tanaman
-                          </p>
-                        </div>
-                        {isCompleted ? (
-                          <Check size={21} color='#FFFFFF' weight='fill' />
-                        ) : (
-                          <Square size={21} color='#000000' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
+
             {/* More Plants Section */}
-            <div className='col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start  text-white gap-[2.1rem]'>
+            <div className='col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start text-white gap-[2.1rem]'>
               <div className='w-full flex flex-row justify-between items-center px-[1.8rem]'>
                 <h1 className='text-[1.25rem] font-semibold'>Tanamanmu</h1>
                 <Link
@@ -447,71 +524,61 @@ const DashboardMain = () => {
                 </Link>
               </div>
               <div className='flex flex-col justify-start items-start gap-[2rem] w-full px-[1rem]'>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
+                {userPlants.length > 0 ? (
+                  userPlants.map((plant) => (
+                    <div
+                      key={plant.id_tanaman_pengguna}
+                      className={`flex flex-row justify-start items-center gap-[1rem] h-fit w-full ${selectedPlant?.id_tanaman_pengguna === plant.id_tanaman_pengguna ? 'bg-white text-black' : 'hover:bg-white hover:text-black'} px-[1.8rem] py-[1rem] transition-all ease-in-out duration-150 rounded-lg cursor-pointer`}
+                      onClick={() => handlePlantSelect(plant)}
+                    >
+                      <div className='w-[3.1rem] h-[3.1rem]'>
+                        <Image
+                          src={
+                            plant.tanaman?.gambar_tanaman
+                              ? `http://localhost:2000/uploads/plants/${plant.tanaman.gambar_tanaman}`
+                              : '/images/lemon.webp'
+                          }
+                          width={79}
+                          height={79}
+                          alt={plant.nama_custom}
+                          className='cursor-pointer object-cover h-full rounded-full'
+                        />
+                      </div>
+                      <div className='flex flex-col justify-start items-start'>
+                        <p className='text-[0.8rem] font-semibold'>{plant.nama_custom}</p>
+                        <p className='text-[0.75rem]'>
+                          {plant.status_penanaman === 'SELESAI'
+                            ? 'Siap panen!'
+                            : `${calculateDaysToHarvest(plant)} Hari menuju panen`
+                          }
+                        </p>
+                        <div className='w-full bg-gray-600 rounded-full h-1 mt-1'>
+                          <div
+                            className='bg-[#50B34B] h-1 rounded-full transition-all duration-300'
+                            style={{ width: `${Math.min(plant.progress_persen, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className='flex flex-col justify-center items-center py-4 px-[1.8rem] text-center'>
+                    <p className='text-gray-300 text-sm mb-2'>Belum ada tanaman</p>
+                    <Link
+                      href='/plants'
+                      className='text-[#50B34B] text-sm hover:underline'
+                    >
+                      Tambah Tanaman
+                    </Link>
                   </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
-                  </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
-                  </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
-                <div className='flex flex-row justify-start items-center gap-[1rem] h-fit w-full hover:bg-white hover:text-black px-[1.8rem] py-[1rem] text-white transition-all ease-in-out duration-150 rounded-lg cursor-pointer'>
-                  <div className='w-[3.1rem] h-[3.1rem]'>
-                    <Image
-                      src='/images/lemon.webp'
-                      width={79}
-                      height={79}
-                      alt='logo'
-                      className='cursor-pointer object-cover h-full rounded-full'
-                    />
-                  </div>
-                  <div className='flex flex-col justify-start items-start'>
-                    <p className='text-[0.8rem] font-semibold'>Lemon Malang</p>
-                    <p className='text-[0.75rem]'>36 Hari menuju panen</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Articles and Workshops Sections */}
       <section className='px-[9rem] py-[6.3rem] bg-white'>
         <div className='w-full flex flex-col justify-start items-start gap-[2.4rem]'>
           <div className='w-full flex flex-col justify-start items-start'>
@@ -574,7 +641,6 @@ const DashboardMain = () => {
                   title={workshop.judul_workshop}
                   date={formatDate(workshop.tanggal_workshop)}
                   location={`${workshop.alaamt_lengkap_workshop}, ${workshop.kabupaten.nama_kabupaten}, ${workshop.kabupaten.provinsi.nama_provinsi}`}
-                  // price={workshop.harga_workshop}
                   onClickHandler={() => navigate(workshop.id_workshop)}
                 />
               ))

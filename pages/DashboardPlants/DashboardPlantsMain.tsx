@@ -75,8 +75,7 @@ const DashboardPlantsMain = () => {
   const navigateToPlantDetail = (plantId: string) => {
     router.push(`/dashboard/plants/${plantId}/details`);
   };
-
-  // Toggle function to add/remove filters
+  
   const toggleFilter = (filterId: number) => {
     setSelectedFilters((prevFilters) => {
       if (prevFilters.includes(filterId)) {

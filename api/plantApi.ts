@@ -304,3 +304,36 @@ export const finishPlant = async (
     };
   }
 };
+
+export const addDailyNote = async (
+  plantId: string,
+  plantDayId: string,
+  note: string
+): Promise<{
+  message: string;
+  data: any;
+}> => {
+  const token = getToken();
+  try {
+    const response = await axios.post(
+      `${baseURL}/user-plants/${plantId}/${plantDayId}`,
+      {
+        note,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return {
+      message: "Error adding daily note",
+      data: null,
+    };
+  }
+};
