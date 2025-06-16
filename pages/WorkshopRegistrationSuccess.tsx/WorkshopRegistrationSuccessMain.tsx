@@ -154,10 +154,10 @@ const WorkshopRegistrationSuccessMain = () => {
               <h1 className='text-[1.25rem] font-semibold'>
                 Informasi Peserta:
               </h1>
-              <div className='flex flex-row justify-between items-center w-full'>
+              {/* <div className='flex flex-row justify-between items-center w-full'>
                 <p>Nomor Tiket</p>
                 <p>: {ticketData.ticketNumber || '-'}</p>
-              </div>
+              </div> */}
               <div className='flex flex-row justify-between items-center w-full'>
                 <p>Nama Peserta</p>
                 <p>

@@ -23,14 +23,14 @@ import {
   finishPlant,
   addDailyNote,
 } from '@/api/plantApi';
-import { TUserPlant, TUserPlantDay} from '@/types/plantTypes';
+import { TUserPlant, TUserPlantDay } from '@/types/plantTypes';
 
 // Toast Notification Component
 const Toast = ({
   message,
   type = 'success',
   isVisible,
-  onClose
+  onClose,
 }: {
   message: string;
   type?: 'success' | 'error';
@@ -49,19 +49,19 @@ const Toast = ({
   if (!isVisible) return null;
 
   return (
-    <div className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-      }`}>
+    <div
+      className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+      }`}
+    >
       {type === 'success' ? (
-        <CheckCircle size={20} weight="fill" />
+        <CheckCircle size={20} weight='fill' />
       ) : (
-        <X size={20} weight="bold" />
+        <X size={20} weight='bold' />
       )}
-      <span className="font-medium">{message}</span>
-      <button
-        onClick={onClose}
-        className="ml-2 hover:opacity-70"
-      >
-        <X size={16} weight="bold" />
+      <span className='font-medium'>{message}</span>
+      <button onClick={onClose} className='ml-2 hover:opacity-70'>
+        <X size={16} weight='bold' />
       </button>
     </div>
   );
@@ -92,10 +92,12 @@ const UserPlantDetailMain = () => {
   const pathname = usePathname();
   const params = useParams();
   const plantId = params?.id as string;
-  console.log('ha', plantId);
 
   // Toast helper functions
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const showToast = (
+    message: string,
+    type: 'success' | 'error' = 'success',
+  ) => {
     setToast({
       message,
       type,
@@ -104,7 +106,7 @@ const UserPlantDetailMain = () => {
   };
 
   const hideToast = () => {
-    setToast(prev => ({
+    setToast((prev) => ({
       ...prev,
       isVisible: false,
     }));
@@ -121,10 +123,12 @@ const UserPlantDetailMain = () => {
         }
 
         const tasksResponse = await getUserDailyTasks(plantId);
-        console.log(tasksResponse)
+        console.log(tasksResponse);
         if (tasksResponse.data) {
           // Sort daily tasks by day order (hari_ke) to ensure proper sequence
-          const sortedTasks = tasksResponse.data.sort((a, b) => a.hari_ke - b.hari_ke);
+          const sortedTasks = tasksResponse.data.sort(
+            (a, b) => a.hari_ke - b.hari_ke,
+          );
           setDailyTasks(sortedTasks);
         }
       } catch (err) {
@@ -154,9 +158,20 @@ const UserPlantDetailMain = () => {
   };
 
   // Universal handler untuk semua jenis tugas
-  const handleTaskToggle = async (taskId: number, currentStatus: boolean, taskType: string) => {
+  const handleTaskToggle = async (
+    taskId: number,
+    currentStatus: boolean,
+    taskType: string,
+  ) => {
     try {
-      console.log(`Toggling ${taskType} task:`, taskId, 'from', currentStatus, 'to', !currentStatus);
+      console.log(
+        `Toggling ${taskType} task:`,
+        taskId,
+        'from',
+        currentStatus,
+        'to',
+        !currentStatus,
+      );
 
       const response = await updateTaskProgress({
         userPlantId: plantId,
@@ -171,10 +186,10 @@ const UserPlantDetailMain = () => {
             tugas_penanaman: day.tugas_penanaman.map((task) =>
               task.id_tugas_penanaman_pengguna === taskId
                 ? {
-                  ...task,
-                  status_selesai: !currentStatus,
-                  tanggal_selesai: !currentStatus ? new Date() : null,
-                }
+                    ...task,
+                    status_selesai: !currentStatus,
+                    tanggal_selesai: !currentStatus ? new Date() : null,
+                  }
                 : task,
             ),
           })),
@@ -190,7 +205,7 @@ const UserPlantDetailMain = () => {
 
         showToast(
           `Tugas "${currentStatus ? 'dibatalkan' : 'diselesaikan'}" berhasil!`,
-          'success'
+          'success',
         );
       }
     } catch (error) {
@@ -223,18 +238,19 @@ const UserPlantDetailMain = () => {
       const response = await addDailyNote(
         plantId,
         currentDayTasks.id_hari_tanaman_pengguna,
-        note.trim()
+        note.trim(),
       );
 
       if (response.data) {
         // Update the daily tasks state with the new note
         setDailyTasks((prevDays) =>
           prevDays.map((day) =>
-            day.id_hari_tanaman_pengguna === currentDayTasks.id_hari_tanaman_pengguna
+            day.id_hari_tanaman_pengguna ===
+            currentDayTasks.id_hari_tanaman_pengguna
               ? {
-                ...day,
-                catatan_harian: note.trim(),
-              }
+                  ...day,
+                  catatan_harian: note.trim(),
+                }
               : day,
           ),
         );
@@ -367,8 +383,9 @@ const UserPlantDetailMain = () => {
                 <div className='flex flex-row justify-start items-center gap-[0.75rem]'>
                   <Toolbox size={26} color='#000000' />
                   <p className='text-[0.75rem] w-[60%]'>
-                    Kebutuhan Sinar: {userPlant.tanaman?.kebutuhan_sinar_matahari}{' '}
-                    & Air: {userPlant.tanaman?.kebutuhan_air}
+                    Kebutuhan Sinar:{' '}
+                    {userPlant.tanaman?.kebutuhan_sinar_matahari} & Air:{' '}
+                    {userPlant.tanaman?.kebutuhan_air}
                   </p>
                 </div>
               </div>
@@ -392,84 +409,36 @@ const UserPlantDetailMain = () => {
               </div>
             </div>
           </div>
-      {/* Tasks Section */}
-      <section className='grid grid-cols-2 justify-between items-start gap-6 mt-[2.8rem]'>
-        <div className='flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full'>
-          <h1 className='text-[2rem] font-bold'>Tugas Penanaman</h1>
-          <div className='w-full flex flex-col justify-start items-start gap-[2rem]'>
-            <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
-              <p className='text-[1.25rem] font-semibold'>Hari</p>
-              <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
-                {dailyTasks.slice(0, 10).map((day, index) => (
-                  <button
-                    onClick={() => selectDate(index)}
-                    key={index}
-                    className={`p-[0.8rem] ${selectedDay === index
-                      ? 'bg-[#50B34B] text-white'
-                      : 'bg-white text-black'
-              
-                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
-                  >
-                    {day.hari_ke}
-                  </button>
-                ))}
-                {dailyTasks.length > 10 && (
-                  <Link
-                    href=''
-                    className='text-[1rem] text-[#50B34B] font-semibold'
-                  >
-                    Lihat Semuanya
-                  </Link>
-                )}
-              </div>
-            </div>
+        </section>
 
-            <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
-              {/* Main Tasks */}
-              <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
-                <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
-                <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
-                  {mainTasks.length > 0 ? (
-                    mainTasks.map((task) => (
-                      <button
-                        key={task.id_tugas_penanaman_pengguna}
-                        onClick={() =>
-                          handleMainTaskToggle(
-                            task.id_tugas_penanaman_pengguna,
-                            task.status_selesai,
-                          )
-                        }
-                        className={`py-[0.8rem] px-[1rem] ${task.status_selesai
+        {/* Tasks Section */}
+        <section className='grid grid-cols-2 justify-between items-start gap-6 mt-[2.8rem]'>
+          <div className='flex flex-col justify-start items-start gap-[1.3rem] col-span-1 w-full h-full'>
+            <h1 className='text-[2rem] font-bold'>Tugas Penanaman</h1>
+            <div className='w-full flex flex-col justify-start items-start gap-[2rem]'>
+              <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
+                <p className='text-[1.25rem] font-semibold'>Hari</p>
+                <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
+                  {dailyTasks.slice(0, 10).map((day, index) => (
+                    <button
+                      onClick={() => selectDate(index)}
+                      key={index}
+                      className={`p-[0.8rem] ${
+                        selectedDay === index
                           ? 'bg-[#50B34B] text-white'
-                          : 'bg-none text-black'
-        
-                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
-                      >
-                        <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                          <Drop
-                            size={21}
-                            color={task.status_selesai ? '#FFFFFF' : '#000000'}
-                            weight='fill'
-                          />
-                          <p
-                            className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'
-                              }`}
-                          >
-                            {task.nama_tugas}
-                          </p>
-                        </div>
-                        {task.status_selesai ? (
-                          <Check size={21} color='#FFFFFF' weight='fill' />
-                        ) : (
-                          <Square size={21} color='#000000' />
-                        )}
-                      </button>
-                    ))
-                  ) : (
-                    <p className='text-gray-500'>
-                      Tidak ada tugas untuk hari ini
-                    </p>
-
+                          : 'bg-white text-black'
+                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                    >
+                      {day.hari_ke}
+                    </button>
+                  ))}
+                  {dailyTasks.length > 10 && (
+                    <Link
+                      href=''
+                      className='text-[1rem] text-[#50B34B] font-semibold'
+                    >
+                      Lihat Semuanya
+                    </Link>
                   )}
                 </div>
               </div>
@@ -487,23 +456,29 @@ const UserPlantDetailMain = () => {
                             handleTaskToggle(
                               task.id_tugas_penanaman_pengguna,
                               task.status_selesai,
-                              'main'
+                              'main',
                             )
                           }
-                          className={`py-[0.8rem] px-[1rem] ${task.status_selesai
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                            } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          className={`py-[0.8rem] px-[1rem] ${
+                            task.status_selesai
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-none text-black'
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         >
                           <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                             <Drop
                               size={21}
-                              color={task.status_selesai ? '#FFFFFF' : '#000000'}
+                              color={
+                                task.status_selesai ? '#FFFFFF' : '#000000'
+                              }
                               weight='fill'
                             />
                             <p
-                              className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'
-                                }`}
+                              className={`font-medium text-[1rem] ${
+                                task.status_selesai
+                                  ? 'text-white'
+                                  : 'text-black'
+                              }`}
                             >
                               {task.nama_tugas}
                             </p>
@@ -537,23 +512,29 @@ const UserPlantDetailMain = () => {
                             handleTaskToggle(
                               task.id_tugas_penanaman_pengguna,
                               task.status_selesai,
-                              'check'
+                              'check',
                             )
                           }
-                          className={`py-[0.8rem] px-[1rem] ${task.status_selesai
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                            } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          className={`py-[0.8rem] px-[1rem] ${
+                            task.status_selesai
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-none text-black'
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         >
                           <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                             <Drop
                               size={21}
-                              color={task.status_selesai ? '#FFFFFF' : '#000000'}
+                              color={
+                                task.status_selesai ? '#FFFFFF' : '#000000'
+                              }
                               weight='fill'
                             />
                             <p
-                              className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'
-                                }`}
+                              className={`font-medium text-[1rem] ${
+                                task.status_selesai
+                                  ? 'text-white'
+                                  : 'text-black'
+                              }`}
                             >
                               {task.nama_tugas}
                             </p>
@@ -633,7 +614,7 @@ const UserPlantDetailMain = () => {
             opacity: 1;
           }
         }
-        
+
         .animate-slide-in {
           animation: slide-in 0.3s ease-out;
         }
