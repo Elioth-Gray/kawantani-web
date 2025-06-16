@@ -21,7 +21,7 @@ export type TCategory = {
 export type TPlantInstruction = {
   id_instruksi: string;
   urutan: number;
-  intruksi: string;
+  instruksi: string;
   gambar_instruksi?: string;
   id_tanaman: string;
 };
@@ -40,14 +40,14 @@ export type TPlantTask = {
   deskripsi_tugas?: string;
   jenis_tugas?: string;
   id_hari_penanaman: string;
-}
+};
 
 export type TUserPlant = {
   id_tanaman_pengguna: string;
   nama_custom: string;
   tanggal_penanaman: Date;
   tanggal_target_panen: Date;
-  status_penanaman: "BELUM_DIMULAI" | "SEDANG_BERJALAN" | "SELESAI";
+  status_penanaman: 'BELUM_DIMULAI' | 'SEDANG_BERJALAN' | 'SELESAI';
   progress_persen: number;
   id_tanaman: string;
   id_pengguna: string;
@@ -64,7 +64,7 @@ export type TUserPlantDay = {
   tugas_selesai: number;
   progress_hari_persen: number;
   catatan_harian: string;
-  status_hari: "BELUM_DIMULAI" | "SEDANG_BERJALAN" | "SELESAI";
+  status_hari: 'BELUM_DIMULAI' | 'SEDANG_BERJALAN' | 'SELESAI';
   id_tanaman_pengguna: string;
   tugas_penanaman: TUserPlantTask[];
 };

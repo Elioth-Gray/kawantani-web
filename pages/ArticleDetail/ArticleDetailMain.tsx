@@ -206,16 +206,16 @@ const ArticleDetailMain = () => {
 
   useEffect(() => {
     const fetchArticle = async () => {
-      const segments = pathname.split('/');
-      const articleId = segments[2];
+      const segments = pathname && pathname.split('/');
+      const articleId = segments && segments[2];
 
       try {
-        const response = await getArticleById(articleId);
+        const response = await getArticleById(articleId || '');
         console.log(response);
         if (response && response.data) {
           setArticle(response.data);
-          await checkSavedStatus(articleId);
-          await checkLikeStatus(articleId);
+          await checkSavedStatus(articleId || '');
+          await checkLikeStatus(articleId || '');
         }
       } catch (error) {
         console.error('Error fetching article:', error);
@@ -265,7 +265,7 @@ const ArticleDetailMain = () => {
         </div>
         <h1 className='text-3xl font-semibold'>{article.judul_artikel}</h1>
         <p className='max-w-2xl text-gray-700'>{article.deskripsi_artikel}</p>
-        <PrimaryButton textColor='#ffffff' className='mt-4'>
+        <PrimaryButton textColor='#ffffff'>
           {article.kategori?.nama_kategori_artikel || 'Tanpa Kategori'}
         </PrimaryButton>
       </section>

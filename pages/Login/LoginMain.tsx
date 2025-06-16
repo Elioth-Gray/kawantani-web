@@ -116,7 +116,7 @@ const LoginMain = () => {
                   <h1 className='text-[1.2rem] font-semibold'>Password</h1>
                   <InputField
                     placeholder='*********'
-                    type='text'
+                    type='password'
                     value={formData.password}
                     name='password'
                     onChange={handleChange}

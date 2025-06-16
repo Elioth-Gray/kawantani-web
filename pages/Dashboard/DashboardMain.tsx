@@ -10,8 +10,12 @@ import Link from 'next/link';
 import ArticleCard from '@/components/cards/ArticleCard';
 import WorkshopCard from '@/components/cards/WorkshopCard';
 import { getVerifiedWorkshops } from '@/api/workshopApi';
-import { getUserPlants, getUserDailyTasks, updateTaskProgress } from '@/api/plantApi';
-import { TUserPlant, TUserPlantDay} from '@/types/plantTypes';
+import {
+  getUserPlants,
+  getUserDailyTasks,
+  updateTaskProgress,
+} from '@/api/plantApi';
+import { TUserPlant, TUserPlantDay } from '@/types/plantTypes';
 
 const DashboardMain = () => {
   // Weather and location states
@@ -35,7 +39,9 @@ const DashboardMain = () => {
   const [userPlants, setUserPlants] = useState<TUserPlant[]>([]);
   const [selectedPlant, setSelectedPlant] = useState<TUserPlant | null>(null);
   const [dailyTasks, setDailyTasks] = useState<TUserPlantDay[]>([]);
-  const [selectedDay, setSelectedDay] = useState(0);
+  const [currentDayTasks, setCurrentDayTasks] = useState<TUserPlantDay | null>(
+    null,
+  );
 
   // Fetch articles
   useEffect(() => {
@@ -76,18 +82,38 @@ const DashboardMain = () => {
     fetchUserPlants();
   }, []);
 
-  // Fetch daily tasks for selected plant
+  // Fetch daily tasks for selected plant and find current day
   const fetchDailyTasks = async (plantId: string) => {
     try {
       const tasksResponse = await getUserDailyTasks(plantId);
       if (tasksResponse.data) {
-        const sortedTasks = tasksResponse.data.sort((a, b) => a.hari_ke - b.hari_ke);
+        const sortedTasks = tasksResponse.data.sort(
+          (a, b) => a.hari_ke - b.hari_ke,
+        );
         setDailyTasks(sortedTasks);
-        setSelectedDay(0);
+
+        // Find current day based on plant's progress
+        const currentDay = findCurrentDay(sortedTasks);
+        setCurrentDayTasks(currentDay);
       }
     } catch (err) {
       console.error('Error fetching daily tasks:', err);
     }
+  };
+
+  // Function to determine current day based on progress or incomplete tasks
+  const findCurrentDay = (tasks: TUserPlantDay[]) => {
+    // First, try to find the first day with incomplete tasks
+    const incompleteDay = tasks.find((day) =>
+      day.tugas_penanaman.some((task) => !task.status_selesai),
+    );
+
+    if (incompleteDay) {
+      return incompleteDay;
+    }
+
+    // If all tasks are completed, return the last day
+    return tasks[tasks.length - 1] || null;
   };
 
   // Fetch workshops
@@ -139,11 +165,13 @@ const DashboardMain = () => {
                 const weatherData = await weatherResponse.json();
 
                 const locationName = locationData.city
-                  ? `${locationData.city}, ${locationData.principalSubdivision ||
-                  locationData.countryName
-                  }`
-                  : `${locationData.locality || 'Unknown'}, ${locationData.countryName || 'Indonesia'
-                  }`;
+                  ? `${locationData.city}, ${
+                      locationData.principalSubdivision ||
+                      locationData.countryName
+                    }`
+                  : `${locationData.locality || 'Unknown'}, ${
+                      locationData.countryName || 'Indonesia'
+                    }`;
 
                 const currentHour = new Date().getHours();
                 const currentHumidity =
@@ -213,10 +241,6 @@ const DashboardMain = () => {
     getLocationAndWeather();
   }, []);
 
-  const selectDate = (day: number) => {
-    setSelectedDay(day);
-  };
-
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -237,7 +261,9 @@ const DashboardMain = () => {
     if (!userPlant.tanaman?.durasi_penanaman) return 0;
 
     const totalDays = userPlant.tanaman.durasi_penanaman;
-    const progressDays = Math.floor((userPlant.progress_persen / 100) * totalDays);
+    const progressDays = Math.floor(
+      (userPlant.progress_persen / 100) * totalDays,
+    );
     const remainingDays = totalDays - progressDays;
 
     return Math.max(0, remainingDays);
@@ -247,7 +273,10 @@ const DashboardMain = () => {
     router.push(`${pathname}/${id}/details`);
   };
 
-  const toggleTaskCompletion = async (taskId: number, currentStatus: boolean) => {
+  const toggleTaskCompletion = async (
+    taskId: number,
+    currentStatus: boolean,
+  ) => {
     try {
       if (!selectedPlant) return;
 
@@ -258,20 +287,38 @@ const DashboardMain = () => {
       });
 
       if (response.data) {
-        // Update the tasks in state
-        setDailyTasks(prevDays =>
-          prevDays.map(day => ({
-            ...day,
-            tugas_penanaman: day.tugas_penanaman.map(task =>
+        // Update the current day tasks
+        setCurrentDayTasks((prevDay) => {
+          if (!prevDay) return null;
+
+          return {
+            ...prevDay,
+            tugas_penanaman: prevDay.tugas_penanaman.map((task) =>
               task.id_tugas_penanaman_pengguna === taskId
                 ? {
-                  ...task,
-                  status_selesai: !currentStatus,
-                  tanggal_selesai: !currentStatus ? new Date() : null,
-                }
-                : task
-            )
-          }))
+                    ...task,
+                    status_selesai: !currentStatus,
+                    tanggal_selesai: !currentStatus ? new Date() : null,
+                  }
+                : task,
+            ),
+          };
+        });
+
+        // Also update the full dailyTasks array
+        setDailyTasks((prevDays) =>
+          prevDays.map((day) => ({
+            ...day,
+            tugas_penanaman: day.tugas_penanaman.map((task) =>
+              task.id_tugas_penanaman_pengguna === taskId
+                ? {
+                    ...task,
+                    status_selesai: !currentStatus,
+                    tanggal_selesai: !currentStatus ? new Date() : null,
+                  }
+                : task,
+            ),
+          })),
         );
       }
     } catch (error) {
@@ -284,17 +331,18 @@ const DashboardMain = () => {
     fetchDailyTasks(plant.id_tanaman_pengguna);
   };
 
+  // Get tasks for current day only
   const getCurrentDayTasks = () => {
-    if (dailyTasks.length === 0) return [];
-    return dailyTasks[selectedDay]?.tugas_penanaman || [];
+    if (!currentDayTasks) return [];
+    return currentDayTasks.tugas_penanaman || [];
   };
 
-  // Separate tasks by type
+  // Separate tasks by type for current day
   const getTasksByType = (type: string) => {
-    return getCurrentDayTasks().filter(task =>
+    return getCurrentDayTasks().filter((task) =>
       type === 'main'
         ? task.jenis_tugas !== 'PENGECEKAN_HARIAN'
-        : task.jenis_tugas === 'PENGECEKAN_HARIAN'
+        : task.jenis_tugas === 'PENGECEKAN_HARIAN',
     );
   };
 
@@ -397,68 +445,90 @@ const DashboardMain = () => {
                       />
                     </div>
                     <div className='flex flex-col justify-start items-start'>
-                      <p className='text-[1.6rem] font-semibold'>{selectedPlant.nama_custom}</p>
+                      <p className='text-[1.6rem] font-semibold'>
+                        {selectedPlant.nama_custom}
+                      </p>
                       <p className='text-[0.8rem]'>
                         {selectedPlant.status_penanaman === 'SELESAI'
                           ? 'Tanaman sudah siap panen!'
-                          : `${calculateDaysToHarvest(selectedPlant)} Hari menuju panen`
-                        }
+                          : `${calculateDaysToHarvest(
+                              selectedPlant,
+                            )} Hari menuju panen`}
                       </p>
                     </div>
                   </div>
-                  <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
-                    <p className='text-[1.25rem] font-semibold'>Hari</p>
-                    <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
-                      {dailyTasks.slice(0, 12).map((day, index) => (
-                        <button
-                          onClick={() => selectDate(index)}
-                          key={index}
-                          className={`p-[0.8rem] ${selectedDay === index
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-white text-black'
-                            } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
-                        >
-                          {day.hari_ke}
-                        </button>
-                      ))}
+
+                  {/* Current Day Info */}
+                  <div className='flex flex-col justify-start items-start gap-[0.75rem] w-full'>
+                    <div className='flex flex-row justify-between items-center w-full'>
+                      <p className='text-[1.25rem] font-semibold'>
+                        Hari {currentDayTasks?.hari_ke || 1} - Tugas Hari Ini
+                      </p>
                       <Link
-                        href='/dashboard/plants'
+                        href={`/dashboard/plants/${selectedPlant.id_tanaman_pengguna}/details`}
                         className='text-[1rem] text-[#50B34B] font-semibold'
                       >
-                        Lihat Semuanya
+                        Lihat Semua Hari
                       </Link>
                     </div>
                   </div>
+
                   <div className='grid grid-cols-2 w-full gap-x-[2.25rem]'>
                     {/* Main Tasks */}
                     <div className='col-span-1 flex flex-col justify-start items-start w-full gap-[0.6rem]'>
-                      <p className='text-[1.25rem] font-semibold'>Tugas Harian</p>
+                      <p className='text-[1.25rem] font-semibold'>
+                        Tugas Harian
+                      </p>
                       <div className='flex flex-col justify-start items-start w-full gap-[1.2rem]'>
                         {getTasksByType('main').length > 0 ? (
                           getTasksByType('main').map((task) => (
                             <button
-                              onClick={() => toggleTaskCompletion(task.id_tugas_penanaman_pengguna, task.status_selesai)}
-                              className={`py-[0.8rem] px-[1rem] ${task.status_selesai
-                                ? 'bg-[#50B34B] text-white'
-                                : 'bg-none text-black'
-                                } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                              onClick={() =>
+                                toggleTaskCompletion(
+                                  task.id_tugas_penanaman_pengguna,
+                                  task.status_selesai,
+                                )
+                              }
+                              className={`py-[0.8rem] px-[1rem] ${
+                                task.status_selesai
+                                  ? 'bg-[#50B34B] text-white'
+                                  : 'bg-none text-black'
+                              } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                               key={task.id_tugas_penanaman_pengguna}
                             >
                               <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                                <Drop size={21} color={task.status_selesai ? '#FFFFFF' : '#000000'} weight='fill' />
-                                <p className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'}`}>
+                                <Drop
+                                  size={21}
+                                  color={
+                                    task.status_selesai ? '#FFFFFF' : '#000000'
+                                  }
+                                  weight='fill'
+                                />
+                                <p
+                                  className={`font-medium text-[1rem] ${
+                                    task.status_selesai
+                                      ? 'text-white'
+                                      : 'text-black'
+                                  }`}
+                                >
                                   {task.nama_tugas}
                                 </p>
                               </div>
                               {task.status_selesai ? (
-                                <Check size={21} color='#FFFFFF' weight='fill' />
+                                <Check
+                                  size={21}
+                                  color='#FFFFFF'
+                                  weight='fill'
+                                />
                               ) : (
                                 <Square size={21} color='#000000' />
                               )}
                             </button>
                           ))
                         ) : (
-                          <p className='text-gray-500'>Tidak ada tugas untuk hari ini</p>
+                          <p className='text-gray-500'>
+                            Tidak ada tugas untuk hari ini
+                          </p>
                         )}
                       </div>
                     </div>
@@ -472,28 +542,52 @@ const DashboardMain = () => {
                         {getTasksByType('check').length > 0 ? (
                           getTasksByType('check').map((task) => (
                             <button
-                              onClick={() => toggleTaskCompletion(task.id_tugas_penanaman_pengguna, task.status_selesai)}
-                              className={`py-[0.8rem] px-[1rem] ${task.status_selesai
-                                ? 'bg-[#50B34B] text-white'
-                                : 'bg-none text-black'
-                                } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                              onClick={() =>
+                                toggleTaskCompletion(
+                                  task.id_tugas_penanaman_pengguna,
+                                  task.status_selesai,
+                                )
+                              }
+                              className={`py-[0.8rem] px-[1rem] ${
+                                task.status_selesai
+                                  ? 'bg-[#50B34B] text-white'
+                                  : 'bg-none text-black'
+                              } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                               key={task.id_tugas_penanaman_pengguna}
                             >
                               <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
-                                <Drop size={21} color={task.status_selesai ? '#FFFFFF' : '#000000'} weight='fill' />
-                                <p className={`font-medium text-[1rem] ${task.status_selesai ? 'text-white' : 'text-black'}`}>
+                                <Drop
+                                  size={21}
+                                  color={
+                                    task.status_selesai ? '#FFFFFF' : '#000000'
+                                  }
+                                  weight='fill'
+                                />
+                                <p
+                                  className={`font-medium text-[1rem] ${
+                                    task.status_selesai
+                                      ? 'text-white'
+                                      : 'text-black'
+                                  }`}
+                                >
                                   {task.nama_tugas}
                                 </p>
                               </div>
                               {task.status_selesai ? (
-                                <Check size={21} color='#FFFFFF' weight='fill' />
+                                <Check
+                                  size={21}
+                                  color='#FFFFFF'
+                                  weight='fill'
+                                />
                               ) : (
                                 <Square size={21} color='#000000' />
                               )}
                             </button>
                           ))
                         ) : (
-                          <p className='text-gray-500'>Tidak ada pengecekan untuk hari ini</p>
+                          <p className='text-gray-500'>
+                            Tidak ada pengecekan untuk hari ini
+                          </p>
                         )}
                       </div>
                     </div>
@@ -501,7 +595,9 @@ const DashboardMain = () => {
                 </>
               ) : (
                 <div className='flex flex-col justify-center items-center py-8'>
-                  <p className='text-gray-500 text-lg mb-4'>Belum ada tanaman yang ditanam</p>
+                  <p className='text-gray-500 text-lg mb-4'>
+                    Belum ada tanaman yang ditanam
+                  </p>
                   <Link
                     href='/plants'
                     className='text-[#50B34B] font-semibold hover:underline'
@@ -513,7 +609,7 @@ const DashboardMain = () => {
             </div>
 
             {/* More Plants Section */}
-            <div className='col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start text-white gap-[2.1rem]'>
+            <div className='col-span-3 bg-[#153236] rounded-lg py-[1.4rem] flex flex-col justify-start items-start text-white gap-[2.1rem] w-full'>
               <div className='w-full flex flex-row justify-between items-center px-[1.8rem]'>
                 <h1 className='text-[1.25rem] font-semibold'>Tanamanmu</h1>
                 <Link
@@ -528,7 +624,12 @@ const DashboardMain = () => {
                   userPlants.map((plant) => (
                     <div
                       key={plant.id_tanaman_pengguna}
-                      className={`flex flex-row justify-start items-center gap-[1rem] h-fit w-full ${selectedPlant?.id_tanaman_pengguna === plant.id_tanaman_pengguna ? 'bg-white text-black' : 'hover:bg-white hover:text-black'} px-[1.8rem] py-[1rem] transition-all ease-in-out duration-150 rounded-lg cursor-pointer`}
+                      className={`flex flex-row justify-start items-center gap-[1rem] h-fit w-full ${
+                        selectedPlant?.id_tanaman_pengguna ===
+                        plant.id_tanaman_pengguna
+                          ? 'bg-white text-black'
+                          : 'hover:bg-white hover:text-black'
+                      } px-[1.8rem] py-[1rem] transition-all ease-in-out duration-150 rounded-lg cursor-pointer`}
                       onClick={() => handlePlantSelect(plant)}
                     >
                       <div className='w-[3.1rem] h-[3.1rem]'>
@@ -545,17 +646,22 @@ const DashboardMain = () => {
                         />
                       </div>
                       <div className='flex flex-col justify-start items-start'>
-                        <p className='text-[0.8rem] font-semibold'>{plant.nama_custom}</p>
+                        <p className='text-[0.8rem] font-semibold'>
+                          {plant.nama_custom}
+                        </p>
                         <p className='text-[0.75rem]'>
                           {plant.status_penanaman === 'SELESAI'
                             ? 'Siap panen!'
-                            : `${calculateDaysToHarvest(plant)} Hari menuju panen`
-                          }
+                            : `${calculateDaysToHarvest(
+                                plant,
+                              )} Hari menuju panen`}
                         </p>
                         <div className='w-full bg-gray-600 rounded-full h-1 mt-1'>
                           <div
                             className='bg-[#50B34B] h-1 rounded-full transition-all duration-300'
-                            style={{ width: `${Math.min(plant.progress_persen, 100)}%` }}
+                            style={{
+                              width: `${Math.min(plant.progress_persen, 100)}%`,
+                            }}
                           ></div>
                         </div>
                       </div>
@@ -563,7 +669,9 @@ const DashboardMain = () => {
                   ))
                 ) : (
                   <div className='flex flex-col justify-center items-center py-4 px-[1.8rem] text-center'>
-                    <p className='text-gray-300 text-sm mb-2'>Belum ada tanaman</p>
+                    <p className='text-gray-300 text-sm mb-2'>
+                      Belum ada tanaman
+                    </p>
                     <Link
                       href='/plants'
                       className='text-[#50B34B] text-sm hover:underline'

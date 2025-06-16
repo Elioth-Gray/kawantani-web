@@ -31,14 +31,6 @@ const WorkshopDetailMain = () => {
     return date.toLocaleDateString('id-ID', options);
   };
 
-  const formatTime = (timeString: string) => {
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'WIB' : 'WIB';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
-
   useEffect(() => {
     const fetchWorkshop = async () => {
       try {
@@ -140,8 +132,7 @@ const WorkshopDetailMain = () => {
               <div className='flex flex-row justify-start items-center gap-[0.75rem]'>
                 <Timer size={26} color='#000000' />
                 <p className='text-[0.75rem]'>
-                  {formatTime(workshop.waktu_mulai)} -{' '}
-                  {formatTime(workshop.waktu_berakhir)}
+                  {workshop.waktu_mulai} - {workshop.waktu_berakhir} WIB
                 </p>
               </div>
             </div>

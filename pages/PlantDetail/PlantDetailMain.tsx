@@ -154,7 +154,7 @@ const PlantDetailMain = () => {
           router.push('/dashboard/plants');
         }, 2000);
       } else {
-        alert(response.message || 'Gagal memulai menanam');
+        alert('Gagal memulai menanam');
       }
     } catch (error) {
       console.error('Error creating user plant:', error);
@@ -318,10 +318,11 @@ const PlantDetailMain = () => {
                     <button
                       onClick={() => selectDay(actualIndex)}
                       key={day.id_hari_penanaman}
-                      className={`p-[0.8rem] ${selectedDay === actualIndex
-                        ? 'bg-[#50B34B] text-white'
-                        : 'bg-white text-black'
-                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                      className={`p-[0.8rem] ${
+                        selectedDay === actualIndex
+                          ? 'bg-[#50B34B] text-white'
+                          : 'bg-white text-black'
+                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                     >
                       {day.hari_ke}
                     </button>
@@ -360,9 +361,7 @@ const PlantDetailMain = () => {
                         dailyTasks.map((task, index) => (
                           <button
                             key={task.id_tugas_penanaman}
-                            onClick={() => toggleTaskCompletion(index)}
-                            className={`py-[0.8rem] px-[1rem] ${completedTasks[index] ? 'bg-green-100' : 'bg-none'
-                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            className={`py-[0.8rem] px-[1rem] text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                               <Drop size={21} color='#000000' weight='fill' />
@@ -370,9 +369,6 @@ const PlantDetailMain = () => {
                                 {task.nama_tugas}
                               </p>
                             </div>
-                            {completedTasks[index] && (
-                              <span className='text-green-600'>✓</span>
-                            )}
                           </button>
                         ))
                       ) : (
@@ -389,11 +385,7 @@ const PlantDetailMain = () => {
                         maintenanceTasks.map((task, index) => (
                           <button
                             key={task.id_tugas_penanaman}
-                            onClick={() => toggleMaintainCompletion(index)}
-                            className={`py-[0.8rem] px-[1rem] ${completedMaintain[index]
-                              ? 'bg-green-100'
-                              : 'bg-none'
-                              } text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                            className={`py-[0.8rem] px-[1rem] text-black w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center`}
                           >
                             <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                               <Drop size={21} color='#000000' weight='fill' />
@@ -401,9 +393,6 @@ const PlantDetailMain = () => {
                                 {task.nama_tugas}
                               </p>
                             </div>
-                            {completedMaintain[index] && (
-                              <span className='text-green-600'>✓</span>
-                            )}
                           </button>
                         ))
                       ) : (
@@ -470,9 +459,10 @@ const PlantDetailMain = () => {
                     onClick={() => handleSelectDayFromCalendar(index)}
                     className={`
                       p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md
-                      ${isSelected
-                        ? 'bg-[#50B34B] text-white border-[#50B34B]'
-                        : hasTasksToday
+                      ${
+                        isSelected
+                          ? 'bg-[#50B34B] text-white border-[#50B34B]'
+                          : hasTasksToday
                           ? 'bg-green-50 border-green-200 hover:bg-green-100'
                           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                       }
@@ -612,13 +602,19 @@ const PlantDetailMain = () => {
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
           <div className='bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center'>
             <div className='mb-4'>
-              <CheckCircle size={64} color='#50B34B' weight='fill' className='mx-auto' />
+              <CheckCircle
+                size={64}
+                color='#50B34B'
+                weight='fill'
+                className='mx-auto'
+              />
             </div>
             <h2 className='text-[1.5rem] font-bold text-[#50B34B] mb-2'>
               Berhasil Memulai Menanam!
             </h2>
             <p className='text-gray-600 mb-4'>
-              Tanaman "{customPlantName}" telah berhasil ditambahkan ke daftar tanaman Anda.
+              Tanaman "{customPlantName}" telah berhasil ditambahkan ke daftar
+              tanaman Anda.
             </p>
             <p className='text-sm text-gray-500'>
               Anda akan diarahkan ke halaman tanaman dalam beberapa detik...
