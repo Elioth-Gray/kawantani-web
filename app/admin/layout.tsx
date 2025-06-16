@@ -3,7 +3,7 @@ import './super.css';
 import Sidebar from './Sidebar';
 
 export const metadata: Metadata = {
-  title: 'Admin',
+  title: 'Admin - Kawantani',
   description: 'Admin dashboard for managing the site',
 };
 

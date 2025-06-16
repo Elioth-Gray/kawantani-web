@@ -9,7 +9,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Facilitator & Admin - KawanTani',
+  title: 'Facilitator - Profile - KawanTani',
   description: 'Kawantani Website',
   icons: {
     icon: '/favicon.ico',
