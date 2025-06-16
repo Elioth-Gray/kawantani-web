@@ -12,7 +12,6 @@ import { CaretDown } from '@phosphor-icons/react/dist/ssr';
 import { Bell } from '@phosphor-icons/react/dist/ssr';
 import { jwtDecode } from 'jwt-decode';
 import { getToken } from '@/api/authApi';
-import { DecodedToken } from '@/types/authTypes';
 import { removeAccessToken } from '@/api/authApi';
 
 type DecodedToken = {
@@ -46,7 +45,7 @@ const Navbar = () => {
       setUserData(decoded);
       console.log(userData);
     } else {
-      setIsLogin(false)
+      setIsLogin(false);
     }
   }, []);
 
@@ -99,7 +98,9 @@ const Navbar = () => {
       {isLogin ? (
         <div className='flex flex-row justify-end items-center gap-[1.25rem] relative'>
           <div className='w-full flex flex-col justify-start items-between'>
-            <p className='font-bold'>{userData.firstName + ' ' + userData.lastName}</p>
+            <p className='font-bold'>
+              {userData.firstName + ' ' + userData.lastName}
+            </p>
           </div>
           <div className='relative'>
             <div
@@ -114,8 +115,9 @@ const Navbar = () => {
               <CaretDown
                 size={18}
                 color='#ffffff'
-                className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
-                  }`}
+                className={`transition-transform duration-200 ${
+                  isDropdownOpen ? 'rotate-180' : ''
+                }`}
               />
             </div>
 

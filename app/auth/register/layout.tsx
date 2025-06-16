@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
-import './globals.css';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -10,7 +9,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Kawantani - Solusi Pertanian Anda',
+  title: 'Register - KawanTani',
   description: 'Kawantani Website',
   icons: {
     icon: '/favicon.ico',
