@@ -59,6 +59,10 @@ const Navbar = () => {
     router.push('/dashboard/profiles');
   };
 
+  const navigateToDashboard = () => {
+    router.push('/dashboard');
+  };
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -125,6 +129,15 @@ const Navbar = () => {
                   className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#50B34B] hover:text-white transition-colors'
                 >
                   Profile
+                </button>
+                <button
+                  onClick={() => {
+                    navigateToDashboard();
+                    setIsDropdownOpen(false);
+                  }}
+                  className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-[#50B34B] hover:text-white transition-colors'
+                >
+                  Dashboard
                 </button>
                 <button
                   onClick={() => {

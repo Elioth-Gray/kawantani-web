@@ -63,6 +63,7 @@ export type TUserPlantDay = {
   total_tugas: number;
   tugas_selesai: number;
   progress_hari_persen: number;
+  catatan_harian: string;
   status_hari: "BELUM_DIMULAI" | "SEDANG_BERJALAN" | "SELESAI";
   id_tanaman_pengguna: string;
   tugas_penanaman: TUserPlantTask[];

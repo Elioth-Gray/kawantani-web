@@ -142,3 +142,23 @@ export type TPayWorkshopResponse = {
     status_pembayaran: boolean;
   } | null;
 };
+
+export type TRegisteredParticipant = {
+  id_pendaftaran: number;
+  nama_depan_peserta: string;
+  nama_belakang_peserta: string;
+  email_peserta: string;
+  nomor_telepon_peserta: string;
+  jenis_kelamin_peserta: number;
+  tanggal_pendaftaran: string;
+  status_pembayaran: boolean;
+  nomor_tiket: string;
+  id_pengguna: string;
+  id_workshop: string;
+  id_metode_pembayaran: number;
+};
+
+export type TRegisteredWorkshopResponse = {
+  message: string;
+  data: TRegisteredParticipant[] | null;
+};
