@@ -67,7 +67,7 @@ const ArticleMain = () => {
 
     const matchesCategory =
       typeFilter.length === 0 ||
-      typeFilter.includes(article.kategori?.id_kategori_artikel);
+      typeFilter.includes(article.kategori?.id_kategori_artikel || 0);
 
     return matchesSearch && matchesCategory;
   });
