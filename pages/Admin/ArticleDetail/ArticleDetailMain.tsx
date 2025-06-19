@@ -266,6 +266,10 @@ const ArticleDetailMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -286,7 +290,7 @@ const ArticleDetailMain = () => {
           <div className='col-span-1 w-full h-full rounded-xl overflow-hidden bg-zinc-900'>
             {article.gambar_artikel ? (
               <img
-                src={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                src={`${baseURL}/articles/${article.gambar_artikel}`}
                 alt={article.judul_artikel}
                 className='w-full h-full object-cover'
               />

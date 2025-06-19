@@ -100,7 +100,6 @@ const AdminSalesMain = () => {
       try {
         // Ganti dengan pemanggilan API yang sebenarnya
         const response = await getAllSales();
-        console.log(response.data);
 
         if (response.data) {
           const salesData = response.data;

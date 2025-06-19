@@ -14,22 +14,18 @@ import { removeAccessToken } from '@/api/authApi';
 
 type DecodedToken = {
   id: string;
-  email: string;
   firstName: string;
   lastName: string;
-  iat: number;
-  exp: number;
+  avatar: string;
 };
 
 const DashboardNavbar = () => {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [userData, setUserData] = useState({
     id: '',
-    email: '',
     firstName: '',
     lastName: '',
-    iat: 0,
-    exp: 0,
+    avatar: '',
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -41,7 +37,6 @@ const DashboardNavbar = () => {
     if (storedToken) {
       const decoded = jwtDecode<DecodedToken>(storedToken);
       setUserData(decoded);
-      console.log(userData);
     }
   }, []);
 
@@ -57,6 +52,10 @@ const DashboardNavbar = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   return (
     <nav className='flex flex-row justify-between items-center text-black w-full bg-[#FCF7F1] py-[2.1rem] px-[9rem] relative'>
@@ -88,7 +87,9 @@ const DashboardNavbar = () => {
       </div>
       <div className='flex flex-row justify-end items-center gap-[1.25rem] relative'>
         <div className='w-full flex flex-col justify-start items-between'>
-          <p className='font-bold'>{userData.firstName + ' ' + userData.lastName}</p>
+          <p className='font-bold'>
+            {userData.firstName + ' ' + userData.lastName}
+          </p>
         </div>
         <div className='relative'>
           <div
@@ -96,15 +97,23 @@ const DashboardNavbar = () => {
             onClick={toggleDropdown}
           >
             <div className='rounded-full border border-[#50B34B] p-[0.1rem] flex flex-col justify-center items-center'>
-              <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center'>
-                <User size={15} color='#fffffff' />
+              <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center size-15 overflow-hidden'>
+                <Image
+                  src={`${baseURL}/users/${userData.avatar}`}
+                  alt='Admin Avatar'
+                  width={15}
+                  height={15}
+                  className='object-cover w-full h-full'
+                  unoptimized
+                />
               </div>
             </div>
             <CaretDown
               size={18}
               color='#fffff'
-              className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
-                }`}
+              className={`transition-transform duration-200 ${
+                isDropdownOpen ? 'rotate-180' : ''
+              }`}
             />
           </div>
 

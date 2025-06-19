@@ -23,10 +23,7 @@ interface FacilitatorData {
       nama_provinsi: string;
     };
   };
-}   
-
-const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL_FILE || 'http://localhost:2000/uploads';
+}
 
 const FacilitatorProfileMain = () => {
   const router = useRouter();
@@ -38,8 +35,6 @@ const FacilitatorProfileMain = () => {
       setInitialLoading(true);
       try {
         const response = await getFacilitatorProfile();
-        console.log(response);
-        console.log(baseURL);
 
         if (response?.success) {
           setFacilitator(response.data.user);
@@ -55,6 +50,10 @@ const FacilitatorProfileMain = () => {
 
     loadAdminData();
   }, []);
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   if (initialLoading) {
     return (

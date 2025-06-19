@@ -1,6 +1,5 @@
 import axios from 'axios';
 import {
-  TArticleResponse,
   TUpdateArticle,
   TCommentArticle,
   TSaveArticle,
@@ -71,7 +70,7 @@ export const getAllArticlesAdmin = async () => {
   }
 };
 
-export const getArticleById = async (id: string): Promise<TArticleResponse> => {
+export const getArticleById = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/articles/${id}`, {
@@ -88,7 +87,7 @@ export const getArticleById = async (id: string): Promise<TArticleResponse> => {
   }
 };
 
-export const getYourArticles = async (): Promise<TArticleResponse> => {
+export const getYourArticles = async () => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/articles/own`, {
@@ -105,9 +104,7 @@ export const getYourArticles = async (): Promise<TArticleResponse> => {
   }
 };
 
-export const createArticle = async (
-  formData: FormData,
-): Promise<TArticleResponse> => {
+export const createArticle = async (formData: FormData) => {
   const token = getToken();
 
   if (!token) {
@@ -115,22 +112,12 @@ export const createArticle = async (
   }
 
   try {
-    console.log('Sending request to create article...');
-
-    // Log FormData contents for debugging
-    console.log('FormData contents:');
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
     const response = await axios.post(`${baseURL}/articles/create`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${token}`,
       },
     });
-
-    console.log('Create article response:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Error creating article:', error);
@@ -143,9 +130,7 @@ export const createArticle = async (
   }
 };
 
-export const updateArticle = async (
-  data: TUpdateArticle,
-): Promise<TArticleResponse> => {
+export const updateArticle = async (data: TUpdateArticle) => {
   const token = getToken();
   try {
     const formData = new FormData();
@@ -176,10 +161,7 @@ export const updateArticle = async (
   }
 };
 
-export const verifyArticle = async (
-  id: string,
-  status: string,
-): Promise<TArticleResponse> => {
+export const verifyArticle = async (id: string, status: string) => {
   const token = getToken();
   try {
     const response = await axios.patch(
@@ -200,9 +182,7 @@ export const verifyArticle = async (
   }
 };
 
-export const toggleArticleStatus = async (
-  id: string,
-): Promise<TArticleResponse> => {
+export const toggleArticleStatus = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.patch(
@@ -223,7 +203,7 @@ export const toggleArticleStatus = async (
   }
 };
 
-export const deleteArticle = async (id: string): Promise<TArticleResponse> => {
+export const deleteArticle = async (id: string) => {
   const token = getToken();
   try {
     const response = await axios.delete(`${baseURL}/articles/${id}`, {
@@ -240,9 +220,7 @@ export const deleteArticle = async (id: string): Promise<TArticleResponse> => {
   }
 };
 
-export const addComment = async (
-  data: TCommentArticle,
-): Promise<TArticleResponse> => {
+export const addComment = async (data: TCommentArticle) => {
   const token = getToken();
 
   if (!token) {
@@ -284,9 +262,7 @@ export const addComment = async (
   }
 };
 
-export const saveArticle = async (
-  data: TSaveArticle,
-): Promise<TArticleResponse> => {
+export const saveArticle = async (data: TSaveArticle) => {
   const token = getToken();
   try {
     const response = await axios.post(
@@ -307,9 +283,7 @@ export const saveArticle = async (
   }
 };
 
-export const unsaveArticle = async (
-  data: TUnsaveArticle,
-): Promise<TArticleResponse> => {
+export const unsaveArticle = async (data: TUnsaveArticle) => {
   const token = getToken();
   try {
     const response = await axios.delete(`${baseURL}/articles/${data.id}/save`, {
@@ -326,7 +300,7 @@ export const unsaveArticle = async (
   }
 };
 
-export const getSavedArticles = async (): Promise<TArticleResponse> => {
+export const getSavedArticles = async () => {
   const token = getToken();
   try {
     const response = await axios.get(`${baseURL}/articles/saved`, {
@@ -334,7 +308,6 @@ export const getSavedArticles = async (): Promise<TArticleResponse> => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Saved articles response:', response);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -344,9 +317,7 @@ export const getSavedArticles = async (): Promise<TArticleResponse> => {
   }
 };
 
-export const likeArticle = async (
-  data: TLikeArticle,
-): Promise<TArticleResponse> => {
+export const likeArticle = async (data: TLikeArticle) => {
   const token = getToken();
   try {
     const response = await axios.post(
@@ -369,9 +340,7 @@ export const likeArticle = async (
   }
 };
 
-export const unlikeArticle = async (
-  data: TUnlikeArticle,
-): Promise<TArticleResponse> => {
+export const unlikeArticle = async (data: TUnlikeArticle) => {
   const token = getToken();
   try {
     const response = await axios.delete(`${baseURL}/articles/${data.id}/like`, {

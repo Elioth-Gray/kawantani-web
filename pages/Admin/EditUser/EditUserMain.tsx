@@ -35,6 +35,10 @@ const userSchema = z
   });
 
 const EditUserMain = () => {
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   const params = useParams();
   const id = params?.id || '';
   const router = useRouter();
@@ -77,7 +81,6 @@ const EditUserMain = () => {
       try {
         const response = await getUserById(id as string);
         const user = response.data;
-        console.log('Loaded user data:', user);
         if (response.data) {
           setFormData({
             firstName: user.nama_depan_pengguna || '',
@@ -93,9 +96,7 @@ const EditUserMain = () => {
             confirmPassword: '',
             gender: user.jenisKelamin ?? 0,
           });
-          setAvatarPreview(
-            `http://localhost:2000/uploads/users/${user.avatar}`,
-          );
+          setAvatarPreview(`${baseURL}/users/${user.avatar}`);
         } else {
           console.error('Failed to load user:', response.message);
           alert('Gagal memuat data pengguna');
@@ -181,7 +182,6 @@ const EditUserMain = () => {
         alert(result.message);
       } else {
         alert(result.message);
-        console.log('Navigating to /admin/dashboard/users');
         router.push('/admin/dashboard/users');
       }
     } catch (error) {

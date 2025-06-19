@@ -16,22 +16,18 @@ import { removeAccessToken } from '@/api/authApi';
 
 type DecodedToken = {
   id: string;
-  email: string;
   firstName: string;
   lastName: string;
-  iat: number;
-  exp: number;
+  avatar: string;
 };
 
 const Navbar = () => {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [userData, setUserData] = useState({
     id: '',
-    email: '',
     firstName: '',
     lastName: '',
-    iat: 0,
-    exp: 0,
+    avatar: '',
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -65,6 +61,10 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   return (
     <nav className='flex flex-row justify-between items-center text-white w-full'>
@@ -109,7 +109,16 @@ const Navbar = () => {
             >
               <div className='rounded-full border border-[#50B34B] p-[0.1rem] flex flex-col justify-center items-center'>
                 <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center'>
-                  <User size={15} color='#fffffff' />
+                  <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center size-15 overflow-hidden'>
+                    <Image
+                      src={`${baseURL}/users/${userData.avatar}`}
+                      alt='Admin Avatar'
+                      width={15}
+                      height={15}
+                      className='object-cover w-full h-full'
+                      unoptimized
+                    />
+                  </div>
                 </div>
               </div>
               <CaretDown

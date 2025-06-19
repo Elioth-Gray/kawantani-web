@@ -362,6 +362,10 @@ const DashboardMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <>
       {/* Feature Section */}
@@ -435,7 +439,7 @@ const DashboardMain = () => {
                       <Image
                         src={
                           selectedPlant.tanaman?.gambar_tanaman
-                            ? `http://localhost:2000/uploads/plants/${selectedPlant.tanaman.gambar_tanaman}`
+                            ? `${baseURL}/plants/${selectedPlant.tanaman.gambar_tanaman}`
                             : '/images/lemon.webp'
                         }
                         width={79}
@@ -636,7 +640,7 @@ const DashboardMain = () => {
                         <Image
                           src={
                             plant.tanaman?.gambar_tanaman
-                              ? `http://localhost:2000/uploads/plants/${plant.tanaman.gambar_tanaman}`
+                              ? `${baseURL}/plants/${plant.tanaman.gambar_tanaman}`
                               : '/images/lemon.webp'
                           }
                           width={79}
@@ -716,7 +720,7 @@ const DashboardMain = () => {
                 {articles.map((article) => (
                   <ArticleCard
                     key={article.id_artikel}
-                    imageURL={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                    imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
                     title={article.judul_artikel}
                     date={formatDate(article.tanggal_artikel)}
                     href={`/articles/${article.id_artikel}/details`}
@@ -745,7 +749,7 @@ const DashboardMain = () => {
               workshops.map((workshop) => (
                 <WorkshopCard
                   key={workshop.id_workshop}
-                  imageURL={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                  imageURL={`${baseURL}/workshops/${workshop.gambar_workshop}`}
                   title={workshop.judul_workshop}
                   date={formatDate(workshop.tanggal_workshop)}
                   location={`${workshop.alaamt_lengkap_workshop}, ${workshop.kabupaten.nama_kabupaten}, ${workshop.kabupaten.provinsi.nama_provinsi}`}

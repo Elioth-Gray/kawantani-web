@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TRegister, TLogin } from '@/types/authTypes';
+import { TLogin } from '@/types/authTypes';
 
 const baseURL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
@@ -32,7 +32,6 @@ export const registerAccount = async (formData: FormData) => {
 export const loginAccount = async (formData: TLogin) => {
   try {
     const response = await axios.post(`${baseURL}/auth/login`, formData);
-    console.log(response.data.data.token);
     putToken(response.data.data.token);
     return response.data;
   } catch (error: any) {
@@ -85,7 +84,6 @@ export const activateUserAccount = async (code: string) => {
 export const loginAdmin = async (formData: TLogin) => {
   try {
     const response = await axios.post(`${baseURL}/auth/admin/login`, formData);
-    console.log(response.data.data.token);
     putToken(response.data.data.token);
     return response.data;
   } catch (error: any) {
@@ -102,7 +100,6 @@ export const loginFacilitator = async (formData: TLogin) => {
       `${baseURL}/auth/facilitator/login`,
       formData,
     );
-    console.log(response.data.data.token);
     putToken(response.data.data.token);
     return response.data;
   } catch (error: any) {

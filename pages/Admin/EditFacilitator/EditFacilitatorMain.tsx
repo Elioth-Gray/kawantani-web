@@ -114,9 +114,6 @@ const EditFacilitatorMain = () => {
           const provinceId = facilitator.kabupaten.provinsi.id_provinsi;
           const regencyId = facilitator.kabupaten.id_kabupaten;
 
-          console.log('Loaded facilitator data:', facilitator);
-          console.log('Province ID:', provinceId, 'Regency ID:', regencyId);
-
           await loadRegencies(provinceId);
 
           setFormData({
@@ -129,9 +126,7 @@ const EditFacilitatorMain = () => {
             password: '',
             confirmPassword: '',
           });
-          setAvatarPreview(
-            `http://localhost:2000/uploads/facilitators/${facilitator.avatar}`,
-          );
+          setAvatarPreview(`${baseURL}/facilitators/${facilitator.avatar}`);
           setFacilitator(facilitator);
         } else {
           console.error('Failed to load facilitator:', response.message);
@@ -156,7 +151,6 @@ const EditFacilitatorMain = () => {
       const response = await getProvinceRegency(provinceId);
 
       if (response.success) {
-        console.log('Loaded regencies:', response.data.regencies);
         setRegencies(response.data.regencies);
       } else {
         console.error('Failed to load regencies:', response.message);
@@ -253,6 +247,10 @@ const EditFacilitatorMain = () => {
       setLoading(false);
     }
   };
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   if (initialLoading) {
     return (

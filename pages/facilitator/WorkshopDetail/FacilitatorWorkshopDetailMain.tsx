@@ -2,21 +2,13 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import {
-  ArrowLeft,
-  CheckCircle,
-  Trash,
-  XCircle,
-} from '@phosphor-icons/react/dist/ssr';
-import Image from 'next/image';
-import { deleteArticle, getArticleById, verifyArticle } from '@/api/articleApi';
+import { ArrowLeft, Trash } from '@phosphor-icons/react/dist/ssr';
 import {
   deleteWorkshop,
   getWorkshopById,
   verifyWorkshop,
 } from '@/api/workshopApi';
 
-// Enum untuk status verifikasi workshop
 enum StatusVerifikasiWorkshop {
   MENUNGGU = 'MENUNGGU',
   DIVERIFIKASI = 'DIVERIFIKASI',
@@ -82,7 +74,7 @@ const AdminWorkshopDetailMain = () => {
       setInitialLoading(true);
       try {
         const response = await getWorkshopById(id as string);
-        console.log(response);
+
         if (response.data) {
           setWorkshop(response.data);
         } else {
@@ -176,6 +168,10 @@ const AdminWorkshopDetailMain = () => {
     return `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed`;
   };
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   if (initialLoading) {
     return (
       <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
@@ -217,7 +213,7 @@ const AdminWorkshopDetailMain = () => {
             <img
               src={
                 workshop?.gambar_workshop
-                  ? `http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`
+                  ? `${baseURL}/workshops/${workshop.gambar_workshop}`
                   : '/default-workshop-image.jpg'
               }
               width={0}

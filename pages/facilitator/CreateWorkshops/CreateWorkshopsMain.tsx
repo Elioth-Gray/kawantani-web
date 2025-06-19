@@ -449,8 +449,6 @@ const CreateWorkshopsMain = () => {
       form.append('image', formData.image);
     }
 
-    console.log(form);
-
     try {
       const result = await createWorkshop(form);
       if (result.success === false) {

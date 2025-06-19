@@ -72,7 +72,6 @@ const DashboardWorkshopMain = () => {
     const fetchInitialData = async () => {
       try {
         const registeredResponse = await getRegisteredWorkshops();
-        console.log('Registered workshops response:', registeredResponse);
 
         if (
           registeredResponse?.data &&
@@ -234,6 +233,10 @@ const DashboardWorkshopMain = () => {
     setStartDate('');
     setEndDate('');
   };
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   if (loading) {
     return (
@@ -448,7 +451,7 @@ const DashboardWorkshopMain = () => {
               filteredWorkshops.map((workshop) => (
                 <div key={workshop.id_workshop} className='relative'>
                   <WorkshopCard
-                    imageURL={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                    imageURL={`${baseURL}/workshops/${workshop.gambar_workshop}`}
                     title={workshop.judul_workshop}
                     date={formatDate(workshop.tanggal_workshop)}
                     location={`${workshop.alaamt_lengkap_workshop}, ${workshop.kabupaten.nama_kabupaten}, ${workshop.kabupaten.provinsi.nama_provinsi}`}

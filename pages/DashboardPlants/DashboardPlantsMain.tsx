@@ -122,6 +122,10 @@ const DashboardPlantsMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main>
       <section className='w-full h-screen grid grid-cols-12 bg-[#FCF7F1]'>
@@ -256,7 +260,7 @@ const DashboardPlantsMain = () => {
               filteredPlants.map((plant) => (
                 <PlantCard
                   key={plant.id_tanaman_pengguna}
-                  imageURL={`http://localhost:2000/uploads/plants/${plant.tanaman?.gambar_tanaman}`}
+                  imageURL={`${baseURL}/plants/${plant.tanaman?.gambar_tanaman}`}
                   title={plant.nama_custom}
                   description={
                     limitWords(plant.tanaman?.deskripsi_tanaman) ||

@@ -123,7 +123,7 @@ const UserPlantDetailMain = () => {
         }
 
         const tasksResponse = await getUserDailyTasks(plantId);
-        console.log(tasksResponse);
+
         if (tasksResponse.data) {
           // Sort daily tasks by day order (hari_ke) to ensure proper sequence
           const sortedTasks = tasksResponse.data.sort(
@@ -164,15 +164,6 @@ const UserPlantDetailMain = () => {
     taskType: string,
   ) => {
     try {
-      console.log(
-        `Toggling ${taskType} task:`,
-        taskId,
-        'from',
-        currentStatus,
-        'to',
-        !currentStatus,
-      );
-
       const response = await updateTaskProgress({
         userPlantId: plantId,
         taskId: taskId,
@@ -318,6 +309,10 @@ const UserPlantDetailMain = () => {
     (task) => task.jenis_tugas === 'PENGECEKAN_HARIAN',
   );
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <>
       {/* Toast Notification */}
@@ -354,7 +349,7 @@ const UserPlantDetailMain = () => {
                 height={307}
                 src={
                   userPlant.tanaman?.gambar_tanaman
-                    ? `http://localhost:2000/uploads/plants/${userPlant.tanaman.gambar_tanaman}`
+                    ? `${baseURL}/plants/${userPlant.tanaman.gambar_tanaman}`
                     : '/images/cabai.webp'
                 }
                 alt={userPlant.nama_custom}

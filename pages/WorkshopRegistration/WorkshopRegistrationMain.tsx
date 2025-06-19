@@ -229,6 +229,10 @@ const WorkshopRegistrationMain = () => {
     setCurrentIndex((prevIndex) => prevIndex - 1);
   };
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main className='px-[8.1rem] py-[5.3rem]'>
       <section className='w-full'>
@@ -404,7 +408,7 @@ const WorkshopRegistrationMain = () => {
                       className=' object-cover rounded-lg'
                       width={142}
                       height={54}
-                      src={`http://localhost:2000/uploads/paymentmethod/gopay.png`}
+                      src={`${baseURL}/paymentmethod/gopay.png`}
                       alt='payment-method'
                       quality={100}
                       unoptimized
@@ -424,7 +428,7 @@ const WorkshopRegistrationMain = () => {
                       className=' object-cover rounded-lg'
                       width={122.74}
                       height={35}
-                      src={`http://localhost:2000/uploads/paymentmethod/dana.png`}
+                      src={`${baseURL}/paymentmethod/dana.png`}
                       alt='payment-method'
                       quality={100}
                       unoptimized
@@ -444,7 +448,7 @@ const WorkshopRegistrationMain = () => {
                       className=' object-cover rounded-lg'
                       width={82}
                       height={26}
-                      src={`http://localhost:2000/uploads/paymentmethod/ovo.png`}
+                      src={`${baseURL}/paymentmethod/ovo.png`}
                       alt='ovo'
                       quality={100}
                       unoptimized
@@ -464,7 +468,7 @@ const WorkshopRegistrationMain = () => {
                       className=' object-cover rounded-lg'
                       width={109.77}
                       height={41}
-                      src={`http://localhost:2000/uploads/paymentmethod/qris.png`}
+                      src={`${baseURL}/paymentmethod/qris.png`}
                       alt='payment-method'
                       quality={100}
                       unoptimized
@@ -570,7 +574,7 @@ const WorkshopRegistrationMain = () => {
                 className=' object-cover w-full h-[16.8rem] rounded-lg'
                 width={545}
                 height={307}
-                src={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                src={`${baseURL}/workshops/${workshop.gambar_workshop}`}
                 alt='gambar-workshop'
                 quality={100}
                 unoptimized

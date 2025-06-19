@@ -106,7 +106,6 @@ const UserWorkshopMain = () => {
         const registeredResponse = await getRegisteredWorkshopDetail(
           params?.id as string,
         );
-        console.log('Registered workshop response:', registeredResponse);
 
         if (
           registeredResponse &&
@@ -179,6 +178,10 @@ const UserWorkshopMain = () => {
         return 'Tidak diketahui';
     }
   };
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   if (isLoading) {
     return (
@@ -333,16 +336,6 @@ const UserWorkshopMain = () => {
                 </p>
               </div>
             </div>
-
-            <div className='w-full flex flex-col justify-start items-start gap-[1rem]'>
-              <ActionButton
-                textColor='#ffffff'
-                width='16.25rem'
-                height='3.5rem'
-              >
-                Download Tiket
-              </ActionButton>
-            </div>
           </div>
 
           <div className='col-span-1 flex flex-row justify-end items-start w-full'>
@@ -353,7 +346,7 @@ const UserWorkshopMain = () => {
                 height={307}
                 src={
                   workshop.data.gambar_workshop
-                    ? `http://localhost:2000/uploads/workshops/${workshop.data.gambar_workshop}`
+                    ? `${baseURL}/workshops/${workshop.data.gambar_workshop}`
                     : '/images/workshop-image.webp'
                 }
                 alt={workshop.data.judul_workshop || 'workshop image'}

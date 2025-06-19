@@ -35,6 +35,10 @@ const AdminAvatar = () => {
     router.push('/auth/super');
   };
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <div className='w-full flex flex-col justify-start items-end'>
       <div
@@ -46,7 +50,7 @@ const AdminAvatar = () => {
         <div className='flex items-center gap-4'>
           <div className='w-10 h-10 rounded-full border-2 border-blue-500 overflow-hidden bg-gray-200'>
             <Image
-              src={`http://localhost:2000/uploads/admin/${user.avatar}`}
+              src={`${baseURL}/admin/${user.avatar}`}
               alt='Admin Avatar'
               width={48}
               height={48}

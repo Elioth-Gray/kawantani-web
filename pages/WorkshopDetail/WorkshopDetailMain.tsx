@@ -78,6 +78,10 @@ const WorkshopDetailMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main className='px-[8.1rem] py-[5.3rem]'>
       <section className='w-full'>
@@ -104,7 +108,7 @@ const WorkshopDetailMain = () => {
               className='object-cover w-full h-full'
               width={545}
               height={307}
-              src={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+              src={`${baseURL}/workshops/${workshop.gambar_workshop}`}
               alt={workshop.judul_workshop}
               quality={100}
               unoptimized

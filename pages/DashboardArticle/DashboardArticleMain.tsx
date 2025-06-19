@@ -31,7 +31,6 @@ const DashboardArticleMain = () => {
       try {
         setLoading(true);
         const response = await getSavedArticles();
-        console.log('Saved Articles Response:', response);
 
         if (response.data) {
           const articlesData = response.data.map((item: any) => ({
@@ -57,7 +56,6 @@ const DashboardArticleMain = () => {
       try {
         setLoading(true);
         const response = await getYourArticles();
-        console.log('Your Articles Response:', response);
 
         if (response.data) {
           const normalizedArticles = response.data.map((article: any) => ({
@@ -177,6 +175,10 @@ const DashboardArticleMain = () => {
       </main>
     );
   }
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   return (
     <main>
@@ -422,7 +424,7 @@ const DashboardArticleMain = () => {
                 {filteredYourArticles.map((article) => (
                   <ArticleCard
                     key={article.id_artikel}
-                    imageURL={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                    imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
                     title={article.judul_artikel}
                     date={formatDate(article.tanggal_artikel)}
                     href={
@@ -458,7 +460,7 @@ const DashboardArticleMain = () => {
               {filteredSavedArticles.map((article) => (
                 <ArticleCard
                   key={article.id_artikel}
-                  imageURL={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                  imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
                   title={article.judul_artikel}
                   date={formatDate(article.tanggal_artikel)}
                   href={`/articles/${article.id_artikel}/details`}
