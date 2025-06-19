@@ -44,7 +44,6 @@ export const getUserById = async (id: string) => {
 
 export const updateUser = async (formData: FormData, id: string) => {
   const token = getToken();
-  console.log(token);
   try {
     const response = await axios.put(`${baseURL}/users/edit/${id}`, formData, {
       headers: {
@@ -63,7 +62,6 @@ export const updateUser = async (formData: FormData, id: string) => {
 
 export const deleteUser = async (id: string) => {
   const token = getToken();
-  console.log(token);
   try {
     const response = await axios.delete(`${baseURL}/users/${id}`, {
       headers: {

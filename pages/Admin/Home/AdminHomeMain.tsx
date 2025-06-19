@@ -75,7 +75,7 @@ const AdminHomeMain = () => {
       setLoading(true);
       try {
         const response = await getVerifiedWorkshops();
-        console.log(response);
+
         if (response.data) {
           setWorkshops(response.data);
         }
@@ -91,11 +91,6 @@ const AdminHomeMain = () => {
     fetchArticles();
     fetchWorkshops();
   }, []);
-
-  useEffect(() => {
-    console.log(facilitators);
-    console.log(users);
-  }, [facilitators]);
 
   const salesData = [
     { month: 'January', sales: 4500 },

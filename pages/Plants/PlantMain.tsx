@@ -26,7 +26,7 @@ const PlantMain = () => {
 
         // Fetch all plants
         const plantsResponse = await getAllPlants();
-        console.log(plantsResponse.data.categories);
+
         if (plantsResponse && plantsResponse.data.categories) {
           setPlants(plantsResponse.data.categories);
         }
@@ -109,6 +109,9 @@ const PlantMain = () => {
       </main>
     );
   }
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   return (
     <main>
@@ -213,7 +216,7 @@ const PlantMain = () => {
               filteredPlants.map((plant) => (
                 <PlantCard
                   key={plant.id_tanaman}
-                  imageURL={`http://localhost:2000/uploads/plants/${plant.gambar_tanaman}`}
+                  imageURL={`${baseURL}/plants/${plant.gambar_tanaman}`}
                   title={plant.nama_tanaman}
                   description={
                     limitWords(plant.deskripsi_tanaman) ||

@@ -20,12 +20,13 @@ const FormRegister = () => {
   const router = useRouter();
 
   const pathname = usePathname();
-
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [currentSection, setSection] = useState(0);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof formData, string>>
   >({});
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const [warning, setWarning] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,19 @@ const FormRegister = () => {
         invalid_type_error: 'Jenis kelamin wajib diisi!',
       }),
     }),
-    z.object({}),
+    z.object({
+      file: z
+        .instanceof(File, { message: 'Foto profil harus diisi!' })
+        .refine(
+          (file) => file.size <= 5 * 1024 * 1024,
+          'Ukuran file maksimal 5MB',
+        )
+        .refine(
+          (file) =>
+            ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type),
+          'Format file harus JPG, JPEG, atau PNG',
+        ),
+    }),
     z.any(),
     z
       .object({
@@ -85,7 +98,6 @@ const FormRegister = () => {
     file: null,
   });
 
-
   const handleChange = (e: any) => {
     const { name, value } = e?.target;
     setFormData((prev) => ({
@@ -95,13 +107,26 @@ const FormRegister = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData((prev) => ({ ...prev, file }));
-  };
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setFormData((prev) => ({
+        ...prev,
+        file,
+      }));
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
 
+      // Clear file error ketika user memilih file
+      if (errors.file) {
+        setErrors((prev) => ({ ...prev, file: undefined }));
+      }
+    }
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
     const schema = registerSchemas[currentSection];
 
     const result = schema.safeParse(formData);
@@ -149,7 +174,6 @@ const FormRegister = () => {
       }
     }
   };
-
 
   const selectGender = (gender: 0 | 1) => {
     setFormData((prev) => ({ ...prev, gender }));
@@ -288,20 +312,22 @@ const FormRegister = () => {
                 <button
                   type='button'
                   onClick={() => selectGender(0)}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${formData.gender === 0
-                    ? 'border-2 border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border border-gray-300 hover:border-gray-400'
-                    } transition-all duration-200 font-medium cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${
+                    formData.gender === 0
+                      ? 'border-2 border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border border-gray-300 hover:border-gray-400'
+                  } transition-all duration-200 font-medium cursor-pointer`}
                 >
                   Laki-Laki
                 </button>
                 <button
                   type='button'
                   onClick={() => selectGender(1)}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${formData.gender === 1
-                    ? 'border-2 border-pink-500 bg-pink-50 text-pink-700'
-                    : 'border border-gray-300 hover:border-gray-400'
-                    } transition-all duration-200 font-medium cursor-pointer`}
+                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border ${
+                    formData.gender === 1
+                      ? 'border-2 border-pink-500 bg-pink-50 text-pink-700'
+                      : 'border border-gray-300 hover:border-gray-400'
+                  } transition-all duration-200 font-medium cursor-pointer`}
                 >
                   Perempuan
                 </button>
@@ -316,12 +342,36 @@ const FormRegister = () => {
         ) : currentSection === 1 ? (
           <div className='flex flex-col justify-start items-start w-full gap-[1rem]'>
             <h1 className='text-[1.2rem] font-semibold'>Upload Foto</h1>
+            {avatarPreview ? (
+              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+                <img
+                  src={avatarPreview}
+                  alt='Avatar Pengguna'
+                  className='w-32 h-32 rounded-full object-cover border-2 border-white'
+                />
+                <p>
+                  Foto Profil <span className='text-red-500'>*</span>
+                </p>
+              </div>
+            ) : (
+              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+                <div className='size-32 bg-white rounded-full flex flex-col justify-center items-center'>
+                  <User size={32} color='#09090B'></User>
+                </div>
+                <p>
+                  Foto Profil <span className='text-red-500'>*</span>
+                </p>
+              </div>
+            )}
             <input
               type='file'
               onChange={handleFileChange}
               className='w-full bg-[#F2F2F2] rounded-lg py-[1.1rem] px-[1.1rem]'
             />
             <p className='text-black'>SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
+            {errors.file && (
+              <p className='text-red-500 text-sm mt-1'>{errors.file}</p>
+            )}
           </div>
         ) : currentSection == 2 ? (
           <>

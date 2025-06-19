@@ -96,8 +96,6 @@ export const createWorkshop = async (formData: FormData) => {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    console.log('Create article response:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Error creating article:', error);

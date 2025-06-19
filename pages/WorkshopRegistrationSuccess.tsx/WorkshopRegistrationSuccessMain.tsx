@@ -137,6 +137,10 @@ const WorkshopRegistrationSuccessMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main className='px-[8.1rem] py-[5.3rem]'>
       {/* Form Section */}
@@ -220,7 +224,7 @@ const WorkshopRegistrationSuccessMain = () => {
                 height={307}
                 src={
                   workshop?.gambar_workshop
-                    ? `http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`
+                    ? `${baseURL}/workshops/${workshop.gambar_workshop}`
                     : '/placeholder-workshop.jpg'
                 }
                 alt='gambar-workshop'

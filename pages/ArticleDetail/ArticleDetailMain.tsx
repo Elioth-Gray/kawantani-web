@@ -169,8 +169,6 @@ const ArticleDetailMain = () => {
         content: commentContent,
       });
 
-      console.log('Response from backend:', response); // Debug
-
       if (response && response.data) {
         setMessage(response.message);
         setCommentContent('');
@@ -211,7 +209,7 @@ const ArticleDetailMain = () => {
 
       try {
         const response = await getArticleById(articleId || '');
-        console.log(response);
+
         if (response && response.data) {
           setArticle(response.data);
           await checkSavedStatus(articleId || '');
@@ -227,6 +225,10 @@ const ArticleDetailMain = () => {
 
     fetchArticle();
   }, [pathname]);
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   if (isLoading)
     return <div className='text-center py-8'>Memuat artikel...</div>;
@@ -305,7 +307,7 @@ const ArticleDetailMain = () => {
       <section className='mb-12 flex justify-center'>
         <div className='w-full h-[29rem] overflow-hidden rounded-xl shadow-lg'>
           <Image
-            src={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+            src={`${baseURL}/articles/${article.gambar_artikel}`}
             alt={article.judul_artikel}
             width={1000}
             height={464}
@@ -358,7 +360,7 @@ const ArticleDetailMain = () => {
                   <div className='object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0'>
                     {article.pengguna.avatar ? (
                       <Image
-                        src={`http://localhost:2000/uploads/users/${article.pengguna.avatar}`}
+                        src={`${baseURL}/users/${article.pengguna.avatar}`}
                         width={89}
                         height={89}
                         alt={article.pengguna.nama_depan_pengguna}

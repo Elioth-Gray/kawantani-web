@@ -77,6 +77,10 @@ const ArticleMain = () => {
     setSearchQuery('');
   };
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main>
       <section className='w-full h-screen grid grid-cols-12'>
@@ -212,7 +216,7 @@ const ArticleMain = () => {
               {filteredArticles.map((article) => (
                 <ArticleCard
                   key={article.id_artikel}
-                  imageURL={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                  imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
                   title={article.judul_artikel}
                   date={formatDate(article.tanggal_artikel)}
                   href={`/articles/${article.id_artikel}/details`}

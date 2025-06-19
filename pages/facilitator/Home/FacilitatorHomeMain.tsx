@@ -153,6 +153,10 @@ const FacilitatorHomeMain = () => {
     year: 'numeric',
   });
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main className='w-full h-screen bg-[#09090B] px-[5.1rem] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -295,7 +299,7 @@ const FacilitatorHomeMain = () => {
                         <div className='size-[2rem] rounded-full overflow-clip object-cover'>
                           <Image
                             src={
-                              `http://localhost:2000/uploads/users/${sale.avatar}` ||
+                              `${baseURL}/users/${sale.avatar}` ||
                               '/images/bayam.webp'
                             }
                             width={100}

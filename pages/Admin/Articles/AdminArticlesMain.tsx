@@ -86,7 +86,6 @@ const AdminArticlesMain = () => {
       setLoading(true);
       try {
         const response = await getAllArticlesAdmin();
-        console.log(response);
         if (response.data) {
           const articles = response.data;
           const segmentedArticles = articles.map(
@@ -108,7 +107,6 @@ const AdminArticlesMain = () => {
       setLoading(true);
       try {
         const response = await getAllCategoies();
-        console.log(response.data.categories);
         if (response.data) {
           setCategories(response.data.categories);
         }
@@ -375,6 +373,10 @@ const AdminArticlesMain = () => {
       alert('Ada kesalahan saat menghapus artikel');
     }
   };
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>

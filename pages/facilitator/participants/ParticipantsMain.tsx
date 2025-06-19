@@ -86,7 +86,6 @@ const AdminParticipantsMain = () => {
       setLoading(true);
       try {
         const response = await getAllParticipants();
-        console.log(response.data);
 
         if (response.data) {
           const participantsData = response.data;

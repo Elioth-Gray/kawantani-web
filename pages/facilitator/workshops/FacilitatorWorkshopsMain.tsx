@@ -36,7 +36,6 @@ enum StatusVerifikasiWorkshop {
   DITOLAK = 'DITOLAK',
 }
 
-// Interface untuk data workshop
 type WorkshopResponse = {
   id_workshop: string;
   judul_workshop: string;
@@ -287,11 +286,6 @@ const WorkshopTableMain = () => {
 
   const onCreateWorkshop = () => {
     router.push(`${pathname}/create`);
-  };
-
-  const onDeleteWorkshop = (id: string) => {
-    console.log('Delete workshop:', id);
-    // Add delete logic here
   };
 
   // Fungsi untuk mendapatkan label status verifikasi

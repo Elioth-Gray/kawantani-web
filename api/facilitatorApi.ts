@@ -1,7 +1,3 @@
-import {
-  TRegisterFacilitator,
-  TUpdateFacilitator,
-} from '@/types/facilitatorTypes';
 import axios from 'axios';
 
 const baseURL =

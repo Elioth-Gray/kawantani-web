@@ -201,6 +201,10 @@ const WorkshopMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main>
       <section className='w-full h-screen grid grid-cols-12'>
@@ -394,7 +398,7 @@ const WorkshopMain = () => {
               filteredWorkshops.map((workshop) => (
                 <WorkshopCard
                   key={workshop.id_workshop}
-                  imageURL={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                  imageURL={`${baseURL}/workshops/${workshop.gambar_workshop}`}
                   title={workshop.judul_workshop}
                   date={formatDate(workshop.tanggal_workshop)}
                   location={`${workshop.alaamt_lengkap_workshop}, ${workshop.kabupaten.nama_kabupaten}, ${workshop.kabupaten.provinsi.nama_provinsi}`}

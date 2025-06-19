@@ -53,11 +53,9 @@ const PlantDetailMain = () => {
       try {
         setLoading(true);
         const response = await getPlantById(plantId);
-        console.log('respon1: ', response);
 
         if (response) {
           setPlant(response.data.provinces);
-          console.log('respon2: ', response?.data.provinces);
           const dayTasks =
             response.data.provinces.hari_penanaman?.[0]?.tugas_penanaman || [];
           setCompletedTasks(new Array(dayTasks.length).fill(false));
@@ -205,15 +203,18 @@ const PlantDetailMain = () => {
   const dailyTasks = currentTasks.filter(
     (task) => task.jenis_tugas === 'TUGAS_BIASA' || !task.jenis_tugas,
   );
-  console.log(dailyTasks);
+
   const maintenanceTasks = currentTasks.filter(
     (task) => task.jenis_tugas === 'PENGECEKAN_HARIAN',
   );
-  console.log(maintenanceTasks);
 
   const allDays = plant.hari_penanaman || [];
   // Ubah logika displayedDays - sekarang slice berdasarkan displayStartIndex, bukan selectedDay
   const displayedDays = allDays.slice(displayStartIndex, displayStartIndex + 6);
+
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
 
   return (
     <main className='px-[8.1rem] py-[5.3rem] relative'>
@@ -242,7 +243,7 @@ const PlantDetailMain = () => {
               className='object-cover w-full h-full'
               width={545}
               height={307}
-              src={`http://localhost:2000/uploads/plants/${plant.gambar_tanaman}`}
+              src={`${baseURL}/plants/${plant.gambar_tanaman}`}
               alt={plant.nama_tanaman}
               quality={100}
               unoptimized

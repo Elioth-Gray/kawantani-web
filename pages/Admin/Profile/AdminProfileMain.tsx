@@ -27,8 +27,6 @@ const AdminProfileMain = () => {
       setInitialLoading(true);
       try {
         const response = await getAdminProfile();
-        console.log(response);
-        console.log(baseURL);
 
         if (response?.success) {
           setAdmin(response.data.admin);
