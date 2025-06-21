@@ -67,9 +67,9 @@ const LoginMain = () => {
         const verified = profile.data.user.status_verfikasi;
         console.log(profile);
         console.log(verified);
-        if (verified && verified == true) {
+        if (verified === true) {
           router.push('/dashboard');
-        } else if (verified && verified == false) {
+        } else if (verified === false) {
           router.push('/auth/activation');
         }
         setLoading(false);

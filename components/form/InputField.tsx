@@ -1,4 +1,4 @@
-import React from 'react';
+import { cn } from '@/lib/utils';
 
 const InputField = ({
   children,
@@ -9,6 +9,7 @@ const InputField = ({
   onChange,
   error,
   maxLength,
+  className,
 }: {
   children?: React.ReactNode;
   placeholder?: string;
@@ -18,6 +19,7 @@ const InputField = ({
   onChange?: (e: any) => void;
   error?: string;
   maxLength?: number;
+  className?: string;
 }) => {
   return (
     <div className='w-full'>
@@ -25,13 +27,16 @@ const InputField = ({
         {children}
         <input
           type={type}
-          value={value}
+          value={value ?? ''} // ✅ fallback jika undefined
           name={name}
           onChange={onChange}
           maxLength={maxLength}
-          className={`py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg ${
-            children ? 'pl-[4.8rem]' : 'px-[1rem]'
-          } pr-[2rem] font-semibold text-[#727272]`}
+          className={cn(
+            'py-[1.125rem] bg-[#F2F2F2] w-full rounded-lg',
+            children ? 'pl-[4.8rem]' : 'px-[1rem]',
+            'pr-[2rem] font-semibold text-[#727272]',
+            className,
+          )}
           placeholder={placeholder}
         />
       </div>
