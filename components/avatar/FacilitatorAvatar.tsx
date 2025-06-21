@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getToken, removeAccessToken } from '@/api/authApi';
+import {
+  getFacilitatorProfile,
+  getToken,
+  removeAccessToken,
+} from '@/api/authApi';
 import { jwtDecode } from 'jwt-decode';
 import { DecodedToken } from '@/types/authTypes';
 import { useRouter } from 'next/navigation';
@@ -9,25 +13,31 @@ import Image from 'next/image';
 import { SignOut } from '@phosphor-icons/react';
 
 const FacilitatorAvatar = () => {
-  const [user, setUser] = useState<DecodedToken>({
+  const [user, setUser] = useState({
     id: '',
     email: '',
     firstName: '',
     lastName: '',
-    role: '',
     avatar: '',
-    iat: 0,
-    exp: 0,
   });
 
   const router = useRouter();
 
   useEffect(() => {
-    const token = getToken();
-    if (token) {
-      const decoded = jwtDecode<DecodedToken>(token);
-      setUser(decoded);
-    }
+    const getUser = async () => {
+      const result = await getFacilitatorProfile();
+      if (result.success && result.data?.user) {
+        const u = result.data.user;
+        setUser({
+          id: u.id_facilitator ?? '', // jika ada
+          email: u.email_facilitator,
+          firstName: u.nama_facilitator, // gabungan nama
+          lastName: '', // kosongkan kalau tidak ada
+          avatar: u.avatar,
+        });
+      }
+    };
+    getUser();
   }, []);
 
   const onLogout = () => {

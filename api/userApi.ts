@@ -77,3 +77,25 @@ export const deleteUser = async (id: string) => {
     return { success: false, message: 'Terjadi Kesalahan!', data: null };
   }
 };
+
+export const updateProfile = async (formData: FormData) => {
+  const token = getToken();
+
+  try {
+    const response = await axios.put(`${baseURL}/users/me/update`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error updating user', error);
+    if (error.response && error.response.data) {
+      console.error('Server error response:', error.response.data);
+      throw new Error(error.response.data.message || 'Gagal update profil!');
+    }
+
+    throw new Error(error.message || 'Terjadi kesalahan saat update profil!');
+  }
+};

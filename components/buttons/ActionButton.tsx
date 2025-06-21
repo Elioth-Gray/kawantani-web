@@ -1,14 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
 const ActionButton = ({
   children,
-  size = "1rem",
-  textColor = "#000000",
-  height = "",
-  width = "",
+  size = '1rem',
+  textColor = '#000000',
+  height = '',
+  width = '',
   disabled,
   onClickHandler,
+  className,
 }: {
   children: React.ReactNode;
   size?: string;
@@ -17,6 +18,7 @@ const ActionButton = ({
   width?: string;
   disabled?: boolean;
   onClickHandler?: (e: any) => void;
+  className?: string;
 }) => {
   const buttonStyle = {
     fontSize: size,
@@ -28,9 +30,12 @@ const ActionButton = ({
   return (
     <button
       style={buttonStyle}
-      className={`py-[0.6rem] bg-[#50B34B] rounded-lg ${
-        disabled ? "cursor-not-allowed" : "cursor-pointer"
-      } font-semibold cursor-  w-fit text-center`}
+      className={cn(
+        `py-[0.6rem] bg-[#50B34B] rounded-lg ${
+          disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+        } font-semibold cursor-  w-fit text-center`,
+        className,
+      )}
       disabled={disabled}
       onClick={onClickHandler}
     >

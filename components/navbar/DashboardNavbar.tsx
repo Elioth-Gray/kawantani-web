@@ -4,20 +4,10 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User } from '@phosphor-icons/react/dist/ssr/User';
 import { CaretDown } from '@phosphor-icons/react/dist/ssr';
-import { Bell } from '@phosphor-icons/react/dist/ssr';
-import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react';
-import { getToken } from '@/api/authApi';
 import { removeAccessToken } from '@/api/authApi';
-
-type DecodedToken = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
-};
+import { getUserProfile } from '@/api/authApi';
 
 const DashboardNavbar = () => {
   const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -32,12 +22,21 @@ const DashboardNavbar = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = getToken();
-    setIsLogin(true);
-    if (storedToken) {
-      const decoded = jwtDecode<DecodedToken>(storedToken);
-      setUserData(decoded);
-    }
+    const getUser = async () => {
+      const result = await getUserProfile();
+      if (result.success && result.data?.user) {
+        const u = result.data.user;
+        setUserData({
+          id: u.id_pengguna,
+          firstName: u.nama_depan_pengguna,
+          lastName: u.nama_belakang_pengguna,
+          avatar: u.avatar,
+        });
+        setIsLogin(true); // pastikan ini di-set kalau login berhasil
+      }
+    };
+
+    getUser(); // panggil fungsi di sini
   }, []);
 
   const onLogout = () => {
@@ -96,18 +95,16 @@ const DashboardNavbar = () => {
             className='flex flex-row justify-center items-center gap-[0.3rem] cursor-pointer'
             onClick={toggleDropdown}
           >
-            <div className='rounded-full border border-[#50B34B] p-[0.1rem] flex flex-col justify-center items-center'>
-              <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center size-15 overflow-hidden'>
-                <Image
-                  src={`${baseURL}/users/${userData.avatar}`}
-                  alt='Admin Avatar'
-                  width={15}
-                  height={15}
-                  className='object-cover w-full h-full'
-                  unoptimized
-                />
-              </div>
+            <div className='relative rounded-full border border-[#50B34B] p-[0.1rem] flex justify-center items-center size-10 overflow-hidden'>
+              <Image
+                src={`${baseURL}/users/${userData.avatar}`}
+                alt='Admin Avatar'
+                fill
+                className='object-cover'
+                unoptimized
+              />
             </div>
+
             <CaretDown
               size={18}
               color='#fffff'

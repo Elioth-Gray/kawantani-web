@@ -13,13 +13,7 @@ import { Bell } from '@phosphor-icons/react/dist/ssr';
 import { jwtDecode } from 'jwt-decode';
 import { getToken } from '@/api/authApi';
 import { removeAccessToken } from '@/api/authApi';
-
-type DecodedToken = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
-};
+import { getUserProfile } from '@/api/authApi';
 
 const Navbar = () => {
   const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -28,21 +22,29 @@ const Navbar = () => {
     firstName: '',
     lastName: '',
     avatar: '',
+    role: '',
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = getToken();
-    setIsLogin(true);
-    if (storedToken) {
-      const decoded = jwtDecode<DecodedToken>(storedToken);
-      setUserData(decoded);
-      console.log(userData);
-    } else {
-      setIsLogin(false);
-    }
+    const getUser = async () => {
+      const result = await getUserProfile();
+      if (result.success && result.data?.user) {
+        const u = result.data.user;
+        setUserData({
+          id: u.id_pengguna,
+          firstName: u.nama_depan_pengguna,
+          lastName: u.nama_belakang_pengguna,
+          avatar: u.avatar,
+          role: 'user',
+        });
+        setIsLogin(true);
+      }
+    };
+
+    getUser();
   }, []);
 
   const onLogout = () => {
@@ -95,7 +97,7 @@ const Navbar = () => {
           <Link href='/workshops'>Workshop</Link>
         </li>
       </ul>
-      {isLogin ? (
+      {isLogin && userData.role === 'user' ? (
         <div className='flex flex-row justify-end items-center gap-[1.25rem] relative'>
           <div className='w-full flex flex-col justify-start items-between'>
             <p className='font-bold'>
@@ -107,20 +109,16 @@ const Navbar = () => {
               className='flex flex-row justify-center items-center gap-[0.3rem] cursor-pointer'
               onClick={toggleDropdown}
             >
-              <div className='rounded-full border border-[#50B34B] p-[0.1rem] flex flex-col justify-center items-center'>
-                <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center'>
-                  <div className='p-[0.548rem] bg-white rounded-full flex flex-col justify-center items-center size-15 overflow-hidden'>
-                    <Image
-                      src={`${baseURL}/users/${userData.avatar}`}
-                      alt='Admin Avatar'
-                      width={15}
-                      height={15}
-                      className='object-cover w-full h-full'
-                      unoptimized
-                    />
-                  </div>
-                </div>
+              <div className='relative rounded-full border border-[#50B34B] p-[0.1rem] flex justify-center items-center size-10 overflow-hidden'>
+                <Image
+                  src={`${baseURL}/users/${userData.avatar}`}
+                  alt='Admin Avatar'
+                  fill
+                  className='object-cover'
+                  unoptimized
+                />
               </div>
+
               <CaretDown
                 size={18}
                 color='#ffffff'

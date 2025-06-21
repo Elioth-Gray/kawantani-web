@@ -160,11 +160,11 @@ const FormRegister = () => {
 
       try {
         const result = await registerAccount(form);
-        console.log(result);
 
         if (result.success === false) {
           setWarning(result.message);
         } else {
+          localStorage.setItem('accessToken', result.token);
           router.push(`${pathname}/success`);
         }
       } catch (error) {
@@ -202,10 +202,6 @@ const FormRegister = () => {
     e.preventDefault();
     setSection((prevSection) => prevSection - 1);
   };
-
-  useEffect(() => {
-    console.log(currentSection);
-  }, [currentSection]);
 
   return (
     <div className='w-full'>
@@ -343,7 +339,7 @@ const FormRegister = () => {
           <div className='flex flex-col justify-start items-start w-full gap-[1rem]'>
             <h1 className='text-[1.2rem] font-semibold'>Upload Foto</h1>
             {avatarPreview ? (
-              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
+              <div className='flex flex-col justify-center items-center gap-3 mb-4 w-full border-black'>
                 <img
                   src={avatarPreview}
                   alt='Avatar Pengguna'
@@ -354,8 +350,8 @@ const FormRegister = () => {
                 </p>
               </div>
             ) : (
-              <div className='flex flex-col justify-start items-center gap-3 mb-4'>
-                <div className='size-32 bg-white rounded-full flex flex-col justify-center items-center'>
+              <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
+                <div className='size-32 bg-white rounded-full flex flex-col justify-center items-center border border-black'>
                   <User size={32} color='#09090B'></User>
                 </div>
                 <p>
