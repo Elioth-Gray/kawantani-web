@@ -87,6 +87,23 @@ export const getArticleById = async (id: string) => {
   }
 };
 
+export const getOwnArticleById = async (id: string) => {
+  const token = getToken();
+  try {
+    const response = await axios.get(`${baseURL}/articles/own/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    return { success: false, message: 'Terjadi Kesalahan!', data: null };
+  }
+};
+
 export const getYourArticles = async () => {
   const token = getToken();
   try {
@@ -130,28 +147,15 @@ export const createArticle = async (formData: FormData) => {
   }
 };
 
-export const updateArticle = async (data: TUpdateArticle) => {
+export const updateArticle = async (id: string, formData: FormData) => {
   const token = getToken();
   try {
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('description', data.description);
-    formData.append('content', data.content);
-    formData.append('articleStatus', data.articleStatus);
-    if (typeof data.image !== 'string') {
-      formData.append('image', data.image);
-    }
-
-    const response = await axios.patch(
-      `${baseURL}/articles/${data.id}/update`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+    const response = await axios.put(`${baseURL}/articles/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
-    );
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

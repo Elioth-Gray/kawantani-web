@@ -318,8 +318,11 @@ const ArticleDetailMain = () => {
       </section>
 
       {/* Isi Artikel */}
-      <section className='mb-12 text-lg leading-8 prose max-w-none'>
-        <div dangerouslySetInnerHTML={{ __html: article.isi_artikel }} />
+      <section className='mb-12 text-lg leading-8'>
+        <div
+          className='prose max-w-none break-words overflow-wrap-anywhere [&>*]:max-w-full [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:overflow-x-auto [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_code]:break-all'
+          dangerouslySetInnerHTML={{ __html: article.isi_artikel }}
+        />
       </section>
 
       {/* Comment Section */}
