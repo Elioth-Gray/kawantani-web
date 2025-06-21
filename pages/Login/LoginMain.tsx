@@ -65,8 +65,6 @@ const LoginMain = () => {
         setWarning('');
         const profile = await getUserProfile();
         const verified = profile.data.user.status_verfikasi;
-        console.log(profile);
-        console.log(verified);
         if (verified === true) {
           router.push('/dashboard');
         } else if (verified === false) {

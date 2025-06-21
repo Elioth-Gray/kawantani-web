@@ -176,15 +176,11 @@ const DashboardProfilesMain = () => {
     if (userData.file) {
       form.append('avatar', userData.file);
     }
-
-    console.log(userData);
-
     try {
       const result = await updateProfile(form);
       if (result.success === false) {
         setWarning(result.message);
       } else {
-        console.log(result.data.pengguna);
         setUserData((prev) => ({
           ...prev,
           nama_depan_pengguna: result.data.pengguna.firstName,
@@ -228,7 +224,7 @@ const DashboardProfilesMain = () => {
   return (
     <main className='p-10 bg-white min-h-scree mx-12'>
       {message && (
-        <div className='fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#78D14D] text-white px-4 py-2 rounded-md shadow-lg z-50'>
+        <div className='fixed top-4 right-4 z-40 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg'>
           {message}
         </div>
       )}

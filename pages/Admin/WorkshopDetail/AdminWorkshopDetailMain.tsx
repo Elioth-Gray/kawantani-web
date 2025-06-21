@@ -82,7 +82,6 @@ const AdminWorkshopDetailMain = () => {
       setInitialLoading(true);
       try {
         const response = await getWorkshopById(id as string);
-        console.log(response);
         if (response.data) {
           setWorkshop(response.data);
         } else {

@@ -72,7 +72,6 @@ const AdminWorkshopsMain = () => {
       setLoading(true);
       try {
         const response = await getAllWorkshops();
-        console.log(response);
         if (response.data) {
           const workshops = response.data;
           const segmentedWorkshops = workshops.map(

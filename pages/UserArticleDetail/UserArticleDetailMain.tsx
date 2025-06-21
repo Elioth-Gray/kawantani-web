@@ -90,6 +90,12 @@ const UserArticleDetailMain = () => {
     }
   }, [article]);
 
+  const showMessage = (msg: string) => {
+    setMessage(msg);
+    const timer = setTimeout(() => setMessage(null), 3000);
+    return () => clearTimeout(timer);
+  };
+
   const toggleSave = async () => {
     if (!article || isSaving) return;
 
@@ -108,24 +114,23 @@ const UserArticleDetailMain = () => {
 
       if (!response) {
         setIsSaved(previousState);
-        setMessage(
+        showMessage(
           response.message ||
             (previousState
               ? 'Gagal menghapus dari simpan'
               : 'Gagal menyimpan artikel'),
         );
       } else {
-        setMessage(
+        showMessage(
           previousState ? 'Artikel dihapus dari simpan' : 'Artikel disimpan',
         );
       }
     } catch (error: any) {
       setIsSaved(previousState);
-      setMessage(error.message || 'Terjadi kesalahan');
+      showMessage(error.message || 'Terjadi kesalahan');
       console.error('Error toggling save:', error);
     } finally {
       setIsSaving(false);
-      setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -150,22 +155,21 @@ const UserArticleDetailMain = () => {
 
       if (!response) {
         setIsLiked(previousState);
-        setMessage(
+        showMessage(
           response.message ||
             (previousState ? 'Gagal menghapus like' : 'Gagal memberikan like'),
         );
       } else {
-        setMessage(previousState ? 'Like dihapus' : 'Artikel disukai');
+        showMessage(previousState ? 'Like dihapus' : 'Artikel disukai');
         const updatedArticle = await getArticleById(article.id_artikel);
         setArticle(updatedArticle.data);
       }
     } catch (error: any) {
       setIsLiked(previousState);
-      setMessage(error.message || 'Terjadi kesalahan');
+      showMessage(error.message || 'Terjadi kesalahan');
       console.error('Error toggling like:', error);
     } finally {
       setIsLiking(false);
-      setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -180,7 +184,7 @@ const UserArticleDetailMain = () => {
       });
 
       if (response && response.data) {
-        setMessage(response.message);
+        showMessage(response.message);
         setCommentContent('');
 
         setArticle((prev: any) => ({
@@ -193,10 +197,10 @@ const UserArticleDetailMain = () => {
           ],
         }));
       } else {
-        setMessage(response.message || 'Gagal menambahkan komentar');
+        showMessage(response.message || 'Gagal menambahkan komentar');
       }
     } catch (error: any) {
-      setMessage(error.message || 'Terjadi kesalahan saat mengirim komentar');
+      showMessage(error.message || 'Terjadi kesalahan saat mengirim komentar');
       console.error('Error submitting comment:', error);
     } finally {
       setIsCommenting(false);
@@ -212,6 +216,21 @@ const UserArticleDetailMain = () => {
     return new Date(dateString).toLocaleDateString('id-ID', options);
   };
 
+  // Function to refresh article data
+  const refreshArticleData = async () => {
+    const segments = pathname && pathname.split('/');
+    const articleId = segments && segments[3];
+
+    try {
+      const response = await getOwnArticleById(articleId || '');
+      if (response && response.data) {
+        setArticle(response.data);
+      }
+    } catch (error) {
+      console.error('Error refreshing article:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchArticle = async () => {
       const segments = pathname && pathname.split('/');
@@ -222,13 +241,12 @@ const UserArticleDetailMain = () => {
 
         if (response && response.data) {
           setArticle(response.data);
-          console.log('Article data:', response.data); // Debug log
           await checkSavedStatus(articleId || '');
           await checkLikeStatus(articleId || '');
         }
       } catch (error) {
         console.error('Error fetching article:', error);
-        setMessage('Gagal memuat artikel');
+        showMessage('Gagal memuat artikel');
       } finally {
         setLoading(false);
       }
@@ -241,11 +259,24 @@ const UserArticleDetailMain = () => {
     process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
     'http://localhost:2000/uploads';
 
-  // Check if article is draft
+  // Check if article is draft - Updated to check current state
   const isDraft =
     article?.status_artikel === 'DRAFT' ||
     article?.status_artikel === 'draft' ||
     article?.status_artikel === 'Draft';
+
+  // Check verification status
+  const verificationStatus =
+    article?.status_verifikasi_artikel ||
+    article?.status_verifikasi ||
+    article?.verifikasi_status;
+
+  const isVerificationPending = verificationStatus === 'MENUNGGU';
+  const isVerificationRejected = verificationStatus === 'DITOLAK';
+
+  // Combined condition: hide actions and comments if draft OR verification pending/rejected
+  const shouldHideActionsAndComments =
+    isDraft || isVerificationPending || isVerificationRejected;
 
   // Helper function to get status color and text
   const getStatusBadge = (status: string, type: 'artikel' | 'verifikasi') => {
@@ -297,16 +328,15 @@ const UserArticleDetailMain = () => {
     setIsProcessing(true);
     try {
       const response = await deleteArticle(article.id_artikel);
-      if (response.success) {
-        setMessage('Artikel berhasil dihapus');
-        setTimeout(() => {
-          router.push('/dashboard/articles');
-        }, 1500);
+      if (response && response.data) {
+        showMessage('Artikel berhasil dihapus');
+
+        router.push('/dashboard/articles');
       } else {
-        setMessage(response.message || 'Gagal menghapus artikel');
+        showMessage(response.message || 'Gagal menghapus artikel');
       }
     } catch (error: any) {
-      setMessage(error.message || 'Terjadi kesalahan saat menghapus artikel');
+      showMessage(error.message || 'Terjadi kesalahan saat menghapus artikel');
     } finally {
       setIsProcessing(false);
     }
@@ -316,26 +346,23 @@ const UserArticleDetailMain = () => {
     setIsProcessing(true);
     try {
       const response = await toggleArticleStatus(article.id_artikel);
-      if (response.success) {
-        // Update artikel state secara real-time
+      if (response && response.data) {
+        // Refresh article data from server to get the most current state
+        await refreshArticleData();
+
         const newStatus =
           article.status_artikel === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-        setArticle((prev: any) => ({
-          ...prev,
-          status_artikel: newStatus,
-        }));
-
-        setMessage(
+        showMessage(
           response.message ||
             `Artikel berhasil ${
-              newStatus === 'PUBLISHED' ? 'dipublikasikan' : 'dijadikan draft'
+              newStatus === 'DRAFT' ? 'diarsipkan' : 'dipublikasikan'
             }`,
         );
       } else {
-        setMessage(response.message || 'Gagal mengubah status artikel');
+        showMessage(response.message || 'Gagal mengubah status artikel');
       }
     } catch (error: any) {
-      setMessage(error.message || 'Terjadi kesalahan saat mengubah status');
+      showMessage(error.message || 'Terjadi kesalahan saat mengubah status');
     } finally {
       setIsProcessing(false);
     }
@@ -425,7 +452,7 @@ const UserArticleDetailMain = () => {
                 <Dresser size={24} color='#0d0d0d' />
                 <p>
                   {article.status_artikel === 'PUBLISHED'
-                    ? 'Jadikan Draft'
+                    ? 'Arsipkan'
                     : 'Publikasikan'}
                 </p>
               </div>
@@ -450,7 +477,7 @@ const UserArticleDetailMain = () => {
               </p>
             </div>
             <h1 className='text-3xl font-semibold'>{article.judul_artikel}</h1>
-            <p className='max-w-2xl text-gray-700'>
+            <p className='max-w-2xl text-gray-700 break-words overflow-wrap-anywhere hyphens-auto'>
               {article.deskripsi_artikel}
             </p>
             <div className='flex flex-col items-center gap-3'>
@@ -499,8 +526,8 @@ const UserArticleDetailMain = () => {
             </div>
           </section>
 
-          {/* Tombol Aksi - Hidden for Draft */}
-          {!isDraft && (
+          {/* Tombol Aksi - Hidden for Draft or Verification Issues */}
+          {!shouldHideActionsAndComments && (
             <section className='mb-12 flex justify-center gap-6'>
               <button
                 onClick={toggleSave}
@@ -554,8 +581,8 @@ const UserArticleDetailMain = () => {
             />
           </section>
 
-          {/* Comment Section - Hidden for Draft */}
-          {!isDraft && (
+          {/* Comment Section - Hidden for Draft or Verification Issues */}
+          {!shouldHideActionsAndComments && (
             <section className='w-full flex flex-col gap-[3.1rem] justify-start items-start'>
               <div className='w-full h-[15rem] bg-[#F2F2F2] rounded-lg px-[3.3rem] py-[2.25rem] flex flex-col'>
                 <textarea
@@ -648,20 +675,20 @@ const UserArticleDetailMain = () => {
                 ? 'Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.'
                 : `Apakah Anda yakin ingin ${
                     article.status_artikel === 'PUBLISHED'
-                      ? 'mengubah artikel menjadi draft'
+                      ? 'mengarsipkan artikel'
                       : 'mempublikasikan artikel'
                   }?`}
             </p>
             <div className='flex justify-end gap-3'>
               <button
-                className='px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50'
+                className='px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer'
                 onClick={handleCancelDialog}
                 disabled={isProcessing}
               >
                 Batal
               </button>
               <button
-                className={`px-4 py-2 text-white rounded-md transition-colors disabled:opacity-50 ${
+                className={`px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50 cursor-pointer ${
                   confirmAction === 'delete'
                     ? 'bg-red-600 hover:bg-red-700'
                     : 'bg-green-600 hover:bg-green-700'
