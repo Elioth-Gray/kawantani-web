@@ -5,7 +5,7 @@ export type TArticle = {
   isi_artikel?: string;
   gambar_artikel?: string;
   status_artikel: 'DRAFT' | 'PUBLISHED';
-  status_verifikasi?: boolean;
+  status_verifikasi?: string;
   status_aktif: boolean;
   tanggal_artikel: string;
   id_kategori_artikel?: number;
@@ -52,11 +52,7 @@ export type TCreateArticle = {
 
 export type TUpdateArticle = {
   id: string;
-  title: string;
-  description: string;
-  content: string;
-  image: File | string;
-  articleStatus: 'DRAFT' | 'PUBLISHED';
+  formData: FormData;
 };
 
 export type TCommentArticle = {

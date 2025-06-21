@@ -119,6 +119,8 @@ const CreateArticleMain = () => {
     // Clear errors if validation passes
     setErrors({});
 
+    console.log(formData);
+
     const data = new FormData();
     data.append('title', formData.title);
     data.append('description', formData.description);
@@ -187,6 +189,50 @@ const CreateArticleMain = () => {
           )}
 
           <form className='w-full flex flex-col justify-start items-start gap-[4rem]'>
+            <div className='flex flex-col justify-start items-start w-full gap-[1rem]'>
+              <p className='text-[1.5rem] font-semibold'>Foto Artikel*</p>
+
+              <div className='flex flex-col justify-start items-center gap-3 w-full'>
+                {bannerPreview ? (
+                  <div className='w-full max-w-md h-48 rounded-lg border-2 border-gray-300 overflow-hidden'>
+                    <img
+                      src={bannerPreview}
+                      alt='Banner Workshop'
+                      className='w-full h-full object-cover'
+                    />
+                  </div>
+                ) : (
+                  <div className='w-full max-w-md h-48 bg-gray-50 rounded-lg flex flex-col justify-center items-center border-2 border-dashed border-gray-300'>
+                    <Image size={32} color='#09090B' />
+                    <p className='text-gray-500 mt-2'>Belum ada foto dipilih</p>
+                  </div>
+                )}
+
+                <p className='text-sm text-gray-600'>
+                  Foto Artikel <span className='text-red-500'>*</span>
+                </p>
+
+                <label
+                  htmlFor='avatar'
+                  className='bg-[#F2F2F2] hover:bg-gray-200 rounded-lg py-3 px-6 text-gray-700 cursor-pointer text-center transition-colors duration-200'
+                >
+                  Upload Foto Artikel
+                </label>
+
+                <input
+                  id='avatar'
+                  name='avatar'
+                  type='file'
+                  accept='image/*'
+                  className='hidden'
+                  onChange={handleFileChange}
+                />
+
+                {errors.image && (
+                  <p className='text-red-500 text-sm'>{errors.image}</p>
+                )}
+              </div>
+            </div>
             {/* Kategori Artikel */}
             <div className='flex flex-col justify-start items-start gap-[0.5rem]'>
               <div className='flex flex-row justify-start items-center gap-[1.6rem]'>
@@ -270,51 +316,6 @@ const CreateArticleMain = () => {
             </div>
 
             {/* Foto Artikel */}
-            <div className='flex flex-row justify-start items-start w-full gap-[1rem]'>
-              <p className='text-[1.5rem] font-semibold'>Foto Artikel*</p>
-              <div className='flex flex-col justify-start items-start'>
-                {bannerPreview ? (
-                  <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
-                    <div className='w-2/3 max-w-md h-48 rounded-lg object-cover border-2 border-white overflow-hidden'>
-                      <img
-                        src={bannerPreview}
-                        alt='Banner Workshop'
-                        className='w-full h-full object-cover'
-                      />
-                    </div>
-                    <p>
-                      Foto Artikel <span className='text-red-500'>*</span>
-                    </p>
-                  </div>
-                ) : (
-                  <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
-                    <div className='w-2/3 max-w-md h-48 bg-white rounded-lg flex flex-col justify-center items-center'>
-                      <Image size={32} color='#09090B'></Image>
-                    </div>
-                    <p>
-                      Foto Artikel <span className='text-red-500'>*</span>
-                    </p>
-                  </div>
-                )}
-                <input
-                  type='file'
-                  onChange={handleFileChange}
-                  className='w-full bg-[#F2F2F2] rounded-lg py-[1.1rem] px-[1.1rem] border'
-                  accept='image/*'
-                />
-                <p className='text-gray-600 text-sm mt-1'>
-                  SVG, PNG, JPG or GIF (MAX. 800x400px).
-                </p>
-                {formData.image && (
-                  <p className='text-green-600 text-sm mt-1'>
-                    File dipilih: {formData.image.name}
-                  </p>
-                )}
-                {errors.image && (
-                  <p className='text-red-500 text-sm mt-1'>{errors.image}</p>
-                )}
-              </div>
-            </div>
 
             {/* Tombol Aksi */}
             <div className='flex flex-row justify-start items-start gap-[2rem]'>

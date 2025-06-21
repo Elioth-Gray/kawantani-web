@@ -143,9 +143,10 @@ const DashboardArticleMain = () => {
 
   // Filter function for user's articles
   const filteredYourArticles = yourArticles.filter((article) => {
-    // Status filter
+    // Status filter - perbaiki perbandingan
     const matchesStatus =
-      statusFilter === 'semua' || article.status_artikel === statusFilter;
+      statusFilter === 'semua' ||
+      article.status_artikel?.toUpperCase() === statusFilter;
 
     // Search filter
     const matchesSearch =
@@ -289,8 +290,8 @@ const DashboardArticleMain = () => {
                   onChange={handleStatusChange}
                 >
                   <option value='semua'>Semua</option>
-                  <option value=''>Draft</option>
-                  <option value='PUBLSIHED'>Published</option>
+                  <option value='DRAFT'>Draft</option>
+                  <option value='PUBLISHED'>Published</option>
                 </select>
               </div>
             )}
@@ -427,12 +428,9 @@ const DashboardArticleMain = () => {
                     imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
                     title={article.judul_artikel}
                     date={formatDate(article.tanggal_artikel)}
-                    href={
-                      article.status_artikel === 'DRAFT'
-                        ? `/dashboard/articles/${article.id_artikel}/details`
-                        : `/articles/${article.id_artikel}/details`
-                    }
+                    href={`/dashboard/articles/${article.id_artikel}/details`}
                     status={article.status_artikel}
+                    verification={article.status_verifikasi}
                   />
                 ))}
               </div>

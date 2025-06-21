@@ -167,12 +167,17 @@ const DashboardProfilesMain = () => {
     form.append('phoneNumber', userData.nomor_telepon_pengguna);
     form.append('dateOfBirth', userData.tanggal_lahir_pengguna);
     form.append('gender', userData.jenisKelamin?.toString() || '');
-    form.append('password', userData.password);
-    form.append('confirmPassword', userData.konfirmasi_password);
+
+    if (userData.password) {
+      form.append('password', userData.password);
+      form.append('confirmPassword', userData.konfirmasi_password);
+    }
 
     if (userData.file) {
       form.append('avatar', userData.file);
     }
+
+    console.log(userData);
 
     try {
       const result = await updateProfile(form);
@@ -412,10 +417,10 @@ const DashboardProfilesMain = () => {
                       <p className='text-sm text-gray-500'>Password</p>
                       <InputField
                         type='password'
-                        value={''}
+                        value={userData.password}
                         placeholder='*******'
                         className='py-2'
-                        name='nomor_telepon_pengguna'
+                        name='password'
                         onChange={handleChange}
                         maxLength={13}
                       ></InputField>
@@ -431,11 +436,11 @@ const DashboardProfilesMain = () => {
                         Konfirmasi Password
                       </p>
                       <InputField
-                        type='text'
-                        value={''}
+                        type='password'
+                        value={userData.konfirmasi_password}
                         placeholder='*******'
                         className='py-2'
-                        name='nomor_telepon_pengguna'
+                        name='konfirmasi_password'
                         onChange={handleChange}
                         maxLength={13}
                       ></InputField>
