@@ -239,7 +239,7 @@ const ArticleDetailMain = () => {
     <main className='py-[6.4rem] px-[14rem]'>
       {/* Message display */}
       {message && (
-        <div className='fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#78D14D] text-white px-4 py-2 rounded-md shadow-lg z-50'>
+        <div className='fixed top-4 right-4 z-40 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg'>
           {message}
         </div>
       )}
@@ -266,7 +266,9 @@ const ArticleDetailMain = () => {
           </p>
         </div>
         <h1 className='text-3xl font-semibold'>{article.judul_artikel}</h1>
-        <p className='max-w-2xl text-gray-700'>{article.deskripsi_artikel}</p>
+        <p className='max-w-2xl text-gray-700 break-words overflow-wrap-anywhere hyphens-auto'>
+          {article.deskripsi_artikel}
+        </p>
         <PrimaryButton textColor='#ffffff'>
           {article.kategori?.nama_kategori_artikel || 'Tanpa Kategori'}
         </PrimaryButton>

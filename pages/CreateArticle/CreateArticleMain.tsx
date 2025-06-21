@@ -118,9 +118,6 @@ const CreateArticleMain = () => {
 
     // Clear errors if validation passes
     setErrors({});
-
-    console.log(formData);
-
     const data = new FormData();
     data.append('title', formData.title);
     data.append('description', formData.description);

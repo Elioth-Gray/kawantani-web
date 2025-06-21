@@ -48,7 +48,6 @@ const WorkshopRegistrationSuccessMain = () => {
     if (storedTicketData) {
       try {
         const parsedData = JSON.parse(storedTicketData);
-        console.log(parsedData);
         setTicketData(parsedData);
       } catch (err) {
         setError('Gagal memparse data tiket');
