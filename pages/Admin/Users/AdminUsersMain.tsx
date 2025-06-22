@@ -62,7 +62,6 @@ const AdminUsersMain = () => {
       setLoading(true);
       try {
         const response = await getAllUsers();
-
         if (response.data) {
           const users = response.data;
           const segmentedUsers = users.map((user: any, index: number) => ({
