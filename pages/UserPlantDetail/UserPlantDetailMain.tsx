@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   CheckCircle,
   X,
+  Calendar,
 } from '@phosphor-icons/react/dist/ssr';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import { useRouter, usePathname, useParams } from 'next/navigation';
@@ -25,7 +26,6 @@ import {
 } from '@/api/plantApi';
 import { TUserPlant, TUserPlantDay } from '@/types/plantTypes';
 
-// Toast Notification Component
 const Toast = ({
   message,
   type = 'success',
@@ -50,9 +50,8 @@ const Toast = ({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in ${
-        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-      }`}
+      className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`}
     >
       {type === 'success' ? (
         <CheckCircle size={20} weight='fill' />
@@ -68,7 +67,6 @@ const Toast = ({
 };
 
 const UserPlantDetailMain = () => {
-  // State management
   const [userPlant, setUserPlant] = useState<TUserPlant | null>(null);
   const [dailyTasks, setDailyTasks] = useState<TUserPlantDay[]>([]);
   const [selectedDay, setSelectedDay] = useState<number>(0);
@@ -76,8 +74,9 @@ const UserPlantDetailMain = () => {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false); // New state for calendar modal
+  const [displayStartIndex, setDisplayStartIndex] = useState(0); // New state for day display range
 
-  // Toast notification state
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -93,7 +92,6 @@ const UserPlantDetailMain = () => {
   const params = useParams();
   const plantId = params?.id as string;
 
-  // Toast helper functions
   const showToast = (
     message: string,
     type: 'success' | 'error' = 'success',
@@ -125,11 +123,17 @@ const UserPlantDetailMain = () => {
         const tasksResponse = await getUserDailyTasks(plantId);
 
         if (tasksResponse.data) {
-          // Sort daily tasks by day order (hari_ke) to ensure proper sequence
           const sortedTasks = tasksResponse.data.sort(
             (a, b) => a.hari_ke - b.hari_ke,
           );
           setDailyTasks(sortedTasks);
+          const today = new Date();
+          const activeDayIndex = sortedTasks.findIndex(day => {
+            const dayDate = new Date(userPlant?.tanggal_penanaman || 0);
+            dayDate.setDate(dayDate.getDate() + day.hari_ke - 1);
+            return dayDate <= today;
+          });
+          setSelectedDay(activeDayIndex !== -1 ? activeDayIndex : 0);
         }
       } catch (err) {
         setError('Failed to fetch plant data');
@@ -144,7 +148,6 @@ const UserPlantDetailMain = () => {
     }
   }, [plantId]);
 
-  // Update note state when selected day changes
   useEffect(() => {
     const currentDayTasks = getCurrentDayTasks();
     if (currentDayTasks) {
@@ -157,7 +160,6 @@ const UserPlantDetailMain = () => {
     return dailyTasks[selectedDay] || dailyTasks[0];
   };
 
-  // Universal handler untuk semua jenis tugas
   const handleTaskToggle = async (
     taskId: number,
     currentStatus: boolean,
@@ -177,16 +179,15 @@ const UserPlantDetailMain = () => {
             tugas_penanaman: day.tugas_penanaman.map((task) =>
               task.id_tugas_penanaman_pengguna === taskId
                 ? {
-                    ...task,
-                    status_selesai: !currentStatus,
-                    tanggal_selesai: !currentStatus ? new Date() : null,
-                  }
+                  ...task,
+                  status_selesai: !currentStatus,
+                  tanggal_selesai: !currentStatus ? new Date() : null,
+                }
                 : task,
             ),
           })),
         );
 
-        // Refresh plant data to update progress untuk tugas utama
         if (taskType === 'main') {
           const plantResponse = await getUserPlantDetail(plantId);
           if (plantResponse.data) {
@@ -233,15 +234,14 @@ const UserPlantDetailMain = () => {
       );
 
       if (response.data) {
-        // Update the daily tasks state with the new note
         setDailyTasks((prevDays) =>
           prevDays.map((day) =>
             day.id_hari_tanaman_pengguna ===
-            currentDayTasks.id_hari_tanaman_pengguna
+              currentDayTasks.id_hari_tanaman_pengguna
               ? {
-                  ...day,
-                  catatan_harian: note.trim(),
-                }
+                ...day,
+                catatan_harian: note.trim(),
+              }
               : day,
           ),
         );
@@ -258,29 +258,47 @@ const UserPlantDetailMain = () => {
     }
   };
 
-  const selectDate = (day: number) => {
-    setSelectedDay(day);
+  const selectDay = (dayIndex: number) => {
+    setSelectedDay(dayIndex);
   };
 
   const regist = () => {
     router.push(`${pathname}/registration`);
   };
 
-  // Helper function to format progress percentage
   const formatProgress = (progress: number) => {
     return Number(progress).toFixed(2);
   };
 
-  // Helper function to format date
-  // const formatDate = (date: Date) => {
-  //   return new Date(date).toLocaleDateString('id-ID', {
-  //     day: 'numeric',
-  //     month: 'long',
-  //     year: 'numeric'
-  //   });
-  // };
+  const handleShowAllDays = () => {
+    setShowCalendarModal(true);
+  };
 
-  // Loading state
+  const handleSelectDayFromCalendar = (dayIndex: number) => {
+    setSelectedDay(dayIndex);
+
+    const allDays = dailyTasks || [];
+    const currentEndIndex = displayStartIndex + 5;
+
+    if (dayIndex < displayStartIndex || dayIndex > currentEndIndex) {
+      const newStartIndex = Math.max(0, dayIndex - 3);
+      const maxStartIndex = Math.max(0, allDays.length - 6);
+      setDisplayStartIndex(Math.min(newStartIndex, maxStartIndex));
+    }
+
+    setShowCalendarModal(false);
+  };
+
+  const shiftDisplayRange = (direction: 'prev' | 'next') => {
+    const allDays = dailyTasks || [];
+    const maxStartIndex = Math.max(0, allDays.length - 6);
+    if (direction === 'prev') {
+      setDisplayStartIndex(Math.max(0, displayStartIndex - 1));
+    } else {
+      setDisplayStartIndex(Math.min(maxStartIndex, displayStartIndex + 1));
+    }
+  };
+
   if (loading) {
     return (
       <main className='px-[8.1rem] py-[5.3rem] flex justify-center items-center'>
@@ -289,7 +307,6 @@ const UserPlantDetailMain = () => {
     );
   }
 
-  // Error state
   if (error || !userPlant) {
     return (
       <main className='px-[8.1rem] py-[5.3rem] flex justify-center items-center'>
@@ -301,7 +318,6 @@ const UserPlantDetailMain = () => {
   const currentDayTasks = getCurrentDayTasks();
   const dailyTasks_filtered = currentDayTasks?.tugas_penanaman || [];
 
-  // Separate tasks by type
   const mainTasks = dailyTasks_filtered.filter(
     (task) => task.jenis_tugas !== 'PENGECEKAN_HARIAN',
   );
@@ -313,6 +329,11 @@ const UserPlantDetailMain = () => {
     process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
     'http://localhost:2000/uploads';
 
+  const displayedDays = dailyTasks.slice(
+    displayStartIndex,
+    displayStartIndex + 6,
+  );
+
   return (
     <>
       {/* Toast Notification */}
@@ -323,7 +344,7 @@ const UserPlantDetailMain = () => {
         onClose={hideToast}
       />
 
-      <main className='px-[8.1rem] py-[5.3rem]'>
+      <main className='px-[8.1rem] py-[5.3rem] relative'>
         <section className='w-full'>
           <div
             className='w-full flex flex-row justify-start items-center gap-[1rem] mb-[2.3rem] cursor-pointer'
@@ -413,28 +434,49 @@ const UserPlantDetailMain = () => {
             <div className='w-full flex flex-col justify-start items-start gap-[2rem]'>
               <div className='flex flex-col justify-start items-start gap-[0.75rem]'>
                 <p className='text-[1.25rem] font-semibold'>Hari</p>
-                <div className='flex flex-row justify-start items-center gap-[0.9rem]'>
-                  {dailyTasks.slice(0, 10).map((day, index) => (
+                <div className='flex flex-row justify-start items-center gap-[0.9rem] flex-wrap'>
+                  {/* Previous Button for days */}
+                  {displayStartIndex > 0 && (
                     <button
-                      onClick={() => selectDate(index)}
-                      key={index}
-                      className={`p-[0.8rem] ${
-                        selectedDay === index
+                      onClick={() => shiftDisplayRange('prev')}
+                      className='p-[0.8rem] bg-gray-100 text-gray-600 border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold hover:bg-gray-200'
+                    >
+                      ‹
+                    </button>
+                  )}
+
+                  {displayedDays.map((day, displayIndex) => {
+                    const actualIndex = displayStartIndex + displayIndex;
+                    return (
+                      <button
+                        onClick={() => selectDay(actualIndex)}
+                        key={day.id_hari_tanaman_pengguna}
+                        className={`p-[0.8rem] ${selectedDay === actualIndex
                           ? 'bg-[#50B34B] text-white'
                           : 'bg-white text-black'
-                      } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                          } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                      >
+                        {day.hari_ke}
+                      </button>
+                    );
+                  })}
+
+                  {/* Next Button for days */}
+                  {displayStartIndex + 6 < dailyTasks.length && (
+                    <button
+                      onClick={() => shiftDisplayRange('next')}
+                      className='p-[0.8rem] bg-gray-100 text-gray-600 border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold hover:bg-gray-200'
                     >
-                      {day.hari_ke}
+                      ›
                     </button>
-                  ))}
-                  {dailyTasks.length > 10 && (
-                    <Link
-                      href=''
-                      className='text-[1rem] text-[#50B34B] font-semibold'
-                    >
-                      Lihat Semuanya
-                    </Link>
                   )}
+
+                  <button
+                    onClick={handleShowAllDays}
+                    className='text-[1rem] text-[#50B34B] font-semibold hover:underline cursor-pointer'
+                  >
+                    Lihat Semuanya
+                  </button>
                 </div>
               </div>
 
@@ -454,11 +496,10 @@ const UserPlantDetailMain = () => {
                               'main',
                             )
                           }
-                          className={`py-[0.8rem] px-[1rem] ${
-                            task.status_selesai
-                              ? 'bg-[#50B34B] text-white'
-                              : 'bg-none text-black'
-                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          className={`py-[0.8rem] px-[1rem] ${task.status_selesai
+                            ? 'bg-[#50B34B] text-white'
+                            : 'bg-none text-black'
+                            } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         >
                           <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                             <Drop
@@ -469,11 +510,10 @@ const UserPlantDetailMain = () => {
                               weight='fill'
                             />
                             <p
-                              className={`font-medium text-[1rem] ${
-                                task.status_selesai
-                                  ? 'text-white'
-                                  : 'text-black'
-                              }`}
+                              className={`font-medium text-[1rem] ${task.status_selesai
+                                ? 'text-white'
+                                : 'text-black'
+                                }`}
                             >
                               {task.nama_tugas}
                             </p>
@@ -510,11 +550,10 @@ const UserPlantDetailMain = () => {
                               'check',
                             )
                           }
-                          className={`py-[0.8rem] px-[1rem] ${
-                            task.status_selesai
-                              ? 'bg-[#50B34B] text-white'
-                              : 'bg-none text-black'
-                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          className={`py-[0.8rem] px-[1rem] ${task.status_selesai
+                            ? 'bg-[#50B34B] text-white'
+                            : 'bg-none text-black'
+                            } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         >
                           <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                             <Drop
@@ -525,11 +564,10 @@ const UserPlantDetailMain = () => {
                               weight='fill'
                             />
                             <p
-                              className={`font-medium text-[1rem] ${
-                                task.status_selesai
-                                  ? 'text-white'
-                                  : 'text-black'
-                              }`}
+                              className={`font-medium text-[1rem] ${task.status_selesai
+                                ? 'text-white'
+                                : 'text-black'
+                                }`}
                             >
                               {task.nama_tugas}
                             </p>
@@ -596,24 +634,123 @@ const UserPlantDetailMain = () => {
             )}
           </div>
         </section>
+
+        {/* Calendar Modal */}
+        {showCalendarModal && (
+          <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+            <div className='bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto'>
+              <div className='flex justify-between items-center mb-6'>
+                <div className='flex items-center gap-3'>
+                  <Calendar size={24} color='#50B34B' />
+                  <h2 className='text-[1.5rem] font-bold'>
+                    Kalender Penanaman - {userPlant.nama_custom}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setShowCalendarModal(false)}
+                  className='p-2 hover:bg-gray-100 rounded-full'
+                >
+                  <X size={24} color='#000000' />
+                </button>
+              </div>
+
+              <div className='grid grid-cols-7 gap-2 mb-4'>
+                {/* Calendar Grid */}
+                {dailyTasks.map((day, index) => {
+                  const isSelected = selectedDay === index;
+                  const hasTasksToday =
+                    day.tugas_penanaman && day.tugas_penanaman.length > 0;
+
+                  return (
+                    <div
+                      key={day.id_hari_tanaman_pengguna}
+                      onClick={() => handleSelectDayFromCalendar(index)}
+                      className={`
+                        p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md
+                        ${isSelected
+                          ? 'bg-[#50B34B] text-white border-[#50B34B]'
+                          : hasTasksToday
+                            ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        }
+                      `}
+                    >
+                      <div className='text-center'>
+                        <div className='font-bold text-lg mb-1'>
+                          Hari {day.hari_ke}
+                        </div>
+                        <div className='text-xs mb-2'>{day.nama_fase}</div>
+                        {/* You can add a checkmark or similar if the day is completed */}
+                        {/* {day.semua_tugas_selesai && (
+                          <CheckCircle size={20} color={isSelected ? '#FFFFFF' : '#50B34B'} weight='fill' className='mx-auto mt-1' />
+                        )} */}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Selected Day Details in Modal */}
+              {currentDayTasks && (
+                <div className='border-t pt-4'>
+                  <h3 className='text-[1.2rem] font-bold mb-3'>
+                    Detail Hari {currentDayTasks.hari_ke} -{' '}
+                    {currentDayTasks.fase_penanaman}
+                  </h3>
+
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div>
+                      <h4 className='font-semibold mb-2 text-[#50B34B]'>
+                        Tugas Harian
+                      </h4>
+                      {mainTasks.length > 0 ? (
+                        <ul className='space-y-2'>
+                          {mainTasks.map((task) => (
+                            <li
+                              key={task.id_tugas_penanaman_pengguna}
+                              className='flex items-center gap-2'
+                            >
+                              <Drop size={16} color='#50B34B' weight='fill' />
+                              <span className='text-sm'>{task.nama_tugas}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className='text-gray-500 text-sm'>
+                          Tidak ada tugas harian
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className='font-semibold mb-2 text-[#50B34B]'>
+                        Pengecekan Harian
+                      </h4>
+                      {checkTasks.length > 0 ? (
+                        <ul className='space-y-2'>
+                          {checkTasks.map((task) => (
+                            <li
+                              key={task.id_tugas_penanaman_pengguna}
+                              className='flex items-center gap-2'
+                            >
+                              <Drop size={16} color='#50B34B' weight='fill' />
+                              <span className='text-sm'>{task.nama_tugas}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className='text-gray-500 text-sm'>
+                          Tidak ada pengecekan harian
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
-
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-      `}</style>
     </>
   );
 };
