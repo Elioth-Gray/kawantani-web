@@ -21,5 +21,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className={`${poppins.className} antialiased`}>{children}</div>;
+  return <>{children}</>;
 }

@@ -164,7 +164,7 @@ const FormRegister = () => {
         if (result.success === false) {
           setWarning(result.message);
         } else {
-          localStorage.setItem('accessToken', result.token);
+          localStorage.setItem('accessToken', result.data.token);
           router.push(`${pathname}/success`);
         }
       } catch (error) {

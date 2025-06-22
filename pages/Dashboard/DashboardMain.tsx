@@ -193,7 +193,19 @@ const DashboardMain = () => {
               setLoading(false);
             },
             async (error) => {
-              console.error('Geolocation error:', error);
+              let errorMessage = 'Gagal mendapatkan lokasi';
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  errorMessage = 'Izin lokasi ditolak oleh pengguna';
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  errorMessage = 'Informasi lokasi tidak tersedia';
+                  break;
+                case error.TIMEOUT:
+                  errorMessage =
+                    'Permintaan lokasi melebihi waktu yang ditentukan';
+                  break;
+              }
               await getDefaultWeather(currentDate);
               setLoading(false);
             },
