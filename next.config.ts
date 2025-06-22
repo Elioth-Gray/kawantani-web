@@ -10,6 +10,11 @@ const nextConfig = {
         port: '2000',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'kawan-tani-backend-production.up.railway.app',
+        pathname: '/uploads/**',
+      },
     ],
   },
 };
