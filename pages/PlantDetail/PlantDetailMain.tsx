@@ -266,13 +266,6 @@ const PlantDetailMain = () => {
                   Tingkat Kesulitan: {plant.tingkat_kesulitan}
                 </p>
               </div>
-              <div className='flex flex-row justify-start items-center gap-[0.75rem]'>
-                <Toolbox size={26} color='#000000' />
-                <p className='text-[0.75rem] w-[60%]'>
-                  Kebutuhan Sinar: {plant.kebutuhan_sinar_matahari} & Air:{' '}
-                  {plant.kebutuhan_air}
-                </p>
-              </div>
             </div>
             <div className='flex flex-col justify-start items-start gap-[0.5rem]'>
               <PrimaryButton textColor='#ffffff' onClickHandler={regist}>

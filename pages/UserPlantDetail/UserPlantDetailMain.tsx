@@ -50,8 +50,9 @@ const Toast = ({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}
+      className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+      }`}
     >
       {type === 'success' ? (
         <CheckCircle size={20} weight='fill' />
@@ -128,7 +129,7 @@ const UserPlantDetailMain = () => {
           );
           setDailyTasks(sortedTasks);
           const today = new Date();
-          const activeDayIndex = sortedTasks.findIndex(day => {
+          const activeDayIndex = sortedTasks.findIndex((day) => {
             const dayDate = new Date(userPlant?.tanggal_penanaman || 0);
             dayDate.setDate(dayDate.getDate() + day.hari_ke - 1);
             return dayDate <= today;
@@ -179,10 +180,10 @@ const UserPlantDetailMain = () => {
             tugas_penanaman: day.tugas_penanaman.map((task) =>
               task.id_tugas_penanaman_pengguna === taskId
                 ? {
-                  ...task,
-                  status_selesai: !currentStatus,
-                  tanggal_selesai: !currentStatus ? new Date() : null,
-                }
+                    ...task,
+                    status_selesai: !currentStatus,
+                    tanggal_selesai: !currentStatus ? new Date() : null,
+                  }
                 : task,
             ),
           })),
@@ -237,11 +238,11 @@ const UserPlantDetailMain = () => {
         setDailyTasks((prevDays) =>
           prevDays.map((day) =>
             day.id_hari_tanaman_pengguna ===
-              currentDayTasks.id_hari_tanaman_pengguna
+            currentDayTasks.id_hari_tanaman_pengguna
               ? {
-                ...day,
-                catatan_harian: note.trim(),
-              }
+                  ...day,
+                  catatan_harian: note.trim(),
+                }
               : day,
           ),
         );
@@ -396,14 +397,6 @@ const UserPlantDetailMain = () => {
                     {userPlant.tanaman?.tingkat_kesulitan || 'Tinggi'}
                   </p>
                 </div>
-                <div className='flex flex-row justify-start items-center gap-[0.75rem]'>
-                  <Toolbox size={26} color='#000000' />
-                  <p className='text-[0.75rem] w-[60%]'>
-                    Kebutuhan Sinar:{' '}
-                    {userPlant.tanaman?.kebutuhan_sinar_matahari} & Air:{' '}
-                    {userPlant.tanaman?.kebutuhan_air}
-                  </p>
-                </div>
               </div>
               <div className='flex flex-col justify-start items-start gap-[0.5rem]'>
                 <p className='text-[1.5rem] font-semibold'>
@@ -451,10 +444,11 @@ const UserPlantDetailMain = () => {
                       <button
                         onClick={() => selectDay(actualIndex)}
                         key={day.id_hari_tanaman_pengguna}
-                        className={`p-[0.8rem] ${selectedDay === actualIndex
-                          ? 'bg-[#50B34B] text-white'
-                          : 'bg-white text-black'
-                          } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
+                        className={`p-[0.8rem] ${
+                          selectedDay === actualIndex
+                            ? 'bg-[#50B34B] text-white'
+                            : 'bg-white text-black'
+                        } border-[#CEDADE] rounded-full border-2 flex flex-col justify-center items-center w-[2rem] h-[2rem] cursor-pointer text-[1rem] font-semibold`}
                       >
                         {day.hari_ke}
                       </button>
@@ -496,10 +490,11 @@ const UserPlantDetailMain = () => {
                               'main',
                             )
                           }
-                          className={`py-[0.8rem] px-[1rem] ${task.status_selesai
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                            } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          className={`py-[0.8rem] px-[1rem] ${
+                            task.status_selesai
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-none text-black'
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         >
                           <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                             <Drop
@@ -510,10 +505,11 @@ const UserPlantDetailMain = () => {
                               weight='fill'
                             />
                             <p
-                              className={`font-medium text-[1rem] ${task.status_selesai
-                                ? 'text-white'
-                                : 'text-black'
-                                }`}
+                              className={`font-medium text-[1rem] ${
+                                task.status_selesai
+                                  ? 'text-white'
+                                  : 'text-black'
+                              }`}
                             >
                               {task.nama_tugas}
                             </p>
@@ -550,10 +546,11 @@ const UserPlantDetailMain = () => {
                               'check',
                             )
                           }
-                          className={`py-[0.8rem] px-[1rem] ${task.status_selesai
-                            ? 'bg-[#50B34B] text-white'
-                            : 'bg-none text-black'
-                            } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
+                          className={`py-[0.8rem] px-[1rem] ${
+                            task.status_selesai
+                              ? 'bg-[#50B34B] text-white'
+                              : 'bg-none text-black'
+                          } w-full rounded-lg border-[#CEDADE] border-2 flex flex-row justify-between items-center cursor-pointer`}
                         >
                           <div className='flex flex-row justify-start items-center gap-[0.8rem]'>
                             <Drop
@@ -564,10 +561,11 @@ const UserPlantDetailMain = () => {
                               weight='fill'
                             />
                             <p
-                              className={`font-medium text-[1rem] ${task.status_selesai
-                                ? 'text-white'
-                                : 'text-black'
-                                }`}
+                              className={`font-medium text-[1rem] ${
+                                task.status_selesai
+                                  ? 'text-white'
+                                  : 'text-black'
+                              }`}
                             >
                               {task.nama_tugas}
                             </p>
@@ -667,9 +665,10 @@ const UserPlantDetailMain = () => {
                       onClick={() => handleSelectDayFromCalendar(index)}
                       className={`
                         p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md
-                        ${isSelected
-                          ? 'bg-[#50B34B] text-white border-[#50B34B]'
-                          : hasTasksToday
+                        ${
+                          isSelected
+                            ? 'bg-[#50B34B] text-white border-[#50B34B]'
+                            : hasTasksToday
                             ? 'bg-green-50 border-green-200 hover:bg-green-100'
                             : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                         }
