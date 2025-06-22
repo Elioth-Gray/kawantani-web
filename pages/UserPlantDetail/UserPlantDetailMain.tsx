@@ -678,7 +678,7 @@ const UserPlantDetailMain = () => {
                         <div className='font-bold text-lg mb-1'>
                           Hari {day.hari_ke}
                         </div>
-                        <div className='text-xs mb-2'>{day.nama_fase}</div>
+                        <div className='text-xs mb-2'>{day.fase_penanaman}</div>
                         {/* You can add a checkmark or similar if the day is completed */}
                         {/* {day.semua_tugas_selesai && (
                           <CheckCircle size={20} color={isSelected ? '#FFFFFF' : '#50B34B'} weight='fill' className='mx-auto mt-1' />
