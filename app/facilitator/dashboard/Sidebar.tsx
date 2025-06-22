@@ -16,12 +16,11 @@ import { useAuthMiddleware } from '@/hooks/useAuthMiddleware';
 
 export default function Sidebar() {
   const isChecking = useAuthMiddleware(['facilitator']);
+  const pathname = usePathname();
 
   if (isChecking) {
     return <div className='w-full h-screen bg-black'></div>;
   }
-
-  const pathname = usePathname();
 
   const navItemClass = (path: string) => {
     const isActive = pathname?.startsWith(path);

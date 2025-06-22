@@ -17,18 +17,14 @@ import { getAllProvinces, getProvinceRegency } from '@/api/locationApi';
 import { createWorkshop } from '@/api/workshopApi';
 import { Image } from '@phosphor-icons/react/dist/ssr';
 import { Textarea } from '@/components/ui/textarea';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import dynamic from 'next/dynamic';
 
-// Fix for default marker icons in Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+// Dynamically import Leaflet to avoid SSR issues
+const LeafletMap = dynamic(() => import('./LeafletMap'), {
+  ssr: false,
+  loading: () => (
+    <div className='w-full h-[400px] bg-gray-700 rounded-lg animate-pulse' />
+  ),
 });
 
 type Provinces = {
@@ -102,7 +98,10 @@ const workshopSchema = z.object({
   long: z.number().min(-180).max(180, 'Longitude tidak valid'),
   image: z
     .instanceof(File)
-    .refine((file) => file.size <= 10 * 1024 * 1024, 'Ukuran file maksimal 5MB')
+    .refine(
+      (file) => file.size <= 10 * 1024 * 1024,
+      'Ukuran file maksimal 10MB',
+    )
     .refine(
       (file) => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type),
       'Format file harus JPG, JPEG, atau PNG',
@@ -119,12 +118,9 @@ const CreateWorkshopsMain = () => {
   const [selectedRegency, setSelectedRegency] = useState<number | null>(null);
   const [selectedRegencyName, setSelectedRegencyName] = useState<string>('');
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [map, setMap] = useState<L.Map | null>(null);
   const [geocodingLoading, setGeocodingLoading] = useState(false);
   const [currentLocationName, setCurrentLocationName] = useState<string>('');
-  const mapRef = useRef<HTMLDivElement>(null);
-  const markerRef = useRef<L.Marker | null>(null);
-  const mapInitialized = useRef<boolean>(false);
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -147,6 +143,11 @@ const CreateWorkshopsMain = () => {
   >({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const updateLocationFromGeocode = async (
     provinceName: string,
@@ -173,12 +174,6 @@ const CreateWorkshopsMain = () => {
           long: parseFloat(lon.toFixed(6)),
         }));
 
-        if (map && markerRef.current) {
-          map.setView([lat, lon], regencyName ? 13 : 10);
-          markerRef.current.setLatLng([lat, lon]);
-          markerRef.current.bindPopup('Lokasi Workshop').openPopup();
-        }
-
         const locationName = await reverseGeocode(lat, lon);
         setCurrentLocationName(locationName);
       } else {
@@ -191,12 +186,6 @@ const CreateWorkshopsMain = () => {
           long: defaultLon,
         }));
 
-        if (map && markerRef.current) {
-          map.setView([defaultLat, defaultLon], 10);
-          markerRef.current.setLatLng([defaultLat, defaultLon]);
-          markerRef.current.bindPopup('Lokasi Workshop').openPopup();
-        }
-
         setCurrentLocationName('Jakarta, Indonesia (default)');
       }
     } catch (error) {
@@ -206,88 +195,16 @@ const CreateWorkshopsMain = () => {
     }
   };
 
-  // Initialize map effect
-  useEffect(() => {
-    // Only initialize if map container exists and hasn't been initialized yet
-    if (mapRef.current && !mapInitialized.current) {
-      try {
-        const leafletMap = L.map(mapRef.current).setView(
-          [formData.lat, formData.long],
-          13,
-        );
+  const handleLocationChange = (lat: number, lng: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      lat: parseFloat(lat.toFixed(6)),
+      long: parseFloat(lng.toFixed(6)),
+    }));
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-        }).addTo(leafletMap);
-
-        // Add marker with custom icon
-        const marker = L.marker([formData.lat, formData.long], {
-          draggable: true,
-        }).addTo(leafletMap);
-
-        // Add popup to marker
-        marker.bindPopup('Lokasi Workshop').openPopup();
-
-        // Update coordinates when marker is dragged
-        marker.on('dragend', async (e: L.LeafletEvent) => {
-          const position = (e.target as L.Marker).getLatLng();
-          const lat = parseFloat(position.lat.toFixed(6));
-          const lon = parseFloat(position.lng.toFixed(6));
-
-          setFormData((prev) => ({
-            ...prev,
-            lat,
-            long: lon,
-          }));
-
-          const locationName = await reverseGeocode(lat, lon);
-          setCurrentLocationName(locationName);
-        });
-
-        // Update coordinates when map is clicked
-        leafletMap.on('click', async (e: L.LeafletMouseEvent) => {
-          const { lat, lng } = e.latlng;
-          const roundedLat = parseFloat(lat.toFixed(6));
-          const roundedLng = parseFloat(lng.toFixed(6));
-
-          marker.setLatLng([lat, lng]);
-          setFormData((prev) => ({
-            ...prev,
-            lat: roundedLat,
-            long: roundedLng,
-          }));
-
-          const locationName = await reverseGeocode(roundedLat, roundedLng);
-          setCurrentLocationName(locationName);
-        });
-
-        setMap(leafletMap);
-        markerRef.current = marker;
-        mapInitialized.current = true;
-
-        // Set initial location name
-        reverseGeocode(formData.lat, formData.long).then(
-          setCurrentLocationName,
-        );
-      } catch (error) {
-        console.error('Error initializing map:', error);
-      }
-    }
-
-    // Cleanup function
-    return () => {
-      if (map && mapInitialized.current) {
-        try {
-          map.remove();
-          setMap(null);
-          markerRef.current = null;
-          mapInitialized.current = false;
-        } catch (error) {
-          console.error('Error cleaning up map:', error);
-        }
-      }
-    };
-  }, []); // Empty dependency array - only run once
+    // Update location name
+    reverseGeocode(lat, lng).then(setCurrentLocationName);
+  };
 
   useEffect(() => {
     if (selectedRegencyName && selectedProvinceName) {
@@ -343,6 +260,12 @@ const CreateWorkshopsMain = () => {
         ...prev,
         image: file,
       }));
+
+      // Clean up previous preview URL
+      if (bannerPreview) {
+        URL.revokeObjectURL(bannerPreview);
+      }
+
       const previewUrl = URL.createObjectURL(file);
       setBannerPreview(previewUrl);
 
@@ -351,6 +274,15 @@ const CreateWorkshopsMain = () => {
       }
     }
   };
+
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (bannerPreview) {
+        URL.revokeObjectURL(bannerPreview);
+      }
+    };
+  }, [bannerPreview]);
 
   const searchAddress = async () => {
     if (!formData.address.trim()) {
@@ -378,12 +310,6 @@ const CreateWorkshopsMain = () => {
           lat: parseFloat(lat.toFixed(6)),
           long: parseFloat(lon.toFixed(6)),
         }));
-
-        if (map && markerRef.current) {
-          map.setView([lat, lon], 16);
-          markerRef.current.setLatLng([lat, lon]);
-          markerRef.current.bindPopup('Lokasi Workshop').openPopup();
-        }
 
         const locationName = await reverseGeocode(lat, lon);
         setCurrentLocationName(locationName);
@@ -414,7 +340,7 @@ const CreateWorkshopsMain = () => {
     const parsed = workshopSchema.safeParse(formData);
 
     if (!parsed.success) {
-      const fieldErrors: any = {};
+      const fieldErrors: Partial<Record<keyof typeof formData, string>> = {};
       parsed.error.errors.forEach((err) => {
         const fieldName = err.path[0] as keyof typeof formData;
         fieldErrors[fieldName] = err.message;
@@ -432,7 +358,6 @@ const CreateWorkshopsMain = () => {
       ? new Date(formData.date).toISOString()
       : null;
 
-    // Convert gender to string if backend expects string
     form.append('title', formData.title);
     form.append('description', formData.description);
     form.append('date', isoDate || '');
@@ -455,7 +380,7 @@ const CreateWorkshopsMain = () => {
         alert(result.message);
       } else {
         alert('Workshop berhasil dibuat!');
-        router.push('/admin/dashboard/workshops');
+        router.push('/facilitator/dashboard/workshops');
       }
     } catch (err) {
       alert('Terjadi kesalahan');
@@ -463,6 +388,17 @@ const CreateWorkshopsMain = () => {
       setLoading(false);
     }
   };
+
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) {
+    return (
+      <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
+        <div className='flex items-center justify-center h-full'>
+          <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-white'></div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
@@ -480,7 +416,7 @@ const CreateWorkshopsMain = () => {
           <p>Mulai buat workshop untuk memberi pengetahuan kepada orang lain</p>
         </div>
 
-        <form className='w-full' onSubmit={handleSubmit}>
+        <form className='w-full'>
           <div className='flex flex-col justify-center items-center w-full mb-10'>
             {bannerPreview ? (
               <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
@@ -638,13 +574,17 @@ const CreateWorkshopsMain = () => {
             </div>
 
             <div className='flex flex-col gap-[0.6rem]'>
-              <div className='mb-3'></div>
               <Label className='text-[1.25rem]'>Pilih Titik Pada Peta</Label>
-              <div
-                ref={mapRef}
-                className='w-full h-[400px] rounded-lg border border-gray-600'
-                style={{ zIndex: 1 }}
+              <LeafletMap
+                lat={formData.lat}
+                lng={formData.long}
+                onLocationChange={handleLocationChange}
               />
+              {currentLocationName && (
+                <p className='text-sm text-gray-400 mt-2'>
+                  Lokasi saat ini: {currentLocationName}
+                </p>
+              )}
             </div>
 
             <div className='flex flex-row gap-[3.5rem] flex-wrap'>
@@ -727,10 +667,11 @@ const CreateWorkshopsMain = () => {
 
             <button
               type='submit'
+              onClick={handleSubmit}
               className='py-[0.8rem] px-[1.2rem] bg-white text-black rounded-lg font-semibold w-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
               disabled={loading}
             >
-              {loading ? 'Menambah facilitator...' : 'Ajukan Workshop'}
+              {loading ? 'Menambah workshop...' : 'Ajukan Workshop'}
             </button>
           </div>
         </form>
