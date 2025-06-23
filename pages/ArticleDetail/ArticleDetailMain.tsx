@@ -61,6 +61,7 @@ const ArticleDetailMain = () => {
   const checkLikeStatus = async (articleId: string) => {
     try {
       const response = await getArticleById(articleId);
+      console.log(response);
       if (response && response.data) {
         const liked = response.data.artikel_disukai?.some(
           (like: any) =>
@@ -363,19 +364,19 @@ const ArticleDetailMain = () => {
                   className='flex flex-row justify-start items-start gap-[2rem]'
                 >
                   <div className='object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0'>
-                    {article.pengguna.avatar ? (
+                    {comment.pengguna.avatar ? (
                       <Image
-                        src={`${baseURL}/users/${article.pengguna.avatar}`}
+                        src={`${baseURL}/users/${comment.pengguna.avatar}`}
                         width={89}
                         height={89}
-                        alt={article.pengguna.nama_depan_pengguna}
+                        alt={comment.pengguna.nama_depan_pengguna}
                         className='object-cover w-full h-full'
                       />
                     ) : (
                       <div className='w-full h-full bg-gray-300 flex items-center justify-center'>
                         <span className='text-lg font-semibold'>
-                          {article.pengguna.nama_depan_pengguna?.charAt(0)}
-                          {article.pengguna.nama_belakang_pengguna?.charAt(0)}
+                          {comment.pengguna.nama_depan_pengguna?.charAt(0)}
+                          {comment.pengguna.nama_belakang_pengguna?.charAt(0)}
                         </span>
                       </div>
                     )}
@@ -383,8 +384,8 @@ const ArticleDetailMain = () => {
                   <div className='flex flex-col justify-start items-start gap-[0.5rem]'>
                     <div className='flex flex-row justify-start items-start gap-[1.1rem]'>
                       <p className='font-semibold'>
-                        {article.pengguna.nama_depan_pengguna}{' '}
-                        {article.pengguna.nama_belakang_pengguna}
+                        {comment.pengguna.nama_depan_pengguna}{' '}
+                        {comment.pengguna.nama_belakang_pengguna}
                       </p>
                       <p>{formatDate(comment.tanggal_komentar)}</p>
                     </div>
