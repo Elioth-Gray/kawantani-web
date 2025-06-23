@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, User } from '@phosphor-icons/react/dist/ssr';
 import { useState, useEffect } from 'react';
 import { getAdminProfile } from '@/api/authApi';
+import Image from 'next/image';
 
 interface AdminData {
   nama_depan_admin: string;
@@ -95,7 +96,7 @@ const AdminProfileMain = () => {
           <div className='flex flex-col justify-center items-center w-full mb-10'>
             <div className='flex flex-col justify-start items-center gap-3 mb-4'>
               {admin.avatar ? (
-                <img
+                <Image
                   src={`${baseURL}/admin/${admin.avatar}`}
                   alt='Avatar Admin'
                   className='w-32 h-32 rounded-full object-cover border-2 border-white'

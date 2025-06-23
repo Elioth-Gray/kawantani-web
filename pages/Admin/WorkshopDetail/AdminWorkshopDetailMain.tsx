@@ -297,7 +297,7 @@ const AdminWorkshopDetailMain = () => {
         <div className='w-full h-76 grid grid-cols-2 gap-x-10'>
           <div className='col-span-1 w-full h-full rounded-xl overflow-hidden bg-zinc-900'>
             {workshop.gambar_workshop ? (
-              <img
+              <Image
                 src={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
                 alt={workshop.judul_workshop}
                 className='w-full h-full object-cover'

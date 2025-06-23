@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import { getUserById, updateUser } from '@/api/userApi';
+import Image from 'next/image';
 
 const baseURL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:2000/api';
@@ -248,7 +249,7 @@ const EditUserMain = () => {
             <div className='flex flex-col justify-center items-center w-full mb-10'>
               {avatarPreview && (
                 <div className='flex flex-col justify-start items-center gap-3 mb-4'>
-                  <img
+                  <Image
                     src={avatarPreview}
                     alt='Avatar Pengguna'
                     className='w-32 h-32 rounded-full object-cover border-2 border-white'

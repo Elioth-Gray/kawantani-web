@@ -15,6 +15,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton';
 import { z } from 'zod';
 import { registerAccount } from '@/api/authApi';
 import { useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 const FormRegister = () => {
   const router = useRouter();
@@ -340,7 +341,7 @@ const FormRegister = () => {
             <h1 className='text-[1.2rem] font-semibold'>Upload Foto</h1>
             {avatarPreview ? (
               <div className='flex flex-col justify-center items-center gap-3 mb-4 w-full border-black'>
-                <img
+                <Image
                   src={avatarPreview}
                   alt='Avatar Pengguna'
                   className='w-32 h-32 rounded-full object-cover border-2 border-white'

@@ -7,6 +7,7 @@ import { ArrowLeft, User } from '@phosphor-icons/react/dist/ssr';
 import { useState, useEffect } from 'react';
 import { getFacilitatorProfile } from '@/api/authApi';
 import { Textarea } from '@/components/ui/textarea';
+import Image from 'next/image';
 
 interface FacilitatorData {
   nama_facilitator: string;
@@ -107,7 +108,7 @@ const FacilitatorProfileMain = () => {
           <div className='flex flex-col justify-center items-center w-full mb-10'>
             <div className='flex flex-col justify-start items-center gap-3 mb-4'>
               {facilitator.avatar ? (
-                <img
+                <Image
                   src={`${baseURL}/facilitators/${facilitator.avatar}`}
                   alt='Avatar Admin'
                   className='w-32 h-32 rounded-full object-cover border-2 border-white'

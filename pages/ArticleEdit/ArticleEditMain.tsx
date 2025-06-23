@@ -2,9 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Image } from '@phosphor-icons/react/dist/ssr';
+import {
+  ArrowLeft,
+  Image as PhosporImage,
+} from '@phosphor-icons/react/dist/ssr';
 import { z } from 'zod';
-
+import Image from 'next/image';
 import DashboardNavbar from '@/components/navbar/DashboardNavbar';
 import MainLabel from '@/components/label/MainLabel';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
@@ -245,7 +248,7 @@ const ArticleEditMain = () => {
                   </div>
                 ) : (
                   <div className='w-full max-w-md h-48 bg-gray-50 rounded-lg flex flex-col justify-center items-center border-2 border-dashed'>
-                    <Image size={32} color='#09090B' />
+                    <PhosporImage size={32} color='#09090B' />
                     <p className='text-gray-500 mt-2'>Belum ada foto dipilih</p>
                   </div>
                 )}

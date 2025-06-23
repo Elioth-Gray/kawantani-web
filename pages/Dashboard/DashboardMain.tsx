@@ -282,7 +282,7 @@ const DashboardMain = () => {
   };
 
   const navigate = (id: string) => {
-    router.push(`${pathname}/${id}/details`);
+    router.push(`workshops/${id}/details`);
   };
 
   const toggleTaskCompletion = async (

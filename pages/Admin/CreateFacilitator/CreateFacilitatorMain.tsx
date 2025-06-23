@@ -16,6 +16,7 @@ import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import { getAllProvinces, getProvinceRegency } from '@/api/locationApi';
 import { createFacilitator } from '@/api/facilitatorApi';
 import { User } from '@phosphor-icons/react/dist/ssr';
+import Image from 'next/image';
 
 type Provinces = {
   id_provinsi: number;
@@ -238,7 +239,7 @@ const CreateFacilitatorsMain = () => {
           <div className='flex flex-col justify-center items-center w-full mb-10'>
             {avatarPreview ? (
               <div className='flex flex-col justify-start items-center gap-3 mb-4'>
-                <img
+                <Image
                   src={avatarPreview}
                   alt='Avatar Pengguna'
                   className='w-32 h-32 rounded-full object-cover border-2 border-white'
