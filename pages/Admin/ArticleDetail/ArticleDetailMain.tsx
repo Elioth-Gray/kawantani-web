@@ -289,7 +289,7 @@ const ArticleDetailMain = () => {
         <div className='w-full h-76 grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-6'>
           <div className='col-span-1 w-full h-full rounded-xl overflow-hidden bg-zinc-900'>
             {article.gambar_artikel ? (
-              <img
+              <Image
                 src={`${baseURL}/articles/${article.gambar_artikel}`}
                 alt={article.judul_artikel}
                 className='w-full h-full object-cover'

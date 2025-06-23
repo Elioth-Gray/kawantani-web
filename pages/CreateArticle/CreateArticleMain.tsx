@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import DashboardNavbar from '@/components/navbar/DashboardNavbar';
 import MainLabel from '@/components/label/MainLabel';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from '@phosphor-icons/react';
 import { createArticle } from '@/api/articleApi';
 import { getToken } from '@/api/authApi';
 import { z } from 'zod';
-import { Image } from '@phosphor-icons/react/dist/ssr';
+import { Image as PhosporImage } from '@phosphor-icons/react/dist/ssr';
 
 const articleSchema = z.object({
   title: z
@@ -192,7 +193,7 @@ const CreateArticleMain = () => {
               <div className='flex flex-col justify-start items-center gap-3 w-full'>
                 {bannerPreview ? (
                   <div className='w-full max-w-md h-48 rounded-lg border-2 border-gray-300 overflow-hidden'>
-                    <img
+                    <Image
                       src={bannerPreview}
                       alt='Banner Workshop'
                       className='w-full h-full object-cover'
@@ -200,7 +201,7 @@ const CreateArticleMain = () => {
                   </div>
                 ) : (
                   <div className='w-full max-w-md h-48 bg-gray-50 rounded-lg flex flex-col justify-center items-center border-2 border-dashed border-gray-300'>
-                    <Image size={32} color='#09090B' />
+                    <PhosporImage size={32} color='#09090B' />
                     <p className='text-gray-500 mt-2'>Belum ada foto dipilih</p>
                   </div>
                 )}

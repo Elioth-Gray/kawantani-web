@@ -15,9 +15,10 @@ import {
 import { ArrowLeft } from '@phosphor-icons/react/dist/ssr';
 import { getAllProvinces, getProvinceRegency } from '@/api/locationApi';
 import { createWorkshop } from '@/api/workshopApi';
-import { Image } from '@phosphor-icons/react/dist/ssr';
+import { Image as PhosporImage } from '@phosphor-icons/react/dist/ssr';
 import { Textarea } from '@/components/ui/textarea';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 // Dynamically import Leaflet to avoid SSR issues
 const LeafletMap = dynamic(() => import('./LeafletMap'), {
@@ -421,7 +422,7 @@ const CreateWorkshopsMain = () => {
             {bannerPreview ? (
               <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
                 <div className='w-2/3 max-w-md h-48 rounded-lg object-cover border-2 border-white overflow-hidden'>
-                  <img
+                  <Image
                     src={bannerPreview}
                     alt='Banner Workshop'
                     className='w-full h-full object-cover'
@@ -434,7 +435,7 @@ const CreateWorkshopsMain = () => {
             ) : (
               <div className='flex flex-col justify-start items-center gap-3 mb-4 w-full'>
                 <div className='w-2/3 max-w-md h-48 bg-white rounded-lg flex flex-col justify-center items-center'>
-                  <Image size={32} color='#09090B'></Image>
+                  <PhosporImage size={32} color='#09090B'></PhosporImage>
                 </div>
                 <p>
                   Banner Workshop <span className='text-red-500'>*</span>

@@ -8,6 +8,7 @@ import {
   getWorkshopById,
   verifyWorkshop,
 } from '@/api/workshopApi';
+import Image from 'next/image';
 
 enum StatusVerifikasiWorkshop {
   MENUNGGU = 'MENUNGGU',
@@ -210,7 +211,7 @@ const AdminWorkshopDetailMain = () => {
 
         <div className='w-full h-76 grid grid-cols-2 gap-x-10'>
           <div className='col-span-1 w-full h-full rounded-xl overflow-hidden'>
-            <img
+            <Image
               src={
                 workshop?.gambar_workshop
                   ? `${baseURL}/workshops/${workshop.gambar_workshop}`
