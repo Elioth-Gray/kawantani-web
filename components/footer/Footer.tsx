@@ -48,6 +48,10 @@ const Footer = () => {
     return title;
   };
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <footer>
       <section className='footer-image w-full h-[31.8rem] text-white'>
@@ -141,7 +145,7 @@ const Footer = () => {
                       <div className='flex flex-row justify-start items-start gap-[0.625rem]'>
                         <div className='w-[1.8rem] h-[1.8rem] overflow-clip rounded-md'>
                           <Image
-                            src={`http://localhost:2000/uploads/articles/${article.gambar_artikel}`}
+                            src={`${baseURL}/articles/${article.gambar_artikel}`}
                             width={30}
                             height={30}
                             alt='article'
