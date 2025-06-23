@@ -278,6 +278,10 @@ const AdminWorkshopDetailMain = () => {
     );
   }
 
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL_FILE ||
+    'http://localhost:2000/uploads';
+
   return (
     <main className='w-full h-screen px-[5.1rem] bg-[#09090B] text-white overflow-auto'>
       <section className='w-full h-fit my-[4.5rem] mb-[4.5rem]'>
@@ -298,7 +302,7 @@ const AdminWorkshopDetailMain = () => {
           <div className='col-span-1 w-full h-full rounded-xl overflow-hidden bg-zinc-900'>
             {workshop.gambar_workshop ? (
               <Image
-                src={`http://localhost:2000/uploads/workshops/${workshop.gambar_workshop}`}
+                src={`${baseURL}/workshops/${workshop.gambar_workshop}`}
                 alt={workshop.judul_workshop}
                 className='w-full h-full object-cover'
               />
