@@ -183,27 +183,60 @@ const UserArticleDetailMain = () => {
         content: commentContent,
       });
 
+      // Perbaikan: Periksa response dengan lebih teliti
       if (response && response.data) {
-        showMessage(response.message);
+        setMessage(response.message || 'Komentar berhasil ditambahkan');
         setCommentContent('');
 
+        console.log('Response data:', response.data);
+
+        const newComment = {
+          id_komentar: response.data.id_komentar,
+          id_artikel: response.data.id_artikel,
+          id_pengguna: response.data.id_pengguna,
+          komentar: response.data.komentar,
+          tanggal_komentar: response.data.tanggal_komentar,
+          pengguna: {
+            id_pengguna: response.data.pengguna?.id_pengguna,
+            nama_depan_pengguna: response.data.pengguna?.nama_depan_pengguna,
+            nama_belakang_pengguna:
+              response.data.pengguna?.nama_belakang_pengguna,
+            avatar: response.data.pengguna?.avatar,
+          },
+        };
+
+        console.log(newComment);
+
+        // Perbaikan: Pastikan komentar_artikel adalah array
         setArticle((prev: any) => ({
           ...prev,
           komentar_artikel: [
-            ...(prev.komentar_artikel || []),
-            {
-              ...response.data,
-            },
+            ...(Array.isArray(prev.komentar_artikel)
+              ? prev.komentar_artikel
+              : []),
+            newComment,
           ],
         }));
       } else {
-        showMessage(response.message || 'Gagal menambahkan komentar');
+        // Perbaikan: Handle ketika response tidak sesuai ekspektasi
+        setMessage(response?.message || 'Gagal menambahkan komentar');
       }
     } catch (error: any) {
-      showMessage(error.message || 'Terjadi kesalahan saat mengirim komentar');
       console.error('Error submitting comment:', error);
+      // Perbaikan: Lebih detail dalam error handling
+      if (error.response) {
+        setMessage(
+          error.response.data?.message || 'Terjadi kesalahan dari server',
+        );
+      } else if (error.request) {
+        setMessage('Tidak dapat menghubungi server');
+      } else {
+        setMessage(error.message || 'Terjadi kesalahan saat mengirim komentar');
+      }
     } finally {
       setIsCommenting(false);
+      // Perbaikan: Hapus pesan setelah beberapa detik
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 

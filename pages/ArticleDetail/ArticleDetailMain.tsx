@@ -170,37 +170,75 @@ const ArticleDetailMain = () => {
         content: commentContent,
       });
 
+      // Perbaikan: Periksa response dengan lebih teliti
       if (response && response.data) {
-        setMessage(response.message);
+        setMessage(response.message || 'Komentar berhasil ditambahkan');
         setCommentContent('');
 
+        console.log('Response data:', response.data);
+
+        const newComment = {
+          id_komentar: response.data.id_komentar,
+          id_artikel: response.data.id_artikel,
+          id_pengguna: response.data.id_pengguna,
+          komentar: response.data.komentar,
+          tanggal_komentar: response.data.tanggal_komentar,
+          pengguna: {
+            id_pengguna: response.data.pengguna?.id_pengguna,
+            nama_depan_pengguna: response.data.pengguna?.nama_depan_pengguna,
+            nama_belakang_pengguna:
+              response.data.pengguna?.nama_belakang_pengguna,
+            avatar: response.data.pengguna?.avatar,
+          },
+        };
+
+        console.log(newComment);
+
+        // Perbaikan: Pastikan komentar_artikel adalah array
         setArticle((prev: any) => ({
           ...prev,
           komentar_artikel: [
-            ...(prev.komentar_artikel || []),
-            {
-              ...response.data,
-            },
+            ...(Array.isArray(prev.komentar_artikel)
+              ? prev.komentar_artikel
+              : []),
+            newComment,
           ],
         }));
       } else {
-        setMessage(response.message || 'Gagal menambahkan komentar');
+        // Perbaikan: Handle ketika response tidak sesuai ekspektasi
+        setMessage(response?.message || 'Gagal menambahkan komentar');
       }
     } catch (error: any) {
-      setMessage(error.message || 'Terjadi kesalahan saat mengirim komentar');
       console.error('Error submitting comment:', error);
+      // Perbaikan: Lebih detail dalam error handling
+      if (error.response) {
+        setMessage(
+          error.response.data?.message || 'Terjadi kesalahan dari server',
+        );
+      } else if (error.request) {
+        setMessage('Tidak dapat menghubungi server');
+      } else {
+        setMessage(error.message || 'Terjadi kesalahan saat mengirim komentar');
+      }
     } finally {
       setIsCommenting(false);
+      // Perbaikan: Hapus pesan setelah beberapa detik
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
+    try {
+      const options: Intl.DateTimeFormatOptions = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      };
+      return new Date(dateString).toLocaleDateString('id-ID', options);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Tanggal tidak valid';
+    }
   };
 
   useEffect(() => {
@@ -333,16 +371,18 @@ const ArticleDetailMain = () => {
         <div className='w-full h-[15rem] bg-[#F2F2F2] rounded-lg px-[3.3rem] py-[2.25rem] flex flex-col'>
           <textarea
             placeholder='Tulis Komentar........'
-            className='w-full outline-none text-gray-800 placeholder-gray-500 resize-none h-[60%]'
+            className='w-full outline-none text-gray-800 placeholder-gray-500 resize-none h-[60%] bg-transparent'
             value={commentContent}
             onChange={(e) => setCommentContent(e.target.value)}
+            disabled={isCommenting}
           ></textarea>
           <div className='flex flex-row justify-end items-center h-[20%] w-full'>
             <PrimaryButton
               textColor='#ffffff'
               onClickHandler={handleCommentSubmit}
+              disabled={isCommenting || !commentContent.trim()}
             >
-              Kirim Komentar
+              {isCommenting ? 'Mengirim...' : 'Kirim Komentar'}
             </PrimaryButton>
           </div>
         </div>
@@ -352,31 +392,37 @@ const ArticleDetailMain = () => {
             <p className='font-semibold text-[2rem]'>Komentar</p>
             <div className='w-[5rem] h-[3rem] flex flex-col justify-center items-center text-white bg-[#78D14D] rounded-full'>
               <p className='text-[1.25rem]'>
-                {article.komentar_artikel?.length || 0}
+                {Array.isArray(article.komentar_artikel)
+                  ? article.komentar_artikel.length
+                  : 0}
               </p>
             </div>
           </div>
           <div className='w-full flex flex-col justify-start items-start gap-[3.75rem]'>
-            {article.komentar_artikel?.length > 0 ? (
+            {Array.isArray(article.komentar_artikel) &&
+            article.komentar_artikel.length > 0 ? (
               article.komentar_artikel.map((comment: any) => (
                 <div
                   key={comment.id_komentar}
                   className='flex flex-row justify-start items-start gap-[2rem]'
                 >
                   <div className='object-cover size-[4rem] overflow-clip rounded-full flex-shrink-0'>
-                    {comment.pengguna.avatar ? (
+                    {comment.pengguna?.avatar ? (
                       <Image
                         src={`${baseURL}/users/${comment.pengguna.avatar}`}
                         width={89}
                         height={89}
-                        alt={comment.pengguna.nama_depan_pengguna}
+                        alt={comment.pengguna.nama_depan_pengguna || 'User'}
                         className='object-cover w-full h-full'
                       />
                     ) : (
                       <div className='w-full h-full bg-gray-300 flex items-center justify-center'>
                         <span className='text-lg font-semibold'>
-                          {comment.pengguna.nama_depan_pengguna?.charAt(0)}
-                          {comment.pengguna.nama_belakang_pengguna?.charAt(0)}
+                          {comment.pengguna?.nama_depan_pengguna?.charAt(0) ||
+                            ''}
+                          {comment.pengguna?.nama_belakang_pengguna?.charAt(
+                            0,
+                          ) || ''}
                         </span>
                       </div>
                     )}
@@ -384,8 +430,8 @@ const ArticleDetailMain = () => {
                   <div className='flex flex-col justify-start items-start gap-[0.5rem]'>
                     <div className='flex flex-row justify-start items-start gap-[1.1rem]'>
                       <p className='font-semibold'>
-                        {comment.pengguna.nama_depan_pengguna}{' '}
-                        {comment.pengguna.nama_belakang_pengguna}
+                        {comment.pengguna?.nama_depan_pengguna || ''}{' '}
+                        {comment.pengguna?.nama_belakang_pengguna || ''}
                       </p>
                       <p>{formatDate(comment.tanggal_komentar)}</p>
                     </div>
