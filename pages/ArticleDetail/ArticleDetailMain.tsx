@@ -11,6 +11,7 @@ import {
   unlikeArticle,
   addComment,
 } from '@/api/articleApi';
+import { validateToken } from '@/api/authApi';
 import Image from 'next/image';
 import {
   Bookmark,
@@ -31,6 +32,15 @@ interface Comment {
   };
 }
 
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  role: string;
+}
+
 const ArticleDetailMain = () => {
   const [article, setArticle] = useState<any>(null);
   const [isLoading, setLoading] = useState(true);
@@ -41,15 +51,33 @@ const ArticleDetailMain = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
-  const checkSavedStatus = async (articleId: string) => {
+  // Get current user data
+  const getCurrentUser = async () => {
+    try {
+      const response = await validateToken();
+      if (response.valid && response.user) {
+        setUser(response.user);
+        return response.user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  };
+
+  const checkSavedStatus = async (articleId: string, currentUser?: User) => {
     try {
       const response = await getSavedArticles();
-      if (response && response.data) {
+      if (response && response.data && currentUser) {
         const isArticleSaved = response.data.some(
-          (savedArticle: any) => savedArticle.id_artikel === articleId,
+          (savedArticle: any) =>
+            savedArticle.id_artikel === articleId &&
+            savedArticle.id_pengguna === currentUser.id,
         );
         setIsSaved(isArticleSaved);
       }
@@ -58,14 +86,12 @@ const ArticleDetailMain = () => {
     }
   };
 
-  const checkLikeStatus = async (articleId: string) => {
+  const checkLikeStatus = async (articleId: string, currentUser?: User) => {
     try {
       const response = await getArticleById(articleId);
-      console.log(response);
-      if (response && response.data) {
+      if (response && response.data && currentUser) {
         const liked = response.data.artikel_disukai?.some(
-          (like: any) =>
-            like.id_pengguna === response.data.pengguna?.id_pengguna,
+          (like: any) => like.id_pengguna === currentUser.id,
         );
         setIsLiked(liked || false);
       }
@@ -75,14 +101,26 @@ const ArticleDetailMain = () => {
   };
 
   useEffect(() => {
-    if (article) {
-      checkSavedStatus(article.id_artikel);
-      checkLikeStatus(article.id_artikel);
-    }
+    const initializeData = async () => {
+      const currentUser = await getCurrentUser();
+
+      if (article && currentUser) {
+        await checkSavedStatus(article.id_artikel, currentUser);
+        await checkLikeStatus(article.id_artikel, currentUser);
+      }
+    };
+
+    initializeData();
   }, [article]);
 
   const toggleSave = async () => {
-    if (!article || isSaving) return;
+    if (!article || isSaving || !user) {
+      if (!user) {
+        setMessage('Silakan login terlebih dahulu');
+        setTimeout(() => setMessage(null), 3000);
+      }
+      return;
+    }
 
     setIsSaving(true);
     const previousState = isSaved;
@@ -100,7 +138,7 @@ const ArticleDetailMain = () => {
       if (!response) {
         setIsSaved(previousState);
         setMessage(
-          response.message ||
+          response?.message ||
             (previousState
               ? 'Gagal menghapus dari simpan'
               : 'Gagal menyimpan artikel'),
@@ -121,7 +159,13 @@ const ArticleDetailMain = () => {
   };
 
   const toggleLike = async () => {
-    if (!article || isLiking) return;
+    if (!article || isLiking || !user) {
+      if (!user) {
+        setMessage('Silakan login terlebih dahulu');
+        setTimeout(() => setMessage(null), 3000);
+      }
+      return;
+    }
 
     setIsLiking(true);
     const previousState = isLiked;
@@ -142,13 +186,18 @@ const ArticleDetailMain = () => {
       if (!response) {
         setIsLiked(previousState);
         setMessage(
-          response.message ||
+          response?.message ||
             (previousState ? 'Gagal menghapus like' : 'Gagal memberikan like'),
         );
       } else {
         setMessage(previousState ? 'Like dihapus' : 'Artikel disukai');
+        // Refresh article data to get updated like status
         const updatedArticle = await getArticleById(article.id_artikel);
-        setArticle(updatedArticle.data);
+        if (updatedArticle && updatedArticle.data) {
+          setArticle(updatedArticle.data);
+          // Re-check like status with current user
+          await checkLikeStatus(updatedArticle.data.id_artikel, user);
+        }
       }
     } catch (error: any) {
       setIsLiked(previousState);
@@ -161,7 +210,13 @@ const ArticleDetailMain = () => {
   };
 
   const handleCommentSubmit = async () => {
-    if (!article || !commentContent.trim() || isCommenting) return;
+    if (!article || !commentContent.trim() || isCommenting || !user) {
+      if (!user) {
+        setMessage('Silakan login terlebih dahulu');
+        setTimeout(() => setMessage(null), 3000);
+      }
+      return;
+    }
 
     setIsCommenting(true);
     try {
@@ -170,12 +225,9 @@ const ArticleDetailMain = () => {
         content: commentContent,
       });
 
-      // Perbaikan: Periksa response dengan lebih teliti
       if (response && response.data) {
         setMessage(response.message || 'Komentar berhasil ditambahkan');
         setCommentContent('');
-
-        console.log('Response data:', response.data);
 
         const newComment = {
           id_komentar: response.data.id_komentar,
@@ -184,17 +236,15 @@ const ArticleDetailMain = () => {
           komentar: response.data.komentar,
           tanggal_komentar: response.data.tanggal_komentar,
           pengguna: {
-            id_pengguna: response.data.pengguna?.id_pengguna,
-            nama_depan_pengguna: response.data.pengguna?.nama_depan_pengguna,
+            id_pengguna: response.data.pengguna?.id_pengguna || user.id,
+            nama_depan_pengguna:
+              response.data.pengguna?.nama_depan_pengguna || user.firstName,
             nama_belakang_pengguna:
-              response.data.pengguna?.nama_belakang_pengguna,
-            avatar: response.data.pengguna?.avatar,
+              response.data.pengguna?.nama_belakang_pengguna || user.lastName,
+            avatar: response.data.pengguna?.avatar || user.avatar,
           },
         };
 
-        console.log(newComment);
-
-        // Perbaikan: Pastikan komentar_artikel adalah array
         setArticle((prev: any) => ({
           ...prev,
           komentar_artikel: [
@@ -205,12 +255,10 @@ const ArticleDetailMain = () => {
           ],
         }));
       } else {
-        // Perbaikan: Handle ketika response tidak sesuai ekspektasi
         setMessage(response?.message || 'Gagal menambahkan komentar');
       }
     } catch (error: any) {
       console.error('Error submitting comment:', error);
-      // Perbaikan: Lebih detail dalam error handling
       if (error.response) {
         setMessage(
           error.response.data?.message || 'Terjadi kesalahan dari server',
@@ -222,7 +270,6 @@ const ArticleDetailMain = () => {
       }
     } finally {
       setIsCommenting(false);
-      // Perbaikan: Hapus pesan setelah beberapa detik
       setTimeout(() => setMessage(null), 3000);
     }
   };
@@ -247,12 +294,19 @@ const ArticleDetailMain = () => {
       const articleId = segments && segments[2];
 
       try {
+        // Get current user first
+        const currentUser = await getCurrentUser();
+
         const response = await getArticleById(articleId || '');
 
         if (response && response.data) {
           setArticle(response.data);
-          await checkSavedStatus(articleId || '');
-          await checkLikeStatus(articleId || '');
+
+          // Check saved and like status if user is logged in
+          if (currentUser) {
+            await checkSavedStatus(articleId || '', currentUser);
+            await checkLikeStatus(articleId || '', currentUser);
+          }
         }
       } catch (error) {
         console.error('Error fetching article:', error);
@@ -370,17 +424,21 @@ const ArticleDetailMain = () => {
       <section className='w-full flex flex-col gap-[3.1rem] justify-start items-start'>
         <div className='w-full h-[15rem] bg-[#F2F2F2] rounded-lg px-[3.3rem] py-[2.25rem] flex flex-col'>
           <textarea
-            placeholder='Tulis Komentar........'
+            placeholder={
+              user
+                ? 'Tulis Komentar........'
+                : 'Silakan login untuk menambahkan komentar'
+            }
             className='w-full outline-none text-gray-800 placeholder-gray-500 resize-none h-[60%] bg-transparent'
             value={commentContent}
             onChange={(e) => setCommentContent(e.target.value)}
-            disabled={isCommenting}
+            disabled={isCommenting || !user}
           ></textarea>
           <div className='flex flex-row justify-end items-center h-[20%] w-full'>
             <PrimaryButton
               textColor='#ffffff'
               onClickHandler={handleCommentSubmit}
-              disabled={isCommenting || !commentContent.trim()}
+              disabled={isCommenting || !commentContent.trim() || !user}
             >
               {isCommenting ? 'Mengirim...' : 'Kirim Komentar'}
             </PrimaryButton>

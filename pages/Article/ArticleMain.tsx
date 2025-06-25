@@ -212,15 +212,17 @@ const ArticleMain = () => {
               )}
             </div>
           ) : (
-            <div className='w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]'>
+            <div className='w-full grid grid-cols-4 auto-rows-max gap-x-[2.25rem] gap-y-[3rem]'>
               {filteredArticles.map((article) => (
-                <ArticleCard
-                  key={article.id_artikel}
-                  imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
-                  title={article.judul_artikel}
-                  date={formatDate(article.tanggal_artikel)}
-                  href={`/articles/${article.id_artikel}/details`}
-                />
+                <div key={article.id_artikel} className='flex flex-col h-full'>
+                  <ArticleCard
+                    key={article.id_artikel}
+                    imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
+                    title={article.judul_artikel}
+                    date={formatDate(article.tanggal_artikel)}
+                    href={`/articles/${article.id_artikel}/details`}
+                  />
+                </div>
               ))}
             </div>
           )}

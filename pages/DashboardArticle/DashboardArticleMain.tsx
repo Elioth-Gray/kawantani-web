@@ -421,17 +421,21 @@ const DashboardArticleMain = () => {
 
           {isYourArticle ? (
             filteredYourArticles.length > 0 ? (
-              <div className='w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]'>
+              <div className='w-full grid grid-cols-4 auto-rows-max gap-x-[2.25rem] gap-y-[3rem]'>
                 {filteredYourArticles.map((article) => (
-                  <ArticleCard
+                  <div
                     key={article.id_artikel}
-                    imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
-                    title={article.judul_artikel}
-                    date={formatDate(article.tanggal_artikel)}
-                    href={`/dashboard/articles/${article.id_artikel}/details`}
-                    status={article.status_artikel}
-                    verification={article.status_verifikasi}
-                  />
+                    className='flex flex-col h-full'
+                  >
+                    <ArticleCard
+                      imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
+                      title={article.judul_artikel}
+                      date={formatDate(article.tanggal_artikel)}
+                      href={`/dashboard/articles/${article.id_artikel}/details`}
+                      status={article.status_artikel}
+                      verification={article.status_verifikasi}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -454,15 +458,16 @@ const DashboardArticleMain = () => {
               </div>
             )
           ) : filteredSavedArticles.length > 0 ? (
-            <div className='w-full grid grid-cols-4 h-full gap-x-[2.25rem] gap-y-[2.25rem]'>
+            <div className='w-full grid grid-cols-4 auto-rows-max gap-x-[2.25rem] gap-y-[3rem]'>
               {filteredSavedArticles.map((article) => (
-                <ArticleCard
-                  key={article.id_artikel}
-                  imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
-                  title={article.judul_artikel}
-                  date={formatDate(article.tanggal_artikel)}
-                  href={`/articles/${article.id_artikel}/details`}
-                />
+                <div key={article.id_artikel} className='flex flex-col h-full'>
+                  <ArticleCard
+                    imageURL={`${baseURL}/articles/${article.gambar_artikel}`}
+                    title={article.judul_artikel}
+                    date={formatDate(article.tanggal_artikel)}
+                    href={`/articles/${article.id_artikel}/details`}
+                  />
+                </div>
               ))}
             </div>
           ) : (

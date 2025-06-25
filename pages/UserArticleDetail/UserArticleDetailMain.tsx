@@ -24,6 +24,7 @@ import {
 } from '@phosphor-icons/react/dist/ssr';
 import { useRouter, usePathname } from 'next/navigation';
 import { toggleArticleStatus, deleteArticle } from '@/api/articleApi';
+import { validateToken } from '@/api/authApi';
 
 interface Comment {
   id_komentar: number;
@@ -34,6 +35,15 @@ interface Comment {
     nama_belakang_pengguna: string;
     avatar?: string;
   };
+}
+
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  role: string;
 }
 
 const UserArticleDetailMain = () => {
@@ -53,13 +63,30 @@ const UserArticleDetailMain = () => {
     'delete' | 'toggle' | null
   >(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  const checkSavedStatus = async (articleId: string) => {
+  const getCurrentUser = async () => {
+    try {
+      const response = await validateToken();
+      if (response.valid && response.user) {
+        setUser(response.user);
+        return response.user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  };
+
+  const checkSavedStatus = async (articleId: string, currentUser?: User) => {
     try {
       const response = await getSavedArticles();
-      if (response && response.data) {
+      if (response && response.data && currentUser) {
         const isArticleSaved = response.data.some(
-          (savedArticle: any) => savedArticle.id_artikel === articleId,
+          (savedArticle: any) =>
+            savedArticle.id_artikel === articleId &&
+            savedArticle.id_pengguna === currentUser.id,
         );
         setIsSaved(isArticleSaved);
       }
@@ -68,13 +95,12 @@ const UserArticleDetailMain = () => {
     }
   };
 
-  const checkLikeStatus = async (articleId: string) => {
+  const checkLikeStatus = async (articleId: string, currentUser?: User) => {
     try {
       const response = await getArticleById(articleId);
-      if (response && response.data) {
+      if (response && response.data && currentUser) {
         const liked = response.data.artikel_disukai?.some(
-          (like: any) =>
-            like.id_pengguna === response.data.pengguna?.id_pengguna,
+          (like: any) => like.id_pengguna === currentUser.id,
         );
         setIsLiked(liked || false);
       }
@@ -84,10 +110,16 @@ const UserArticleDetailMain = () => {
   };
 
   useEffect(() => {
-    if (article) {
-      checkSavedStatus(article.id_artikel);
-      checkLikeStatus(article.id_artikel);
-    }
+    const initializeData = async () => {
+      const currentUser = await getCurrentUser();
+
+      if (article && currentUser) {
+        await checkSavedStatus(article.id_artikel, currentUser);
+        await checkLikeStatus(article.id_artikel, currentUser);
+      }
+    };
+
+    initializeData();
   }, [article]);
 
   const showMessage = (msg: string) => {
@@ -97,7 +129,13 @@ const UserArticleDetailMain = () => {
   };
 
   const toggleSave = async () => {
-    if (!article || isSaving) return;
+    if (!article || isSaving || !user) {
+      if (!user) {
+        setMessage('Silakan login terlebih dahulu');
+        setTimeout(() => setMessage(null), 3000);
+      }
+      return;
+    }
 
     setIsSaving(true);
     const previousState = isSaved;
@@ -114,28 +152,35 @@ const UserArticleDetailMain = () => {
 
       if (!response) {
         setIsSaved(previousState);
-        showMessage(
-          response.message ||
+        setMessage(
+          response?.message ||
             (previousState
               ? 'Gagal menghapus dari simpan'
               : 'Gagal menyimpan artikel'),
         );
       } else {
-        showMessage(
+        setMessage(
           previousState ? 'Artikel dihapus dari simpan' : 'Artikel disimpan',
         );
       }
     } catch (error: any) {
       setIsSaved(previousState);
-      showMessage(error.message || 'Terjadi kesalahan');
+      setMessage(error.message || 'Terjadi kesalahan');
       console.error('Error toggling save:', error);
     } finally {
       setIsSaving(false);
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
   const toggleLike = async () => {
-    if (!article || isLiking) return;
+    if (!article || isLiking || !user) {
+      if (!user) {
+        setMessage('Silakan login terlebih dahulu');
+        setTimeout(() => setMessage(null), 3000);
+      }
+      return;
+    }
 
     setIsLiking(true);
     const previousState = isLiked;
@@ -155,26 +200,38 @@ const UserArticleDetailMain = () => {
 
       if (!response) {
         setIsLiked(previousState);
-        showMessage(
-          response.message ||
+        setMessage(
+          response?.message ||
             (previousState ? 'Gagal menghapus like' : 'Gagal memberikan like'),
         );
       } else {
-        showMessage(previousState ? 'Like dihapus' : 'Artikel disukai');
+        setMessage(previousState ? 'Like dihapus' : 'Artikel disukai');
+        // Refresh article data to get updated like status
         const updatedArticle = await getArticleById(article.id_artikel);
-        setArticle(updatedArticle.data);
+        if (updatedArticle && updatedArticle.data) {
+          setArticle(updatedArticle.data);
+          // Re-check like status with current user
+          await checkLikeStatus(updatedArticle.data.id_artikel, user);
+        }
       }
     } catch (error: any) {
       setIsLiked(previousState);
-      showMessage(error.message || 'Terjadi kesalahan');
+      setMessage(error.message || 'Terjadi kesalahan');
       console.error('Error toggling like:', error);
     } finally {
       setIsLiking(false);
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
   const handleCommentSubmit = async () => {
-    if (!article || !commentContent.trim() || isCommenting) return;
+    if (!article || !commentContent.trim() || isCommenting || !user) {
+      if (!user) {
+        setMessage('Silakan login terlebih dahulu');
+        setTimeout(() => setMessage(null), 3000);
+      }
+      return;
+    }
 
     setIsCommenting(true);
     try {
@@ -183,12 +240,9 @@ const UserArticleDetailMain = () => {
         content: commentContent,
       });
 
-      // Perbaikan: Periksa response dengan lebih teliti
       if (response && response.data) {
         setMessage(response.message || 'Komentar berhasil ditambahkan');
         setCommentContent('');
-
-        console.log('Response data:', response.data);
 
         const newComment = {
           id_komentar: response.data.id_komentar,
@@ -197,17 +251,15 @@ const UserArticleDetailMain = () => {
           komentar: response.data.komentar,
           tanggal_komentar: response.data.tanggal_komentar,
           pengguna: {
-            id_pengguna: response.data.pengguna?.id_pengguna,
-            nama_depan_pengguna: response.data.pengguna?.nama_depan_pengguna,
+            id_pengguna: response.data.pengguna?.id_pengguna || user.id,
+            nama_depan_pengguna:
+              response.data.pengguna?.nama_depan_pengguna || user.firstName,
             nama_belakang_pengguna:
-              response.data.pengguna?.nama_belakang_pengguna,
-            avatar: response.data.pengguna?.avatar,
+              response.data.pengguna?.nama_belakang_pengguna || user.lastName,
+            avatar: response.data.pengguna?.avatar || user.avatar,
           },
         };
 
-        console.log(newComment);
-
-        // Perbaikan: Pastikan komentar_artikel adalah array
         setArticle((prev: any) => ({
           ...prev,
           komentar_artikel: [
@@ -218,12 +270,10 @@ const UserArticleDetailMain = () => {
           ],
         }));
       } else {
-        // Perbaikan: Handle ketika response tidak sesuai ekspektasi
         setMessage(response?.message || 'Gagal menambahkan komentar');
       }
     } catch (error: any) {
       console.error('Error submitting comment:', error);
-      // Perbaikan: Lebih detail dalam error handling
       if (error.response) {
         setMessage(
           error.response.data?.message || 'Terjadi kesalahan dari server',
@@ -235,21 +285,24 @@ const UserArticleDetailMain = () => {
       }
     } finally {
       setIsCommenting(false);
-      // Perbaikan: Hapus pesan setelah beberapa detik
       setTimeout(() => setMessage(null), 3000);
     }
   };
 
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
+    try {
+      const options: Intl.DateTimeFormatOptions = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      };
+      return new Date(dateString).toLocaleDateString('id-ID', options);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Tanggal tidak valid';
+    }
   };
 
-  // Function to refresh article data
   const refreshArticleData = async () => {
     const segments = pathname && pathname.split('/');
     const articleId = segments && segments[3];
@@ -270,16 +323,23 @@ const UserArticleDetailMain = () => {
       const articleId = segments && segments[3];
 
       try {
-        const response = await getOwnArticleById(articleId || '');
+        // Get current user first
+        const currentUser = await getCurrentUser();
+
+        const response = await getArticleById(articleId || '');
 
         if (response && response.data) {
           setArticle(response.data);
-          await checkSavedStatus(articleId || '');
-          await checkLikeStatus(articleId || '');
+
+          // Check saved and like status if user is logged in
+          if (currentUser) {
+            await checkSavedStatus(articleId || '', currentUser);
+            await checkLikeStatus(articleId || '', currentUser);
+          }
         }
       } catch (error) {
         console.error('Error fetching article:', error);
-        showMessage('Gagal memuat artikel');
+        setMessage('Gagal memuat artikel');
       } finally {
         setLoading(false);
       }
