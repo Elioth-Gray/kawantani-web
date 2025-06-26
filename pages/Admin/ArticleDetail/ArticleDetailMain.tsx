@@ -292,6 +292,8 @@ const ArticleDetailMain = () => {
               <Image
                 src={`${baseURL}/articles/${article.gambar_artikel}`}
                 alt={article.judul_artikel}
+                width={800}
+                height={600}
                 className='w-full h-full object-cover'
               />
             ) : (

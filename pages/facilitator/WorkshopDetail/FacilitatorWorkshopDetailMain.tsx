@@ -217,8 +217,8 @@ const AdminWorkshopDetailMain = () => {
                   ? `${baseURL}/workshops/${workshop.gambar_workshop}`
                   : '/default-workshop-image.jpg'
               }
-              width={0}
-              height={0}
+              width={800}
+              height={600}
               alt='workshop'
               className='w-full h-full object-cover'
             />
