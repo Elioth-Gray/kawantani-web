@@ -304,6 +304,8 @@ const AdminWorkshopDetailMain = () => {
               <Image
                 src={`${baseURL}/workshops/${workshop.gambar_workshop}`}
                 alt={workshop.judul_workshop}
+                width={800}
+                height={600}
                 className='w-full h-full object-cover'
               />
             ) : (
